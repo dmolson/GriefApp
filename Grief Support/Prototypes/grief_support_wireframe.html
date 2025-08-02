@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grief Support App - Wireframe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F4EBD3;
+            padding: 20px;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F4EFE8;
+            padding: 20px;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: #2B3244;
+        }
+        
+        body.dark-mode .phone-frame {
+            background: #3D4257;
+            color: #E8EBF0;
+        }
+        
+        body.dark-mode .status-bar {
+            background: #3D4257;
+            color: #E8EBF0;
+        }
+        
+        body.dark-mode .tab-navigation {
+            background: #4A5068;
+            border-bottom: 1px solid #98A1BC;
+        }
+        
+        body.dark-mode .tab {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .tab.active {
+            color: #ffffff;
+        }
+        
+        body.dark-mode .screen {
+            background: #3D4257;
+            color: #E8EBF0;
+        }
+        
+        body.dark-mode .section-title {
+            color: #ffffff;
+        }
+        
+        body.dark-mode .card {
+            background: #4A5068;
+            border: 1px solid #98A1BC;
+        }
+        
+        body.dark-mode .card [style*="font-weight: 600"] {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode .reminder-text {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .ritual-step {
+            background: #4A5068;
+            border-left: 4px solid #98A1BC;
+        }
+        
+        body.dark-mode .image-upload-area {
+            border: 2px dashed #98A1BC;
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .preset-image {
+            background: #4A5068;
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .preset-image.selected {
+            border-color: #98A1BC;
+        }
+        
+        body.dark-mode .resource-link {
+            background: #4A5068;
+            color: #E8EBF0;
+        }
+        
+        body.dark-mode .resource-link div:last-child div:last-child {
+            color: #B8C1D6 !important;
+        }
+        
+        body.dark-mode .help-suggestion {
+            background: #3D4257;
+            border-left: 4px solid #98A1BC;
+            color: #E8EBF0;
+        }
+        
+        body.dark-mode .message-template {
+            background: #4A5068;
+            border: 1px solid #98A1BC;
+        }
+        
+        body.dark-mode .message-template:hover {
+            background: #555B78;
+        }
+        
+        body.dark-mode .message-preview {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .event-title {
+            color: #ffffff;
+        }
+        
+        body.dark-mode .bottom-safe-area {
+            background: #3D4257;
+        }
+        
+        body.dark-mode .btn-secondary {
+            background: #4A5068;
+            border: 2px solid #98A1BC;
+            color: #98A1BC;
+        }
+        
+        body.dark-mode .btn-primary {
+            background: #98A1BC;
+            color: #2B3244;
+        }
+        
+        body.dark-mode .toggle-switch {
+            background: #98A1BC;
+        }
+        
+        body.dark-mode .step-number {
+            background: #98A1BC;
+            color: #2B3244;
+        }
+        
+        body.dark-mode .resource-icon {
+            background: #98A1BC;
+            color: #2B3244;
+        }
+        
+        body.dark-mode .reminder-time {
+            color: #98A1BC;
+        }
+        
+        body.dark-mode .send-icon {
+            color: #98A1BC;
+        }
+        
+        body.dark-mode .step-number {
+            background: #98A1BC;
+            color: #2B3244;
+        }
+        
+        body.dark-mode .resource-icon {
+            background: #98A1BC;
+            color: #2B3244;
+        }
+        
+        body.dark-mode .settings-nav-icon {
+            background: #98A1BC;
+            color: #2B3244;
+        }
+        
+        body.dark-mode .event-date {
+            color: #98A1BC;
+        }
+        
+        body.dark-mode .event-item {
+            border-left: 4px solid #98A1BC;
+        }
+        
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin: 0 auto;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .status-bar {
+            height: 44px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .app-header {
+            background: linear-gradient(135deg, #4A0072 0%, #300049 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .app-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .app-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .tab-navigation {
+            background: white;
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 11px;
+            color: #6c757d;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-icon {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .tab-icon svg {
+            width: 20px;
+            height: 20px;
+            color: inherit;
+        }
+        
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+        
+        .screen {
+            display: none;
+            padding: 20px;
+            min-height: 100%;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+        
+        .reminder-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .reminder-item:last-child {
+            border-bottom: none;
+        }
+        
+        .reminder-time {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .reminder-text {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: #667eea;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            right: 2px;
+            transition: transform 0.2s;
+        }
+        
+        .btn-primary {
+            background: #555879;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #555879;
+            border: 2px solid #555879;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .ritual-step {
+            background: #F0EBE2;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #555879;
+        }
+        
+        .step-number {
+            background: #555879;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        .image-upload-area {
+            border: 2px dashed #DED3C4;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            color: #6B6B6B;
+            cursor: pointer;
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .preset-image {
+            aspect-ratio: 1;
+            background: #F0EBE2;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B6B6B;
+        }
+        
+        .preset-image.selected {
+            border-color: #555879;
+        }
+        
+        .resource-category {
+            margin-bottom: 25px;
+        }
+        
+        .resource-link {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #F0EBE2;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            text-decoration: none;
+            color: #333333;
+        }
+        
+        .resource-icon {
+            width: 40px;
+            height: 40px;
+            background: #555879;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .emergency-banner {
+            background: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .event-item {
+            border-left: 4px solid #555879;
+            padding-left: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .event-date {
+            font-weight: 600;
+            color: #555879;
+        }
+        
+        .event-title {
+            font-weight: 600;
+            margin: 5px 0;
+            color: #333333;
+        }
+        
+        .help-category {
+            margin-bottom: 20px;
+        }
+        
+        .help-suggestion {
+            background: #F0EBE2;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #555879;
+        }
+        
+        .message-template {
+            background: white;
+            border: 1px solid #DED3C4;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .message-template:hover {
+            background: #F0EBE2;
+        }
+        
+        .message-preview {
+            font-style: italic;
+            color: #6B6B6B;
+            font-size: 15px;
+            margin-top: 8px;
+            font-family: 'Cormorant Garamond', serif;
+            line-height: 1.5;
+        }
+        
+        .send-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555879;
+            font-size: 18px;
+        }
+        
+        .send-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+        
+        /* Lucide icon styling */
+        .resource-icon svg, .settings-nav-icon svg, .integration-icon svg {
+            width: 20px;
+            height: 20px;
+            color: inherit;
+        }
+        
+        .preset-image svg {
+            width: 24px;
+            height: 24px;
+            color: inherit;
+        }
+        
+        .settings-toggle svg, .settings-back-btn svg, .settings-close-btn svg {
+            width: 18px;
+            height: 18px;
+            color: inherit;
+        }
+        
+        .emergency-banner svg {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            color: inherit;
+        }
+        
+        .image-upload-area svg {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 10px;
+            color: inherit;
+        }
+        
+        .loved-one-header button svg {
+            width: 18px;
+            height: 18px;
+            color: inherit;
+        }
+        
+        /* Ritual Type Selection Styles */
+        .ritual-type-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .ritual-type-card {
+            padding: 15px;
+            background: #F0EBE2;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .ritual-type-card:hover {
+            border-color: #555879;
+            background: #DED3C4;
+        }
+        
+        .ritual-type-card.selected {
+            border-color: #555879;
+            background: #DED3C4;
+        }
+        
+        .ritual-type-card i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #555879;
+        }
+        
+        .ritual-type-card span {
+            font-weight: 600;
+            color: #333333;
+            font-size: 13px;
+        }
+        
+        .ritual-textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .notification-banner {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            gap: 10px;
+        }
+        
+        .notification-banner.enabled {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+        }
+        
+        .notification-banner.disabled {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+        }
+        
+        .notification-banner:hover {
+            opacity: 0.8;
+        }
+        
+        .notification-banner span {
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Dark mode ritual styles */
+        body.dark-mode .ritual-type-card {
+            background: #4A5068;
+            color: #E8EBF0;
+        }
+        
+        body.dark-mode .ritual-type-card:hover {
+            border-color: #98A1BC;
+            background: #555B78;
+        }
+        
+        body.dark-mode .ritual-type-card.selected {
+            border-color: #98A1BC;
+            background: #555B78;
+        }
+        
+        body.dark-mode .ritual-type-card i {
+            color: #98A1BC;
+        }
+        
+        body.dark-mode .ritual-type-card span {
+            color: #E8EBF0;
+        }
+        
+        body.dark-mode .notification-banner.enabled {
+            background: #1b4332;
+            border: 1px solid #2d6a4f;
+            color: #74c69d;
+        }
+        
+        body.dark-mode .notification-banner.disabled {
+            background: #3a2f1a;
+            border: 1px solid #5a4620;
+            color: #f4d03f;
+        }
+        
+        svg {
+            color: inherit;
+        }
+        
+        .bottom-safe-area {
+            height: 34px;
+            background: white;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .screen-nav {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .screen-btn {
+            padding: 8px 16px;
+            background: #F0EBE2;
+            border: 1px solid #DED3C4;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .screen-btn.active {
+            background: #555879;
+            color: white;
+            border-color: #555879;
+        }
+        
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333333;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+        
+        /* Settings Overlay Styles */
+        .settings-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .settings-overlay.active {
+            display: flex;
+        }
+        
+        .settings-modal {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .settings-header {
+            background: #555879;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .settings-back-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .settings-back-btn:hover {
+            opacity: 0.7;
+        }
+        
+        .settings-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .settings-close-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .settings-close-btn:hover {
+            opacity: 0.7;
+        }
+        
+        .settings-nav {
+            background: #F4EFE8;
+            padding: 20px;
+            border-bottom: 1px solid #DED3C4;
+        }
+        
+        .settings-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 1px solid #DED3C4;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .settings-nav-item:hover {
+            background: #F0EBE2;
+        }
+        
+        .settings-nav-icon {
+            width: 40px;
+            height: 40px;
+            background: #555879;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .settings-nav-text {
+            flex: 1;
+        }
+        
+        .settings-nav-text h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333333;
+        }
+        
+        .settings-nav-text p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            color: #6B6B6B;
+        }
+        
+        .settings-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .settings-screen {
+            display: none;
+        }
+        
+        .settings-screen.active {
+            display: block;
+        }
+        
+        /* Loved Ones Styles */
+        .loved-one-card {
+            background: white;
+            border: 1px solid #DED3C4;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .loved-one-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .loved-one-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333333;
+        }
+        
+        .loved-one-dates {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 14px;
+            color: #6B6B6B;
+            margin-bottom: 15px;
+        }
+        
+        .notification-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #DED3C4;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #555879;
+        }
+        
+        .date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        /* Appearance Styles */
+        .appearance-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 1px solid #DED3C4;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .appearance-option-text {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .appearance-option h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333333;
+        }
+        
+        .appearance-option p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            color: #6B6B6B;
+        }
+        
+        /* Reset Confirmation Modal */
+        .reset-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .reset-modal.active {
+            display: flex;
+        }
+        
+        .reset-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 320px;
+            text-align: center;
+        }
+        
+        .reset-modal h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 15px;
+        }
+        
+        .reset-modal p {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #6B6B6B;
+            margin-bottom: 20px;
+        }
+        
+        .reset-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #DED3C4;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .reset-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            flex: 1;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-cancel {
+            background: white;
+            color: #6B6B6B;
+            border: 2px solid #DED3C4;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            flex: 1;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Integration Styles */
+        .integration-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 1px solid #DED3C4;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .integration-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .integration-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .spotify-icon {
+            background: #1DB954;
+            color: white;
+        }
+        
+        .apple-music-icon {
+            background: #FA243C;
+            color: white;
+        }
+        
+        .integration-text h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333333;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .integration-text p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            color: #6B6B6B;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-connect {
+            background: #555879;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-connected {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Dark mode settings styles */
+        body.dark-mode .settings-modal {
+            background: #3D4257;
+            color: #ffffff;
+        }
+        
+        body.dark-mode .settings-nav {
+            background: #2B3244;
+            border-bottom: 1px solid #98A1BC;
+        }
+        
+        body.dark-mode .settings-nav-item {
+            background: #4A5068;
+            border: 1px solid #98A1BC;
+            color: #ffffff;
+        }
+        
+        body.dark-mode .settings-nav-item:hover {
+            background: #555B78;
+        }
+        
+        body.dark-mode .settings-nav-text h3 {
+            color: #ffffff;
+        }
+        
+        body.dark-mode .settings-nav-text p {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .loved-one-card {
+            background: #4A5068;
+            border: 1px solid #98A1BC;
+        }
+        
+        body.dark-mode .loved-one-name {
+            color: #ffffff;
+        }
+        
+        body.dark-mode .loved-one-dates {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .notification-toggle span {
+            color: #ffffff;
+        }
+        
+        body.dark-mode .appearance-option {
+            background: #4A5068;
+            border: 1px solid #98A1BC;
+        }
+        
+        body.dark-mode .appearance-option h3 {
+            color: #ffffff;
+        }
+        
+        body.dark-mode .appearance-option p {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .integration-item {
+            background: #4A5068;
+            border: 1px solid #98A1BC;
+        }
+        
+        body.dark-mode .integration-text h3 {
+            color: #ffffff;
+        }
+        
+        body.dark-mode .integration-text p {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .form-input {
+            background: #4A5068;
+            border: 2px solid #98A1BC;
+            color: #ffffff;
+        }
+        
+        body.dark-mode .form-input::placeholder {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .reset-modal-content {
+            background: #3D4257;
+        }
+        
+        body.dark-mode .reset-modal h3 {
+            color: #ffffff;
+        }
+        
+        body.dark-mode .reset-modal p {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .reset-input {
+            background: #4A5068;
+            border: 2px solid #98A1BC;
+            color: #ffffff;
+        }
+        
+        body.dark-mode .reset-input::placeholder {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .settings-content h3 {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode .settings-content p {
+            color: #B8C1D6 !important;
+        }
+        
+        body.dark-mode .card h3 {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode .card p {
+            color: #B8C1D6 !important;
+        }
+        
+        /* Theme Toggle Switch Styles */
+        .theme-toggle-switch {
+            cursor: pointer;
+        }
+        
+        .theme-toggle-track {
+            width: 100px;
+            height: 40px;
+            background: #F0EBE2;
+            border: 2px solid #DED3C4;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .theme-toggle-thumb {
+            width: 36px;
+            height: 36px;
+            background: #555879;
+            border-radius: 18px;
+            position: absolute;
+            left: 2px;
+            transition: transform 0.3s ease;
+            z-index: 1;
+        }
+        
+        .theme-toggle-thumb.dark {
+            transform: translateX(58px);
+        }
+        
+        .theme-toggle-labels {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 600;
+            position: relative;
+            z-index: 0;
+        }
+        
+        .theme-label {
+            transition: color 0.3s ease;
+        }
+        
+        .theme-label.light {
+            color: #333333;
+        }
+        
+        .theme-label.dark {
+            color: #666666;
+        }
+        
+        .theme-toggle-thumb.dark ~ .theme-toggle-labels .theme-label.light {
+            color: #666666;
+        }
+        
+        .theme-toggle-thumb.dark ~ .theme-toggle-labels .theme-label.dark {
+            color: #333333;
+        }
+        
+        /* Dark mode theme toggle styles */
+        body.dark-mode .theme-toggle-track {
+            background: #4A5068;
+            border: 2px solid #98A1BC;
+        }
+        
+        body.dark-mode .theme-toggle-thumb {
+            background: #98A1BC;
+        }
+        
+        body.dark-mode .theme-label.light {
+            color: #E8EBF0;
+        }
+        
+        body.dark-mode .theme-label.dark {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .theme-toggle-thumb.dark ~ .theme-toggle-labels .theme-label.light {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .theme-toggle-thumb.dark ~ .theme-toggle-labels .theme-label.dark {
+            color: #E8EBF0;
+        }
+        
+        /* Dark mode icon colors */
+        body.dark-mode .tab {
+            color: #B8C1D6;
+        }
+        
+        body.dark-mode .tab.active {
+            color: #ffffff;
+        }
+        
+        body.dark-mode .send-icon {
+            color: #98A1BC;
+        }
+    </style>
+</head>
+<body>
+    <h2>Grief Support App - Interactive Wireframe</h2>
+    
+    <div class="controls">
+        <div class="screen-nav">
+            <button class="screen-btn active" onclick="showScreen('help')">Ask for Help</button>
+            <button class="screen-btn" onclick="showScreen('reminders')">Reminders</button>
+            <button class="screen-btn" onclick="showScreen('rituals')">Rituals</button>
+            <button class="screen-btn" onclick="showScreen('resources')">Resources</button>
+        </div>
+    </div>
+
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>●●●●● WiFi 📶 100%</span>
+        </div>
+        
+        <div class="app-header" style="background: #555879; position: relative;">
+            <div class="app-title">Light After Loss</div>
+            <div class="app-subtitle" id="rotatingQuote">Support through grief and remembrance</div>
+            <button class="settings-toggle" onclick="openSettings()" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); background: transparent !important; border: none; width: 24px; height: 24px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" height="18" width="18">
+                    <path d="m4 12 16 0" stroke-width="2"></path>
+                    <path d="m4 6 16 0" stroke-width="2"></path>
+                    <path d="m4 18 16 0" stroke-width="2"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="tab-navigation">
+            <div class="tab active" data-screen="help">
+                <i data-lucide="hand-helping" class="tab-icon"></i>
+                <span>Ask for Help</span>
+            </div>
+            <div class="tab" data-screen="reminders">
+                <i data-lucide="bell" class="tab-icon"></i>
+                <span>Reminders</span>
+            </div>
+            <div class="tab" data-screen="rituals">
+                <i data-lucide="candle" class="tab-icon"></i>
+                <span>Rituals</span>
+            </div>
+            <div class="tab" data-screen="resources">
+                <i data-lucide="book-open" class="tab-icon"></i>
+                <span>Resources</span>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <!-- Ask for Help Screen -->
+            <div class="screen active" id="help">
+                <div class="section-title">Ideas for Asking for Help</div>
+                <div class="help-category">
+                    <div class="card">
+                        <div style="font-weight: 600; margin-bottom: 15px;">Practical Support</div>
+                        <div class="help-suggestion">
+                            Help with grocery shopping or meal preparation
+                        </div>
+                        <div class="help-suggestion">
+                            Assistance with household tasks or childcare
+                        </div>
+                        <div class="help-suggestion">
+                            Transportation to appointments or support groups
+                        </div>
+                        <div class="help-suggestion">
+                            Help organizing memorial services or legal matters
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-category">
+                    <div class="card">
+                        <div style="font-weight: 600; margin-bottom: 15px;">Emotional Support</div>
+                        <div class="help-suggestion">
+                            Someone to listen without judgment
+                        </div>
+                        <div class="help-suggestion">
+                            Companionship during difficult moments
+                        </div>
+                        <div class="help-suggestion">
+                            Help processing difficult emotions
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-title">Message Templates</div>
+                <div class="card">
+                    <div class="message-template">
+                        <div style="font-weight: 600;">Asking for Company</div>
+                        <div class="message-preview">"I'm having a really difficult day and could use some company. Would you be able to come over or talk on the phone?"</div>
+                        <i data-lucide="send" class="send-icon"></i>
+                    </div>
+                    <div class="message-template">
+                        <div style="font-weight: 600;">Practical Help</div>
+                        <div class="message-preview">"I'm struggling with daily tasks right now. Could you help me with groceries or a meal this week?"</div>
+                        <i data-lucide="send" class="send-icon"></i>
+                    </div>
+                    <div class="message-template">
+                        <div style="font-weight: 600;">Just Listening</div>
+                        <div class="message-preview">"I need someone to talk to about what I'm going through. Are you free to listen for a bit?"</div>
+                        <i data-lucide="send" class="send-icon"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reminders Screen -->
+            <div class="screen" id="reminders">
+                <div class="section-title">Daily Reminders</div>
+                <div class="card">
+                    <div class="reminder-item">
+                        <div>
+                            <div class="reminder-time">8:00 AM</div>
+                            <div class="reminder-text">"Each day is a step forward in your healing journey."</div>
+                        </div>
+                        <div class="toggle-switch"></div>
+                    </div>
+                    <div class="reminder-item">
+                        <div>
+                            <div class="reminder-time">12:00 PM</div>
+                            <div class="reminder-text">"Your loved one's memory lives on through your love."</div>
+                        </div>
+                        <div class="toggle-switch"></div>
+                    </div>
+                    <div class="reminder-item">
+                        <div>
+                            <div class="reminder-time">6:00 PM</div>
+                            <div class="reminder-text">"It's okay to feel whatever you're feeling today."</div>
+                        </div>
+                        <div class="toggle-switch"></div>
+                    </div>
+                </div>
+                
+                <button class="btn-primary">+ Add New Reminder</button>
+                <button class="btn-secondary">Customize Times</button>
+            </div>
+            
+            <!-- Rituals Screen -->
+            <div class="screen" id="rituals">
+                <div class="section-title">Create Your Ritual</div>
+                
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; font-family: 'Inter', sans-serif; color: #333333;">Create Ritual</h3>
+                    <div class="ritual-type-grid">
+                        <div class="ritual-type-card" onclick="selectRitualType('connection')">
+                            <i data-lucide="sunrise"></i>
+                            <span>Connection Ritual</span>
+                        </div>
+                        <div class="ritual-type-card" onclick="selectRitualType('reflection')">
+                            <i data-lucide="moon"></i>
+                            <span>Reflection Ritual</span>
+                        </div>
+                        <div class="ritual-type-card" onclick="selectRitualType('birthday')">
+                            <i data-lucide="cake"></i>
+                            <span>Birthday Ritual</span>
+                        </div>
+                        <div class="ritual-type-card" onclick="selectRitualType('anniversary')">
+                            <i data-lucide="calendar-heart"></i>
+                            <span>Anniversary Ritual</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Person Selection (for birthday/anniversary rituals) -->
+                <div class="card" id="personSelectionCard" style="display: none;">
+                    <h3 style="margin-bottom: 15px; font-family: 'Inter', sans-serif; color: #333333;">Select Your Loved One</h3>
+                    <select class="form-input" id="personSelect">
+                        <option value="">Choose someone...</option>
+                        <option value="matthew">Matthew</option>
+                        <option value="mom">Mom</option>
+                        <option value="smudge">Smudge</option>
+                    </select>
+                    
+                    <!-- Notification Status Banner -->
+                    <div class="notification-banner disabled" id="notificationBanner" onclick="navigateToLovedOnes()" style="display: none;">
+                        <i data-lucide="bell-off"></i>
+                        <span>Turn back on notifications in Your Loved Ones to receive ritual reminders</span>
+                        <i data-lucide="chevron-right"></i>
+                    </div>
+                </div>
+                
+                <!-- Custom Ideas Section -->
+                <div class="card" id="customIdeasCard" style="display: none;">
+                    <h3 style="margin-bottom: 15px; font-family: 'Inter', sans-serif; color: #333333;">Custom Ritual Ideas</h3>
+                    <textarea class="form-input ritual-textarea" placeholder="e.g. Eating her favorite cake, listen to his favorite songs, FaceTime with our family, 5K race"></textarea>
+                </div>
+                
+                <div class="card" id="ritualStepsCard">
+                    <div class="ritual-step">
+                        <span class="step-number">1</span>
+                        <strong>Choose a Location</strong>
+                        <p style="margin-top: 8px; font-size: 14px;">Select a meaningful place for your ritual</p>
+                    </div>
+                    <div class="ritual-step">
+                        <span class="step-number">2</span>
+                        <strong>Select Items</strong>
+                        <p style="margin-top: 8px; font-size: 14px;">Choose objects that remind you of your loved one</p>
+                    </div>
+                    <div class="ritual-step">
+                        <span class="step-number">3</span>
+                        <strong>Add Photos</strong>
+                        <p style="margin-top: 8px; font-size: 14px;">Include cherished memories</p>
+                    </div>
+                </div>
+                
+                <div class="section-title">Upload Photos</div>
+                <div class="image-upload-area">
+                    <i data-lucide="camera"></i>
+                    <div>Tap to add photos from your device</div>
+                </div>
+                
+                <div class="section-title">Preset Images</div>
+                <div class="image-grid">
+                    <div class="preset-image"><i data-lucide="candle"></i></div>
+                    <div class="preset-image selected"><i data-lucide="flower"></i></div>
+                    <div class="preset-image"><i data-lucide="butterfly"></i></div>
+                    <div class="preset-image"><i data-lucide="star"></i></div>
+                    <div class="preset-image"><i data-lucide="sunrise"></i></div>
+                    <div class="preset-image"><i data-lucide="heart"></i></div>
+                </div>
+                
+                <button class="btn-primary" id="saveRitualBtn">Save My Ritual</button>
+                <button class="btn-secondary">Browse Templates</button>
+            </div>
+            
+            <!-- Resources Screen -->
+            <div class="screen" id="resources">
+                <div class="emergency-banner">
+                    <i data-lucide="alert-triangle"></i>
+                    <div style="text-align: left; margin-left: 12px; width: 100%;">
+                        <div style="margin-bottom: 12px; font-weight: 600; font-size: 15px;">You don't have to face this alone. If you're having thoughts of suicide or are in crisis, help is available right now.</div>
+                        <div style="margin-bottom: 8px;"><strong>Call 988</strong> for immediate support - trained counselors are available 24/7.</div>
+                        <div>If you're in immediate physical danger, <strong>call 911</strong>.</div>
+                    </div>
+                </div>
+                
+                <div class="resource-category">
+                    <div class="section-title">Grief Support</div>
+                    <div class="card">
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon"><i data-lucide="users"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">Grief Share Groups</div>
+                                <div style="font-size: 14px; color: #6B6B6B;">Find local support groups</div>
+                            </div>
+                        </a>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon"><i data-lucide="phone"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">24/7 Grief Helpline</div>
+                                <div style="font-size: 14px; color: #6B6B6B;">1-800-GRIEF-00</div>
+                            </div>
+                        </a>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon"><i data-lucide="stethoscope"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">Therapist Directory</div>
+                                <div style="font-size: 14px; color: #6B6B6B;">Grief counseling specialists</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="resource-category">
+                    <div class="section-title">Addiction Resources</div>
+                    <div class="card">
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon"><i data-lucide="heart"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">Families Anonymous</div>
+                                <div style="font-size: 14px; color: #6B6B6B;">Support for families affected by addiction</div>
+                            </div>
+                        </a>
+                        <a href="#" class="resource-link">
+                            <div class="resource-icon"><i data-lucide="home"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">Local Narcotics Anonymous</div>
+                                <div style="font-size: 14px; color: #6B6B6B;">Find meetings near you</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="resource-category">
+                    <div class="section-title">Awareness Events & Dates</div>
+                    <div class="card">
+                        <div class="event-item">
+                            <div class="event-date">August 31, 2025</div>
+                            <div class="event-title">International Overdose Awareness Day</div>
+                            <div style="font-size: 14px; color: #6B6B6B; margin-top: 5px;">
+                                A day to remember those who have died from overdose and acknowledge the grief felt by families and friends.
+                            </div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-date">October 6-12, 2025</div>
+                            <div class="event-title">National Mental Health Awareness Week</div>
+                            <div style="font-size: 14px; color: #6B6B6B; margin-top: 5px;">
+                                Events focusing on mental health support and addiction awareness.
+                            </div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-date">November 20, 2025</div>
+                            <div class="event-title">National Survivors of Suicide Loss Day</div>
+                            <div style="font-size: 14px; color: #6B6B6B; margin-top: 5px;">
+                                Support and healing for those who have lost someone to suicide.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary">Add Events to Calendar</button>
+                    <button class="btn-secondary">Find Local Events</button>
+                </div>
+            </div>
+            
+            <!-- Events Screen -->
+            <div class="screen" id="events">
+                <div class="section-title">Upcoming Awareness Events</div>
+                <div class="card">
+                    <div class="event-item">
+                        <div class="event-date">August 31, 2025</div>
+                        <div class="event-title">International Overdose Awareness Day</div>
+                        <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                            A day to remember those who have died from overdose and acknowledge the grief felt by families and friends.
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-date">October 6-12, 2025</div>
+                        <div class="event-title">National Mental Health Awareness Week</div>
+                        <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                            Events focusing on mental health support and addiction awareness.
+                        </div>
+                    </div>
+                    <div class="event-item">
+                        <div class="event-date">November 20, 2025</div>
+                        <div class="event-title">National Survivors of Suicide Loss Day</div>
+                        <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                            Support and healing for those who have lost someone to suicide.
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn-primary">Add to Calendar</button>
+                <button class="btn-secondary">Find Local Events</button>
+            </div>
+            
+            <!-- Ask for Help Screen -->
+            <div class="screen" id="help">
+                <div class="section-title">Ideas for Asking for Help</div>
+                <div class="help-category">
+                    <div class="card">
+                        <div style="font-weight: 600; margin-bottom: 15px;">Practical Support</div>
+                        <div class="help-suggestion">
+                            Help with grocery shopping or meal preparation
+                        </div>
+                        <div class="help-suggestion">
+                            Assistance with household tasks or childcare
+                        </div>
+                        <div class="help-suggestion">
+                            Transportation to appointments or support groups
+                        </div>
+                        <div class="help-suggestion">
+                            Help organizing memorial services or legal matters
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-category">
+                    <div class="card">
+                        <div style="font-weight: 600; margin-bottom: 15px;">Emotional Support</div>
+                        <div class="help-suggestion">
+                            Someone to listen without judgment
+                        </div>
+                        <div class="help-suggestion">
+                            Companionship during difficult moments
+                        </div>
+                        <div class="help-suggestion">
+                            Help processing difficult emotions
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-title">Message Templates</div>
+                <div class="card">
+                    <div class="message-template">
+                        <div style="font-weight: 600;">Asking for Company</div>
+                        <div class="message-preview">"I'm having a really difficult day and could use some company. Would you be able to come over or talk on the phone?"</div>
+                        <div class="send-icon">📱</div>
+                    </div>
+                    <div class="message-template">
+                        <div style="font-weight: 600;">Practical Help</div>
+                        <div class="message-preview">"I'm struggling with daily tasks right now. Could you help me with groceries or a meal this week?"</div>
+                        <div class="send-icon">📱</div>
+                    </div>
+                    <div class="message-template">
+                        <div style="font-weight: 600;">Just Listening</div>
+                        <div class="message-preview">"I need someone to talk to about what I'm going through. Are you free to listen for a bit?"</div>
+                        <div class="send-icon">📱</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-safe-area"></div>
+    </div>
+
+    <!-- Settings Overlay -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-modal">
+            <div class="settings-header">
+                <button class="settings-back-btn" id="settingsBackBtn" onclick="goBackInSettings()" style="visibility: hidden;">
+                    <i data-lucide="arrow-left"></i>
+                </button>
+                <div class="settings-title" id="settingsTitle">Settings</div>
+                <button class="settings-close-btn" onclick="closeSettings()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <!-- Settings Navigation -->
+            <div class="settings-nav" id="settingsNav">
+                <div class="settings-nav-item" onclick="openSettingsScreen('loved-ones')">
+                    <div class="settings-nav-icon"><i data-lucide="heart"></i></div>
+                    <div class="settings-nav-text">
+                        <h3>Your Loved Ones</h3>
+                        <p>Add and remember those you've lost</p>
+                    </div>
+                </div>
+                
+                <div class="settings-nav-item" onclick="openSettingsScreen('appearance')">
+                    <div class="settings-nav-icon"><i data-lucide="moon"></i></div>
+                    <div class="settings-nav-text">
+                        <h3>Appearance</h3>
+                        <p>Light and dark mode settings</p>
+                    </div>
+                </div>
+                
+                <div class="settings-nav-item" onclick="openSettingsScreen('customizations')">
+                    <div class="settings-nav-icon"><i data-lucide="trash-2"></i></div>
+                    <div class="settings-nav-text">
+                        <h3>Reset Saved Data</h3>
+                        <p>Reset your personalized data</p>
+                    </div>
+                </div>
+                
+                <div class="settings-nav-item" onclick="openSettingsScreen('integrations')">
+                    <div class="settings-nav-icon"><i data-lucide="headphones"></i></div>
+                    <div class="settings-nav-text">
+                        <h3>App Integrations</h3>
+                        <p>Connect music and media apps</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Content Area -->
+            <div class="settings-content">
+                <!-- Your Loved Ones Screen -->
+                <div class="settings-screen" id="loved-ones">
+                    <div class="loved-one-card">
+                        <div class="loved-one-header">
+                            <div class="loved-one-name">Matthew</div>
+                            <button style="background: none; border: none; color: #6B6B6B; cursor: pointer; font-size: 18px;"><i data-lucide="more-horizontal"></i></button>
+                        </div>
+                        <div class="loved-one-dates">March 15, 1985 - August 12, 2024</div>
+                        <div class="notification-toggle">
+                            <span>Birthday reminders</span>
+                            <div class="toggle-switch" style="width: 44px; height: 24px; background: #555879;"></div>
+                        </div>
+                        <div class="notification-toggle">
+                            <span>Memorial day reminders</span>
+                            <div class="toggle-switch" style="width: 44px; height: 24px; background: #555879;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 style="margin-bottom: 15px; font-family: 'Inter', sans-serif; color: #333333;">Add Someone Special</h3>
+                        <input type="text" class="form-input" placeholder="Name (e.g., Matthew, Mom, Smudge)">
+                        <div class="date-inputs">
+                            <input type="date" class="form-input" title="Birth date (optional)">
+                            <input type="date" class="form-input" title="Date of passing (optional)">
+                        </div>
+                        <button class="btn-primary">Add to My Loved Ones</button>
+                    </div>
+                </div>
+                
+                <!-- Appearance Screen -->
+                <div class="settings-screen" id="appearance">
+                    <div class="appearance-option">
+                        <div class="appearance-option-text">
+                            <h3>Follow System Setting</h3>
+                            <p>Automatically match your device's theme</p>
+                        </div>
+                        <div class="toggle-switch" id="systemThemeToggle" style="width: 44px; height: 24px; background: #555879;" onclick="toggleSystemTheme()"></div>
+                    </div>
+                    
+                    <div class="appearance-option" id="manualThemeOption">
+                        <div class="appearance-option-text">
+                            <h3>Theme Mode</h3>
+                            <p id="currentThemeText">Currently: Light Mode</p>
+                        </div>
+                        <div class="theme-toggle-switch" onclick="toggleManualTheme()">
+                            <div class="theme-toggle-track">
+                                <div class="theme-toggle-thumb" id="themeThumb"></div>
+                                <div class="theme-toggle-labels">
+                                    <span class="theme-label light">Light</span>
+                                    <span class="theme-label dark">Dark</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Customizations Screen -->
+                <div class="settings-screen" id="customizations">
+                    <div class="card">
+                        <h3 style="margin-bottom: 15px; font-family: 'Inter', sans-serif; color: #333333;">Reset Saved Data</h3>
+                        <p style="margin-bottom: 20px; color: #6B6B6B;">Choose what you'd like to reset. This action cannot be undone.</p>
+                        
+                        <button class="btn-secondary" onclick="showResetModal('reminders')" style="margin-bottom: 10px;">Reset All Reminders</button>
+                        <button class="btn-secondary" onclick="showResetModal('rituals')" style="margin-bottom: 10px;">Reset Saved Rituals</button>
+                        <button class="btn-secondary" onclick="showResetModal('loved-ones')" style="margin-bottom: 10px;">Reset Loved Ones List</button>
+                        <button class="btn-secondary" onclick="showResetModal('all')" style="background: #dc3545; color: white; border-color: #dc3545;">Reset Everything</button>
+                    </div>
+                </div>
+                
+                <!-- App Integrations Screen -->
+                <div class="settings-screen" id="integrations">
+                    <div class="integration-item">
+                        <div class="integration-info">
+                            <div class="integration-icon spotify-icon"><i data-lucide="music"></i></div>
+                            <div class="integration-text">
+                                <h3>Spotify</h3>
+                                <p>Play music in your rituals</p>
+                            </div>
+                        </div>
+                        <button class="btn-connect">Connect</button>
+                    </div>
+                    
+                    <div class="integration-item">
+                        <div class="integration-info">
+                            <div class="integration-icon apple-music-icon"><i data-lucide="music-4"></i></div>
+                            <div class="integration-text">
+                                <h3>Apple Music</h3>
+                                <p>Access your music library</p>
+                            </div>
+                        </div>
+                        <button class="btn-connected">Connected</button>
+                    </div>
+                    
+                    <div class="card" style="margin-top: 20px;">
+                        <h3 style="margin-bottom: 15px; font-family: 'Inter', sans-serif; color: #333333;">How Integrations Work</h3>
+                        <p style="color: #6B6B6B; font-size: 14px; line-height: 1.5;">
+                            When you connect music apps, you can add songs to your grief rituals. Music plays within our app - we never access your personal playlists or listening history.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reset Confirmation Modal -->
+    <div class="reset-modal" id="resetModal">
+        <div class="reset-modal-content">
+            <h3>Confirm Reset</h3>
+            <p id="resetMessage">Are you sure you want to reset this data? This action cannot be undone.</p>
+            <input type="text" class="reset-input" id="resetInput" placeholder="Type 'Reset' to confirm">
+            <div class="reset-buttons">
+                <button class="btn-cancel" onclick="closeResetModal()">Cancel</button>
+                <button class="btn-danger" onclick="confirmReset()">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== ROTATING QUOTES CONFIGURATION =====
+        // Add or remove quotes here. Keep them short and supportive.
+        const rotatingQuotes = [
+            "Support through grief and remembrance",
+            "You are not alone in your journey",
+            "Healing happens one moment at a time",
+            "Your feelings are valid and important",
+            "Love lives on in memory and heart",
+            "Grief is love with nowhere to go — Jamie Anderson",
+            "Take each day as it comes",
+            "Your loved one's impact continues",
+            "Grief is the price we pay for love — Queen Elizabeth II",
+            "Grief changes shape, but it never ends — Keanu Reeves",
+            "You don't move on from grief, you move forward with it — Nora McInerny",
+            "Love is the bridge between you and everything — Rumi"
+        ];
+        
+        // Adjust seconds between quote changes (default: 4 seconds)
+        const quotesRotationInterval = 4000; // milliseconds
+        
+        let currentQuoteIndex = 0;
+        let quoteInterval;
+        
+        function rotateQuotes() {
+            const quoteElement = document.getElementById('rotatingQuote');
+            if (!quoteElement) return;
+            
+            // Fade out
+            quoteElement.style.opacity = '0.3';
+            
+            setTimeout(() => {
+                // Change text
+                currentQuoteIndex = (currentQuoteIndex + 1) % rotatingQuotes.length;
+                quoteElement.textContent = rotatingQuotes[currentQuoteIndex];
+                
+                // Fade in
+                quoteElement.style.opacity = '0.9';
+            }, 250); // Half of transition duration
+        }
+        
+        function startQuoteRotation() {
+            // Start rotating after initial delay
+            setTimeout(() => {
+                quoteInterval = setInterval(rotateQuotes, quotesRotationInterval);
+            }, quotesRotationInterval);
+        }
+        
+        function stopQuoteRotation() {
+            if (quoteInterval) {
+                clearInterval(quoteInterval);
+            }
+        }
+        // ===== END ROTATING QUOTES =====
+        
+        let currentResetType = '';
+        let isSystemTheme = true;
+        let isManualDarkMode = false;
+        let selectedRitualType = '';
+        let selectedPerson = '';
+        
+        // Simulated data for loved ones and their notification settings
+        const lovedOnesData = {
+            'matthew': { name: 'Matthew', birthdayNotifications: true, anniversaryNotifications: true },
+            'mom': { name: 'Mom', birthdayNotifications: false, anniversaryNotifications: true },
+            'smudge': { name: 'Smudge', birthdayNotifications: true, anniversaryNotifications: false }
+        };
+        
+        // Ritual functionality
+        function selectRitualType(type) {
+            selectedRitualType = type;
+            
+            // Update UI to show selected state
+            document.querySelectorAll('.ritual-type-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.ritual-type-card').classList.add('selected');
+            
+            // Show/hide person selection based on ritual type
+            const personCard = document.getElementById('personSelectionCard');
+            const customIdeasCard = document.getElementById('customIdeasCard');
+            
+            if (type === 'birthday' || type === 'anniversary') {
+                personCard.style.display = 'block';
+                customIdeasCard.style.display = 'block';
+                updateNotificationBanner();
+            } else {
+                personCard.style.display = 'none';
+                customIdeasCard.style.display = 'none';
+            }
+            
+            // Update save button text
+            const saveBtn = document.getElementById('saveRitualBtn');
+            const ritualNames = {
+                'connection': 'Connection Ritual',
+                'reflection': 'Reflection Ritual',
+                'birthday': 'Birthday Ritual',
+                'anniversary': 'Anniversary Ritual'
+            };
+            saveBtn.textContent = `Save ${ritualNames[type]}`;
+            
+            // Reinitialize icons
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
+        }
+        
+        function updateNotificationBanner() {
+            const banner = document.getElementById('notificationBanner');
+            const personSelect = document.getElementById('personSelect');
+            selectedPerson = personSelect.value;
+            
+            if (!selectedPerson) {
+                banner.style.display = 'none';
+                return;
+            }
+            
+            const person = lovedOnesData[selectedPerson];
+            if (!person) {
+                banner.style.display = 'none';
+                return;
+            }
+            
+            const isNotificationEnabled = 
+                (selectedRitualType === 'birthday' && person.birthdayNotifications) ||
+                (selectedRitualType === 'anniversary' && person.anniversaryNotifications);
+            
+            banner.style.display = 'flex';
+            
+            if (isNotificationEnabled) {
+                banner.className = 'notification-banner enabled';
+                banner.innerHTML = `
+                    <i data-lucide="bell"></i>
+                    <span>You'll receive a reminder to do this ritual on ${person.name}'s ${selectedRitualType}</span>
+                    <i data-lucide="check-circle"></i>
+                `;
+                banner.onclick = null;
+                banner.style.cursor = 'default';
+            } else {
+                banner.className = 'notification-banner disabled';
+                banner.innerHTML = `
+                    <i data-lucide="bell-off"></i>
+                    <span>Turn back on notifications in Your Loved Ones to receive ritual reminders</span>
+                    <i data-lucide="chevron-right"></i>
+                `;
+                banner.onclick = navigateToLovedOnes;
+                banner.style.cursor = 'pointer';
+            }
+            
+            // Reinitialize icons
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 50);
+        }
+        
+        function navigateToLovedOnes() {
+            // Close settings if open
+            if (document.getElementById('settingsOverlay').classList.contains('active')) {
+                closeSettings();
+            }
+            
+            // Open settings and navigate to loved ones
+            setTimeout(() => {
+                openSettings();
+                setTimeout(() => {
+                    openSettingsScreen('loved-ones');
+                }, 200);
+            }, 100);
+        }
+        
+        // Theme functionality
+        function toggleSystemTheme() {
+            isSystemTheme = !isSystemTheme;
+            const systemToggle = document.getElementById('systemThemeToggle');
+            const manualOption = document.getElementById('manualThemeOption');
+            
+            if (isSystemTheme) {
+                systemToggle.style.background = '#555879';
+                manualOption.style.opacity = '0.5';
+                manualOption.style.pointerEvents = 'none';
+                // Apply system theme
+                applySystemTheme();
+            } else {
+                systemToggle.style.background = '#ccc';
+                manualOption.style.opacity = '1';
+                manualOption.style.pointerEvents = 'auto';
+                // Apply manual theme
+                applyManualTheme();
+            }
+        }
+        
+        function toggleManualTheme() {
+            if (isSystemTheme) return; // Can't toggle if system mode is on
+            
+            isManualDarkMode = !isManualDarkMode;
+            applyManualTheme();
+        }
+        
+        function applySystemTheme() {
+            // Check system preference
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (prefersDark) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            updateThemeUI();
+        }
+        
+        function applyManualTheme() {
+            if (isManualDarkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            updateThemeUI();
+        }
+        
+        function updateThemeUI() {
+            const thumb = document.getElementById('themeThumb');
+            const currentText = document.getElementById('currentThemeText');
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            if (thumb) {
+                if (isDark) {
+                    thumb.classList.add('dark');
+                    if (currentText) currentText.textContent = 'Currently: Dark Mode';
+                } else {
+                    thumb.classList.remove('dark');
+                    if (currentText) currentText.textContent = 'Currently: Light Mode';
+                }
+            }
+        }
+        
+        // Settings functionality
+        function openSettings() {
+            document.getElementById('settingsOverlay').classList.add('active');
+            showSettingsNav();
+            // Stop quote rotation while in settings
+            stopQuoteRotation();
+            // Force icon reinitialization after a short delay
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
+        }
+        
+        function closeSettings() {
+            document.getElementById('settingsOverlay').classList.remove('active');
+            showSettingsNav();
+            // Resume quote rotation when leaving settings
+            startQuoteRotation();
+        }
+        
+        function showSettingsNav() {
+            // Hide all settings screens
+            document.querySelectorAll('.settings-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show navigation
+            document.getElementById('settingsNav').style.display = 'block';
+            document.getElementById('settingsTitle').textContent = 'Settings';
+            document.getElementById('settingsBackBtn').style.visibility = 'hidden';
+            
+            // Force reinitialize icons
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 50);
+        }
+        
+        function openSettingsScreen(screenName) {
+            // Hide navigation
+            document.getElementById('settingsNav').style.display = 'none';
+            
+            // Show back button
+            document.getElementById('settingsBackBtn').style.visibility = 'visible';
+            
+            // Show selected screen
+            document.getElementById(screenName).classList.add('active');
+            
+            // Update title
+            const titles = {
+                'loved-ones': 'Your Loved Ones',
+                'appearance': 'Appearance',
+                'customizations': 'Reset Saved Data',
+                'integrations': 'App Integrations'
+            };
+            document.getElementById('settingsTitle').textContent = titles[screenName];
+            
+            // Initialize screen-specific functionality
+            if (screenName === 'appearance') {
+                updateThemeUI();
+                // Update system toggle state
+                const systemToggle = document.getElementById('systemThemeToggle');
+                const manualOption = document.getElementById('manualThemeOption');
+                if (isSystemTheme) {
+                    systemToggle.style.background = '#555879';
+                    manualOption.style.opacity = '0.5';
+                    manualOption.style.pointerEvents = 'none';
+                } else {
+                    systemToggle.style.background = '#ccc';
+                    manualOption.style.opacity = '1';
+                    manualOption.style.pointerEvents = 'auto';
+                }
+            }
+            
+            // Reinitialize icons for the new screen
+            reinitializeIcons();
+        }
+        
+        function goBackInSettings() {
+            showSettingsNav();
+        }
+        
+        // Theme functionality (moved from main app)
+        function toggleTheme() {
+            const body = document.body;
+            
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+            } else {
+                body.classList.add('dark-mode');
+            }
+        }
+        
+        // Reset modal functionality
+        function showResetModal(type) {
+            currentResetType = type;
+            const messages = {
+                'reminders': 'Are you sure you want to reset all your reminders? This will delete all custom reminders you\'ve created.',
+                'rituals': 'Are you sure you want to reset all your saved rituals? This will delete all custom rituals you\'ve created.',
+                'loved-ones': 'Are you sure you want to reset your loved ones list? This will remove all the people you\'ve added.',
+                'all': 'Are you sure you want to reset everything? This will delete ALL your data including reminders, rituals, and loved ones.'
+            };
+            
+            document.getElementById('resetMessage').textContent = messages[type];
+            document.getElementById('resetInput').value = '';
+            document.getElementById('resetModal').classList.add('active');
+        }
+        
+        function closeResetModal() {
+            document.getElementById('resetModal').classList.remove('active');
+            currentResetType = '';
+        }
+        
+        function confirmReset() {
+            const input = document.getElementById('resetInput').value;
+            if (input === 'Reset') {
+                // Simulate reset action
+                alert(`${currentResetType} data has been reset.`);
+                closeResetModal();
+            } else {
+                alert('Please type "Reset" exactly to confirm.');
+            }
+        }
+        
+        // Load saved theme on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize with Ask for Help screen as default
+            showScreen('help');
+            
+            // Initialize Lucide icons multiple times to ensure they load
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
+            
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 500);
+            
+            // Start rotating quotes
+            startQuoteRotation();
+            
+            // Initialize theme system
+            applySystemTheme();
+            
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (isSystemTheme) {
+                    applySystemTheme();
+                }
+            });
+        });
+        
+        function showScreen(screenName) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Remove active from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.screen-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected screen
+            document.getElementById(screenName).classList.add('active');
+            
+            // Activate corresponding tab
+            document.querySelector(`[data-screen="${screenName}"]`).classList.add('active');
+            
+            // Activate corresponding button
+            document.querySelector(`[onclick="showScreen('${screenName}')"]`).classList.add('active');
+            
+            // Reinitialize icons for the new screen
+            reinitializeIcons();
+        }
+        
+        // Tab click handlers
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const screenName = tab.dataset.screen;
+                showScreen(screenName);
+            });
+        });
+        
+        // Message template click handlers
+        document.querySelectorAll('.message-template').forEach(template => {
+            template.addEventListener('click', () => {
+                const messageText = template.querySelector('.message-preview').textContent;
+                // Simulate opening iMessage with pre-filled text
+                alert(`Opening iMessage with message:\n\n${messageText}`);
+            });
+        });
+        
+        // Toggle switches
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                toggle.style.background = toggle.style.background === 'rgb(204, 204, 204)' ? '#555879' : '#ccc';
+            });
+        });
+        
+        // Preset image selection
+        document.querySelectorAll('.preset-image').forEach(image => {
+            image.addEventListener('click', () => {
+                document.querySelectorAll('.preset-image').forEach(img => img.classList.remove('selected'));
+                image.classList.add('selected');
+            });
+        });
+        
+        // Person selection change handler
+        document.addEventListener('change', (event) => {
+            if (event.target.id === 'personSelect') {
+                updateNotificationBanner();
+            }
+        });
+        
+        // Re-initialize icons when settings screens change
+        function reinitializeIcons() {
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
+        }
+    </script>
+</body>
+</html>

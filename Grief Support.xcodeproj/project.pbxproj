@@ -29,9 +29,33 @@
 		773251042E3CA49600777DBD /* Grief SupportUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Grief SupportUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		773251292E3CA68500777DBD /* Exceptions for "Grief Support" folder in "Grief Support" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Design-Docs/context.md",
+			);
+			target = 773250EB2E3CA49500777DBD /* Grief Support */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		7732512A2E3CA68500777DBD /* Exceptions for "Grief Support" folder in "Compile Sources" phase from "Grief Support" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 773250E82E3CA49500777DBD /* Sources */;
+			membershipExceptions = (
+				"Design-Docs/context.md",
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		773250EE2E3CA49500777DBD /* Grief Support */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				773251292E3CA68500777DBD /* Exceptions for "Grief Support" folder in "Grief Support" target */,
+				7732512A2E3CA68500777DBD /* Exceptions for "Grief Support" folder in "Compile Sources" phase from "Grief Support" target */,
+			);
 			path = "Grief Support";
 			sourceTree = "<group>";
 		};
@@ -195,6 +219,9 @@
 			);
 			mainGroup = 773250E32E3CA49400777DBD;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				77FD66702E3EA6890045B898 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 773250ED2E3CA49500777DBD /* Products */;
 			projectDirPath = "";
@@ -593,6 +620,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		77FD66702E3EA6890045B898 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 773250E42E3CA49500777DBD /* Project object */;
 }
