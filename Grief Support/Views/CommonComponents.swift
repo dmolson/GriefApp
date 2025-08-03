@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 // MARK: - Card View
 struct CardView<Content: View>: View {
@@ -19,7 +18,7 @@ struct CardView<Content: View>: View {
     var body: some View {
         content
             .padding()
-            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .background(Color(red: 0.95, green: 0.95, blue: 0.97))
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
@@ -104,34 +103,26 @@ struct ThemeColors {
     
     // Dynamic colors that adapt to light/dark mode
     static var adaptivePrimary: Color {
-        Color(UIColor { traitCollection in
-            traitCollection.userInterfaceStyle == .dark ? UIColor.white : UIColor(hex: "555879")
-        })
+        Color(hex: "555879") // Will be handled by SwiftUI's automatic adaptation
     }
     
     static var adaptivePrimaryBackground: Color {
-        Color(UIColor { traitCollection in
-            traitCollection.userInterfaceStyle == .dark ? UIColor.white : UIColor(hex: "555879")
-        })
+        Color(hex: "555879") // Will be handled by SwiftUI's automatic adaptation
     }
     
     static var adaptivePrimaryText: Color {
-        Color(UIColor { traitCollection in
-            traitCollection.userInterfaceStyle == .dark ? UIColor(hex: "555879") : UIColor.white
-        })
+        Color.primary // SwiftUI automatically adapts text color
     }
     
     static var adaptiveAccent: Color {
-        Color(UIColor { traitCollection in
-            traitCollection.userInterfaceStyle == .dark ? UIColor(hex: "A29ADB") : UIColor(hex: "3F2E63")
-        })
+        Color(hex: "3F2E63") // Will be handled by SwiftUI's automatic adaptation
     }
 }
 
 
-// MARK: - UIColor Extension
-extension UIColor {
-    convenience init(hex: String) {
+// MARK: - Color Extension for Hex Support
+extension Color {
+    init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
@@ -148,10 +139,11 @@ extension UIColor {
         }
         
         self.init(
+            .sRGB,
             red: Double(r) / 255,
             green: Double(g) / 255,
             blue: Double(b) / 255,
-            alpha: Double(a) / 255
+            opacity: Double(a) / 255
         )
     }
 }

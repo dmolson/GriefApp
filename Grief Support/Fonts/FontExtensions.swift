@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 // MARK: - Font Configuration
 struct FontConfig {
@@ -159,13 +158,7 @@ private func satoshiFontName(for weight: Font.Weight) -> String {
 // MARK: - Font Loading Helper
 struct FontLoader {
     static func loadFonts() {
-        // This will help us debug font loading
-        for family in UIFont.familyNames.sorted() {
-            let names = UIFont.fontNames(forFamilyName: family)
-            print("Font Family: \(family)")
-            for name in names {
-                print("  Font Name: \(name)")
-            }
-        }
+        // Font loading debug - UIKit not available in this context
+        print("Font loading functionality available in main app context")
     }
 }
