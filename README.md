@@ -1,13 +1,16 @@
 # Light After Loss - Grief Support App
 
-A compassionate iOS application designed to support individuals navigating their grief journey through practical tools, gentle reminders, and meaningful rituals.
+A compassionate iOS application designed to support individuals navigating their grief journey through practical tools, gentle reminders, and meaningful rituals. 
+
+Built by Danielle Olson with Love, Care, & Claude Code by Anthropic. 👩🏽‍💻
 
 ## 🌟 Overview
 
 Light After Loss provides a private, non-judgmental space for grief support based on three core principles:
-- **Reaching out for help** - Making it easier to ask for support when needed
-- **Getting in touch with feelings** - Providing tools and reminders for emotional processing  
-- **Creating rituals** - Establishing meaningful ways to remember and honor loved ones
+
+- Reaching out for help - Making it easier to ask for support when needed
+- Getting in touch with feelings - Providing tools and reminders for emotional processing
+- Creating rituals - Establishing meaningful ways to remember and honor loved ones
 
 ## 📱 Features
 
@@ -69,7 +72,7 @@ Grief Support/
 ## 🚀 Getting Started
 
 1. Clone the repository
-2. Open `Grief Support.xcodeproj` in Xcode
+2. Open Grief Support.xcodeproj in Xcode
 3. Select your target device/simulator
 4. Build and run (⌘+R)
 
@@ -77,34 +80,33 @@ Grief Support/
 
 For detailed information about the app's design philosophy, user experience principles, and feature specifications, please refer to:
 
-- **[Core Experience Design](Grief%20Support/Design-Docs/context.md)** - Comprehensive design documentation including color palettes, typography, and UX principles
-- **[Development Log](Grief%20Support/Design-Docs/development-log.md)** - Implementation history and technical decisions
-- **[Interactive Prototype](Grief%20Support/Prototypes/grief_support_wireframe.html)** - HTML wireframe demonstrating the app flow
+- Context File - Comprehensive design documentation including color palettes, typography, and UX principles
+- Design Documents - HTML wireframe demonstrating the app flow
 
 ## 🎨 Design System
 
 ### Color Palette
-- **Primary**: #555879 (Muted purple-gray)
-- **Background**: #F4EFE8 (Warm cream)
-- **Cards**: #F0EBE2 (Light beige)
-- **Accent**: #DED3C4 (Warm gray-beige)
+- Primary: #555879 (Muted purple-gray)
+- Background: #F4EFE8 (Warm cream)
+- Cards: #F0EBE2 (Light beige)
+- Accent: #DED3C4 (Warm gray-beige)
 
 ### Typography
-- **Primary**: Inter (clean sans-serif)
-- **Secondary**: Cormorant Garamond (elegant serif for quotes)
+- Primary: Inter (clean sans-serif)
+- Secondary: Cormorant Garamond (elegant serif for quotes)
 
 ## 🤝 Contributing
 
 This app was created with care to support those experiencing grief. If you'd like to contribute:
 
-1. Read the design documentation to understand the app's philosophy
-2. Ensure any changes maintain the gentle, non-judgmental tone
-3. Test thoroughly with accessibility in mind
-4. Submit pull requests with clear descriptions
+- Read the design documentation to understand the app's philosophy
+- Ensure any changes maintain the gentle, non-judgmental tone
+- Test thoroughly with accessibility in mind
+- Submit pull requests with clear descriptions
 
 ## 📄 License
 
-This project is licensed under the MIT License - see below for details:
+This project is licensed under the MIT License:
 
 ```
 MIT License
@@ -130,10 +132,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## 💙 Acknowledgments
+## 🤍 Acknowledgments
 
 This app is dedicated to all those navigating the difficult journey of grief. May it provide some light in dark moments.
 
----
+In loving memory of Matthew James Olson. 🏴‍☠️🦝 
+I'll love and miss you forever, little brother.
 
-*"Grief is love with nowhere to go" — Jamie Anderson*
+"Grief is love with nowhere to go" — Jamie Anderson
