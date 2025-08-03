@@ -39,13 +39,16 @@ struct RitualsView: View {
     @State private var notificationTime = Date()
     @State private var showingSaveConfirmation = false
     @StateObject private var musicService = MusicIntegrationService()
+    @StateObject private var lovedOnesService = LovedOnesDataService.shared
+    @State private var showingSettings = false
     
-    // Sample loved ones data - in real app this would come from SettingsView
-    let lovedOnes = [
-        ("Matthew", "matthew"),
-        ("Mom", "mom"),
-        ("Smudge", "smudge")
-    ]
+    var lovedOnes: [(String, String)] {
+        return lovedOnesService.lovedOnesForRituals
+    }
+    
+    var hasNoLovedOnes: Bool {
+        return lovedOnesService.lovedOnes.isEmpty
+    }
     
     var filteredRituals: [SavedRitual] {
         if selectedFilter == "View All" {
@@ -87,7 +90,44 @@ struct RitualsView: View {
                         
                         // Filtered Ritual Cards
                         if filteredRituals.isEmpty {
-                            CardView {
+                            if hasNoLovedOnes {
+                                // No loved ones state
+                                VStack(spacing: 20) {
+                                    Image(systemName: "person.badge.plus")
+                                        .font(.system(size: 48))
+                                        .foregroundColor(.secondary)
+                                    
+                                    Text("No Loved Ones Added Yet")
+                                        .font(.system(size: 18, weight: .semibold))
+                                        .foregroundColor(.primary)
+                                    
+                                    Text("Add someone special to create meaningful rituals in their honor")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
+                                    
+                                    Button(action: {
+                                        showingSettings = true
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "plus.circle.fill")
+                                            Text("Add Loved One")
+                                        }
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 24)
+                                        .padding(.vertical, 12)
+                                        .background(ThemeColors.adaptivePrimary)
+                                        .cornerRadius(25)
+                                    }
+                                }
+                                .padding()
+                                .padding(.vertical, 20)
+                                .background(Color(red: 0.95, green: 0.95, blue: 0.97))
+                                .cornerRadius(12)
+                                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                            } else {
+                                // No rituals state
                                 VStack(spacing: 16) {
                                     Image(systemName: "heart.circle")
                                         .font(.system(size: 48))
@@ -102,9 +142,11 @@ struct RitualsView: View {
                                         .foregroundColor(.secondary)
                                         .multilineTextAlignment(.center)
                                 }
-                                .padding(.vertical, 20)
+                                .padding()
+                                .background(Color(red: 0.95, green: 0.95, blue: 0.97))
+                                .cornerRadius(12)
+                                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                             }
-                            .padding(.horizontal)
                         } else {
                             ForEach(filteredRituals) { ritual in
                                 SavedRitualCard(
@@ -166,6 +208,7 @@ struct RitualsView: View {
                                 notificationEnabled: $notificationEnabled,
                                 notificationTime: $notificationTime,
                                 lovedOnes: lovedOnes,
+                                lovedOnesService: lovedOnesService,
                                 musicService: musicService,
                                 onSave: saveRitual
                             )
@@ -184,6 +227,20 @@ struct RitualsView: View {
             }
         } message: {
             Text("Your ritual has been saved successfully. You can access it from your saved rituals.")
+        }
+        .sheet(isPresented: $showingSettings) {
+            NavigationView {
+                LovedOnesSettingsView(currentScreen: .constant(.lovedOnes))
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Done") {
+                                showingSettings = false
+                            }
+                            .foregroundColor(ThemeColors.adaptivePrimary)
+                        }
+                    }
+            }
         }
         .onAppear {
             loadSavedRituals()
@@ -261,6 +318,7 @@ struct RitualCreationForm: View {
     @Binding var notificationEnabled: Bool
     @Binding var notificationTime: Date
     let lovedOnes: [(String, String)]
+    @ObservedObject var lovedOnesService: LovedOnesDataService
     @ObservedObject var musicService: MusicIntegrationService
     let onSave: () -> Void
     

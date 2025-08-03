@@ -217,9 +217,7 @@ struct SettingsNavigationItem: View {
 // MARK: - Loved Ones Settings
 struct LovedOnesSettingsView: View {
     @Binding var currentScreen: SettingsView.SettingsScreen
-    @State private var lovedOnes: [LovedOne] = [
-        LovedOne(name: "Matthew", birthDate: "March 15, 1985", passDate: "August 12, 2024", birthdayReminders: true, memorialReminders: true)
-    ]
+    @StateObject private var lovedOnesService = LovedOnesDataService.shared
     @State private var newName = ""
     @State private var newBirthDate = Date()
     @State private var newPassDate = Date()
@@ -230,7 +228,7 @@ struct LovedOnesSettingsView: View {
         ScrollView {
             VStack(spacing: 20) {
                 // Existing loved ones
-                ForEach(lovedOnes) { person in
+                ForEach(lovedOnesService.lovedOnes) { person in
                     LovedOneCard(
                         person: person,
                         onEdit: { editPerson in
@@ -314,7 +312,7 @@ struct LovedOnesSettingsView: View {
             memorialReminders: true
         )
         
-        lovedOnes.append(newPerson)
+        lovedOnesService.addLovedOne(newPerson)
         
         // Reset form
         newName = ""
@@ -323,24 +321,14 @@ struct LovedOnesSettingsView: View {
     }
     
     private func updatePerson(_ updatedPerson: LovedOne) {
-        if let index = lovedOnes.firstIndex(where: { $0.id == updatedPerson.id }) {
-            lovedOnes[index] = updatedPerson
-        }
+        lovedOnesService.updateLovedOne(updatedPerson)
     }
     
     private func deletePerson(_ person: LovedOne) {
-        lovedOnes.removeAll { $0.id == person.id }
+        lovedOnesService.deleteLovedOne(person)
     }
 }
 
-struct LovedOne: Identifiable {
-    let id = UUID()
-    var name: String
-    var birthDate: String
-    var passDate: String
-    var birthdayReminders: Bool
-    var memorialReminders: Bool
-}
 
 struct LovedOneCard: View {
     let person: LovedOne
@@ -823,13 +811,8 @@ struct ResetSettingsView: View {
     }
     
     private func resetLovedOnes() {
-        // Reset loved ones data
-        UserDefaults.standard.removeObject(forKey: "lovedOnesList")
-        UserDefaults.standard.removeObject(forKey: "lovedOnesSettings")
-        UserDefaults.standard.removeObject(forKey: "birthdayReminders")
-        UserDefaults.standard.removeObject(forKey: "memorialReminders")
-        
-        UserDefaults.standard.synchronize()
+        // Reset loved ones data using the shared service
+        LovedOnesDataService.shared.resetToDefaults()
     }
     
     private func resetIntegrations() {

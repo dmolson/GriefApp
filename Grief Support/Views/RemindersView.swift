@@ -65,7 +65,7 @@ struct RemindersView: View {
                             }
                         }
                         .listStyle(PlainListStyle())
-                        .frame(height: CGFloat(reminders.count * 80))
+                        .scrollDisabled(true)
                         .cornerRadius(12)
                         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                     }
@@ -85,7 +85,11 @@ struct RemindersView: View {
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingAddReminder) {
-            AddReminderView(reminders: $reminders)
+            AddReminderView(onReminderAdded: { newReminder in
+                reminders.append(newReminder)
+                showingAddReminder = false
+                loadReminders() // Force refresh
+            })
         }
         .sheet(isPresented: $showingCustomizeTimes) {
             CustomizeTimesView(reminders: $reminders)
@@ -139,11 +143,15 @@ struct RemindersView: View {
     private func updateReminder(_ updatedReminder: Reminder) {
         if let index = reminders.firstIndex(where: { $0.id == updatedReminder.id }) {
             reminders[index] = updatedReminder
+            saveReminders() // Explicit save
+            loadReminders() // Force refresh
         }
     }
     
     private func deleteReminder(_ reminder: Reminder) {
         reminders.removeAll { $0.id == reminder.id }
+        saveReminders() // Explicit save
+        loadReminders() // Force refresh
     }
 }
 
@@ -360,7 +368,7 @@ struct EditReminderView: View {
 }
 
 struct AddReminderView: View {
-    @Binding var reminders: [Reminder]
+    let onReminderAdded: (Reminder) -> Void
     @Environment(\.presentationMode) var presentationMode
     @State private var selectedTime = Date()
     @State private var customMessage = ""
@@ -419,7 +427,7 @@ struct AddReminderView: View {
                             message: customMessage.isEmpty ? presetMessages[0] : customMessage,
                             isEnabled: true
                         )
-                        reminders.append(newReminder)
+                        onReminderAdded(newReminder)
                         presentationMode.wrappedValue.dismiss()
                     }
                 }
