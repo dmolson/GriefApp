@@ -7,6 +7,21 @@
 
 import SwiftUI
 
+// Helper extension for date parsing
+extension DateFormatter {
+    static func createFormatter(dateFormat: String) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = dateFormat
+        return formatter
+    }
+    
+    static func createFormatter(dateStyle: DateFormatter.Style) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = dateStyle
+        return formatter
+    }
+}
+
 struct SettingsView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var currentScreen: SettingsScreen = .main
@@ -138,7 +153,7 @@ struct SettingsView: View {
                 
                 // Footer
                 VStack(spacing: 8) {
-                    Text("⚠️ This app is in Beta (please use Claude to revise)")
+                    Text("✨ This app is in early development. Your feedback helps us create better support tools.")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.orange)
                         .multilineTextAlignment(.center)
@@ -443,25 +458,30 @@ struct EditLovedOneSheet: View {
         _editedBirthdayReminders = State(initialValue: person.birthdayReminders)
         _editedMemorialReminders = State(initialValue: person.memorialReminders)
         
-        // Parse dates from strings
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .long
-        
-        if let birthDate = dateFormatter.date(from: person.birthDate) {
-            _editedBirthDate = State(initialValue: birthDate)
-        } else {
-            _editedBirthDate = State(initialValue: Date())
+        // Parse dates from strings with multiple format attempts
+        func parseDate(from dateString: String) -> Date {
+            let formatters = [
+                DateFormatter.createFormatter(dateStyle: .long),
+                DateFormatter.createFormatter(dateFormat: "MMMM d, yyyy"),
+                DateFormatter.createFormatter(dateFormat: "MMM d, yyyy"),
+                DateFormatter.createFormatter(dateFormat: "M/d/yyyy"),
+                DateFormatter.createFormatter(dateFormat: "yyyy-MM-dd")
+            ]
+            
+            for formatter in formatters {
+                if let date = formatter.date(from: dateString) {
+                    return date
+                }
+            }
+            return Date() // Fallback to current date
         }
         
-        if let passDate = dateFormatter.date(from: person.passDate) {
-            _editedPassDate = State(initialValue: passDate)
-        } else {
-            _editedPassDate = State(initialValue: Date())
-        }
+        _editedBirthDate = State(initialValue: parseDate(from: person.birthDate))
+        _editedPassDate = State(initialValue: parseDate(from: person.passDate))
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
                     CardView {
@@ -1068,8 +1088,7 @@ struct SpotifyAuthView: View {
                 
                 VStack(spacing: 15) {
                     Text("Connect to Spotify")
-                        .font(.title2)
-                        .fontWeight(.bold)
+                        .font(.system(size: 20, weight: .semibold))
                     
                     Text("We'll redirect you to Spotify to authorize access. We only request permission to control playback - we never access your personal data or playlists.")
                         .font(.body)
@@ -1132,8 +1151,7 @@ struct AppleMusicAuthView: View {
                 
                 VStack(spacing: 15) {
                     Text("Connect to Apple Music")
-                        .font(.title2)
-                        .fontWeight(.bold)
+                        .font(.system(size: 20, weight: .semibold))
                     
                     Text("We'll request access to your Apple Music library to allow you to play music during your grief rituals. Your personal listening data remains private.")
                         .font(.body)
