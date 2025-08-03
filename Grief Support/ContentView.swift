@@ -39,12 +39,13 @@ struct ContentView: View {
                 }
                 .tag(3)
         }
-        .accentColor(Color(hex: "3F2E63"))
+        .accentColor(ThemeColors.adaptiveAccent)
         .overlay(alignment: .top) {
             HeaderView(showSettings: $showSettings)
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
+                .preferredColorScheme(useSystemTheme ? nil : (isDarkMode ? .dark : .light))
         }
         .preferredColorScheme(useSystemTheme ? nil : (isDarkMode ? .dark : .light))
     }
@@ -73,7 +74,7 @@ struct HeaderView: View {
         VStack(spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Light After Loss")
+                    Text("light after loss")
                         .font(.appHeaderTitle)
                         .foregroundColor(.white)
                     

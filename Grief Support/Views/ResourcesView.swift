@@ -79,6 +79,16 @@ struct ResourcesView: View {
                                         UIApplication.shared.open(url)
                                     }
                                 }
+                            ),
+                            Resource(
+                                icon: "heart.circle.fill",
+                                title: "Nar-Anon",
+                                subtitle: "Support for families and friends affected by drug addiction",
+                                action: { 
+                                    if let url = URL(string: "https://www.nar-anon.org/find-a-meeting") {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }
                             )
                         ]
                     )
@@ -268,9 +278,9 @@ struct ResourceLink: View {
             HStack(spacing: 12) {
                 Image(systemName: resource.icon)
                     .font(.system(size: 20))
-                    .foregroundColor(.white)
+                    .foregroundColor(ThemeColors.adaptivePrimaryText)
                     .frame(width: 40, height: 40)
-                    .background(Color(hex: "555879"))
+                    .background(ThemeColors.adaptivePrimaryBackground)
                     .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -290,7 +300,7 @@ struct ResourceLink: View {
                     .foregroundColor(.secondary)
             }
             .padding()
-            .background(Color(hex: "F0EBE2"))
+            .background(Color(UIColor.secondarySystemBackground))
             .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())
@@ -305,13 +315,13 @@ struct EventItem: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             Rectangle()
-                .fill(Color(hex: "555879"))
+                .fill(ThemeColors.adaptivePrimary)
                 .frame(width: 4)
             
             VStack(alignment: .leading, spacing: 5) {
                 Text(date)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(Color(hex: "555879"))
+                    .foregroundColor(ThemeColors.adaptivePrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Text(title)

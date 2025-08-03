@@ -65,7 +65,7 @@ struct RitualsView: View {
     @AppStorage("spotifyConnected") private var spotifyConnected = false
     @AppStorage("appleMusicConnected") private var appleMusicConnected = false
     
-    let lovedOnes = ["All", "Matthew", "Mom", "Smudge"]
+    let lovedOnes = ["All", "Matthew", "Mom", "Smudge"] // This would come from data persistence
     
     var body: some View {
         Text("Test")

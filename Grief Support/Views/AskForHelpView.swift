@@ -6,10 +6,9 @@
 //
 
 import SwiftUI
-import MessageUI
 
 struct AskForHelpView: View {
-    @State private var showingMessageCompose = false
+    @State private var showingShareSheet = false
     @State private var selectedMessage = ""
     
     var body: some View {
@@ -23,25 +22,27 @@ struct AskForHelpView: View {
                     CardView {
                         VStack(alignment: .leading, spacing: 15) {
                             Text("Practical Support")
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.appHeadline)
                             
                             HelpSuggestionView(text: "Help with grocery shopping or meal preparation")
                             HelpSuggestionView(text: "Assistance with household tasks or childcare")
                             HelpSuggestionView(text: "Transportation to appointments or support groups")
                             HelpSuggestionView(text: "Help organizing memorial services or legal matters")
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     
                     // Emotional Support
                     CardView {
                         VStack(alignment: .leading, spacing: 15) {
                             Text("Emotional Support")
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.appHeadline)
                             
                             HelpSuggestionView(text: "Someone to listen without judgment")
                             HelpSuggestionView(text: "Companionship during difficult moments")
                             HelpSuggestionView(text: "Help processing difficult emotions")
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     
                     // Message Templates
@@ -67,6 +68,7 @@ struct AskForHelpView: View {
                                 action: { sendMessage($0) }
                             )
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
                 .padding()
@@ -75,19 +77,14 @@ struct AskForHelpView: View {
             .background(Color(UIColor.systemBackground))
             .navigationBarHidden(true)
         }
-        .sheet(isPresented: $showingMessageCompose) {
-            MessageComposeView(messageText: selectedMessage)
+        .sheet(isPresented: $showingShareSheet) {
+            ShareSheet(activityItems: [selectedMessage])
         }
     }
     
     private func sendMessage(_ message: String) {
         selectedMessage = message
-        if MFMessageComposeViewController.canSendText() {
-            showingMessageCompose = true
-        } else {
-            // Fallback: Copy to clipboard
-            UIPasteboard.general.string = message
-        }
+        showingShareSheet = true
     }
 }
 
@@ -97,12 +94,12 @@ struct HelpSuggestionView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             Circle()
-                .fill(Color(hex: "555879").opacity(0.2))
+                .fill(ThemeColors.adaptivePrimary.opacity(0.2))
                 .frame(width: 6, height: 6)
                 .offset(y: 6)
             
             Text(text)
-                .font(.system(size: 14))
+                .font(.appBodySmall)
                 .foregroundColor(.secondary)
         }
         .padding(.leading, 8)
@@ -119,18 +116,18 @@ struct MessageTemplateView: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text(title)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.appHeadline)
                         .foregroundColor(.primary)
                     
                     Spacer()
                     
                     Image(systemName: "arrow.up.forward.app")
                         .font(.system(size: 16))
-                        .foregroundColor(Color(hex: "555879"))
+                        .foregroundColor(ThemeColors.adaptivePrimary)
                 }
                 
                 Text(preview)
-                    .font(.custom("CormorantGaramond-Regular", size: 15))
+                    .font(.appBodySmall)
                     .italic()
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.leading)
@@ -143,34 +140,29 @@ struct MessageTemplateView: View {
     }
 }
 
-struct MessageComposeView: UIViewControllerRepresentable {
-    let messageText: String
-    @Environment(\.presentationMode) var presentationMode
+struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
     
-    func makeUIViewController(context: Context) -> MFMessageComposeViewController {
-        let controller = MFMessageComposeViewController()
-        controller.body = messageText
-        controller.messageComposeDelegate = context.coordinator
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(
+            activityItems: activityItems,
+            applicationActivities: nil
+        )
+        
+        // Configure for iPad compatibility
+        if let popover = controller.popoverPresentationController {
+            popover.sourceView = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .first?.windows
+                .first { $0.isKeyWindow }
+            popover.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        
         return controller
     }
     
-    func updateUIViewController(_ uiViewController: MFMessageComposeViewController, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, MFMessageComposeViewControllerDelegate {
-        let parent: MessageComposeView
-        
-        init(_ parent: MessageComposeView) {
-            self.parent = parent
-        }
-        
-        func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
-            parent.presentationMode.wrappedValue.dismiss()
-        }
-    }
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {

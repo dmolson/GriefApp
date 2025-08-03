@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var currentScreen: SettingsScreen = .main
     @State private var showingResetConfirmation = false
     @State private var resetType = ""
+    @State private var showingBugReport = false
     
     enum SettingsScreen {
         case main
@@ -43,26 +44,29 @@ struct SettingsView: View {
                     if currentScreen != .main {
                         Button(action: { currentScreen = .main }) {
                             Image(systemName: "arrow.left")
-                                .foregroundColor(.white)
+                                .foregroundColor(ThemeColors.adaptivePrimaryText)
                         }
                     }
                 }
                 
                 ToolbarItem(placement: .principal) {
                     Text(navigationTitle)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
+                        .font(.appHeadline)
+                        .foregroundColor(ThemeColors.adaptivePrimaryText)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { presentationMode.wrappedValue.dismiss() }) {
                         Image(systemName: "xmark")
-                            .foregroundColor(.white)
+                            .foregroundColor(ThemeColors.adaptivePrimaryText)
                     }
                 }
             }
-            .toolbarBackground(Color(hex: "555879"), for: .navigationBar)
+            .toolbarBackground(ThemeColors.adaptivePrimaryBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+        }
+        .sheet(isPresented: $showingBugReport) {
+            BugReportView()
         }
     }
     
@@ -108,9 +112,31 @@ struct SettingsView: View {
                 )
             }
             .padding()
-            .background(Color(hex: "F4EFE8"))
+            .background(Color(UIColor.secondarySystemBackground))
             
             Spacer()
+            
+            // Report a Bug button at bottom
+            VStack(spacing: 0) {
+                Divider()
+                
+                Button(action: { showingBugReport = true }) {
+                    HStack {
+                        Image(systemName: "exclamationmark.bubble.fill")
+                            .font(.system(size: 16))
+                            .foregroundColor(ThemeColors.adaptivePrimary)
+                        
+                        Text("Report a Bug")
+                            .font(.appBody)
+                            .foregroundColor(ThemeColors.adaptivePrimary)
+                        
+                        Spacer()
+                    }
+                    .padding()
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .background(Color(UIColor.systemBackground))
         }
         .background(Color(UIColor.systemBackground))
     }
@@ -129,16 +155,16 @@ struct SettingsNavigationItem: View {
                     .font(.system(size: 20))
                     .foregroundColor(.white)
                     .frame(width: 40, height: 40)
-                    .background(Color(hex: "555879"))
+                    .background(ThemeColors.adaptivePrimaryBackground)
                     .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.appHeadline)
                         .foregroundColor(.primary)
                     
                     Text(subtitle)
-                        .font(.system(size: 14))
+                        .font(.appBodySmall)
                         .foregroundColor(.secondary)
                 }
                 
@@ -149,7 +175,7 @@ struct SettingsNavigationItem: View {
                     .foregroundColor(.secondary)
             }
             .padding()
-            .background(Color.white)
+            .background(Color(UIColor.systemBackground))
             .cornerRadius(8)
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
         }
@@ -270,6 +296,8 @@ struct AppearanceSettingsView: View {
     @Binding var currentScreen: SettingsView.SettingsScreen
     @AppStorage("useSystemTheme") private var useSystemTheme = true
     @AppStorage("isDarkMode") private var isDarkMode = false
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var refreshID = UUID()
     
     var body: some View {
         VStack(spacing: 20) {
@@ -287,6 +315,16 @@ struct AppearanceSettingsView: View {
                     Spacer()
                     
                     CustomToggle(isOn: $useSystemTheme)
+                        .onChange(of: useSystemTheme) { _, newValue in
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                // The binding change automatically triggers UI update
+                                if newValue {
+                                    // When switching to system theme, update to current system setting
+                                    isDarkMode = colorScheme == .dark
+                                }
+                                refreshID = UUID()
+                            }
+                        }
                 }
             }
             
@@ -302,6 +340,11 @@ struct AppearanceSettingsView: View {
                     }
                     
                     ThemeToggleSwitch(isDarkMode: $isDarkMode, isEnabled: !useSystemTheme)
+                        .onChange(of: isDarkMode) { _, _ in
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                refreshID = UUID()
+                            }
+                        }
                 }
             }
             .opacity(useSystemTheme ? 0.5 : 1.0)
@@ -311,6 +354,7 @@ struct AppearanceSettingsView: View {
         }
         .padding()
         .background(Color(UIColor.systemBackground))
+        .id(refreshID)
     }
 }
 
@@ -319,42 +363,40 @@ struct ThemeToggleSwitch: View {
     let isEnabled: Bool
     
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             Text("Light")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.caption)
                 .foregroundColor(isDarkMode ? .secondary : .primary)
+                .frame(width: 40)
             
-            Spacer()
-            
-            Text("Dark")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(isDarkMode ? .primary : .secondary)
-        }
-        .padding(.horizontal, 12)
-        .frame(width: 100, height: 40)
-        .background(Color(hex: "F0EBE2"))
-        .overlay(
-            HStack {
-                if isDarkMode {
-                    Spacer()
-                }
+            ZStack {
+                RoundedRectangle(cornerRadius: 16)
+                    .frame(width: 52, height: 32)
+                    .foregroundColor(Color(UIColor.systemGray5))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color(UIColor.systemGray3), lineWidth: 1)
+                    )
                 
                 Circle()
-                    .fill(Color(hex: "555879"))
-                    .frame(width: 36, height: 36)
-                    .animation(.spring(), value: isDarkMode)
-                
-                if !isDarkMode {
-                    Spacer()
+                    .frame(width: 28, height: 28)
+                    .foregroundColor(Color(UIColor.systemBackground))
+                    .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+                    .offset(x: isDarkMode ? 10 : -10)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDarkMode)
+            }
+            .onTapGesture {
+                if isEnabled {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        isDarkMode.toggle()
+                    }
                 }
             }
-            .padding(2)
-        )
-        .cornerRadius(20)
-        .onTapGesture {
-            if isEnabled {
-                isDarkMode.toggle()
-            }
+            
+            Text("Dark")
+                .font(.caption)
+                .foregroundColor(isDarkMode ? .primary : .secondary)
+                .frame(width: 40)
         }
     }
 }
@@ -365,6 +407,10 @@ struct ResetSettingsView: View {
     @State private var showingResetModal = false
     @State private var resetType = ""
     @State private var confirmationText = ""
+    @State private var showingResetSuccess = false
+    @State private var resetMessage = ""
+    @AppStorage("spotifyConnected") private var spotifyConnected = false
+    @AppStorage("appleMusicConnected") private var appleMusicConnected = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -390,6 +436,11 @@ struct ResetSettingsView: View {
                         
                         SecondaryButton(title: "Reset Loved Ones List") {
                             resetType = "loved-ones"
+                            showingResetModal = true
+                        }
+                        
+                        SecondaryButton(title: "Reset Music Integrations") {
+                            resetType = "integrations"
                             showingResetModal = true
                         }
                         
@@ -419,9 +470,10 @@ struct ResetSettingsView: View {
                 confirmationText: $confirmationText,
                 onConfirm: {
                     if confirmationText == "Reset" {
-                        // TODO: Perform reset
+                        performReset(type: resetType)
                         showingResetModal = false
                         confirmationText = ""
+                        showingResetSuccess = true
                     }
                 },
                 onCancel: {
@@ -430,6 +482,86 @@ struct ResetSettingsView: View {
                 }
             )
         }
+        .alert("Reset Complete", isPresented: $showingResetSuccess) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(resetMessage)
+        }
+    }
+    
+    private func performReset(type: String) {
+        switch type {
+        case "reminders":
+            resetReminders()
+            resetMessage = "All reminders have been reset to default settings."
+            
+        case "rituals":
+            resetRituals()
+            resetMessage = "All saved rituals have been deleted."
+            
+        case "loved-ones":
+            resetLovedOnes()
+            resetMessage = "Your loved ones list has been reset."
+            
+        case "integrations":
+            resetIntegrations()
+            resetMessage = "All music integrations have been disconnected."
+            
+        case "all":
+            resetReminders()
+            resetRituals()
+            resetLovedOnes()
+            resetIntegrations()
+            resetMessage = "All app data has been reset to default settings."
+            
+        default:
+            resetMessage = "Reset operation completed."
+        }
+    }
+    
+    private func resetReminders() {
+        // Reset reminder settings to defaults
+        UserDefaults.standard.removeObject(forKey: "savedReminders")
+        UserDefaults.standard.removeObject(forKey: "reminderTimes")
+        UserDefaults.standard.removeObject(forKey: "reminderMessages")
+        
+        // Reset any other reminder-related UserDefaults keys
+        UserDefaults.standard.synchronize()
+    }
+    
+    private func resetRituals() {
+        // Reset saved rituals
+        UserDefaults.standard.removeObject(forKey: "savedRituals")
+        UserDefaults.standard.removeObject(forKey: "ritualPhotos")
+        UserDefaults.standard.removeObject(forKey: "ritualMusic")
+        UserDefaults.standard.removeObject(forKey: "customRitualContent")
+        
+        UserDefaults.standard.synchronize()
+    }
+    
+    private func resetLovedOnes() {
+        // Reset loved ones data
+        UserDefaults.standard.removeObject(forKey: "lovedOnesList")
+        UserDefaults.standard.removeObject(forKey: "lovedOnesSettings")
+        UserDefaults.standard.removeObject(forKey: "birthdayReminders")
+        UserDefaults.standard.removeObject(forKey: "memorialReminders")
+        
+        UserDefaults.standard.synchronize()
+    }
+    
+    private func resetIntegrations() {
+        // Disconnect all music integrations
+        spotifyConnected = false
+        appleMusicConnected = false
+        
+        // Clear any stored authentication tokens or data
+        UserDefaults.standard.removeObject(forKey: "spotifyAccessToken")
+        UserDefaults.standard.removeObject(forKey: "spotifyRefreshToken")
+        UserDefaults.standard.removeObject(forKey: "appleMusicToken")
+        UserDefaults.standard.removeObject(forKey: "musicPlaylists")
+        UserDefaults.standard.removeObject(forKey: "savedSongs")
+        
+        UserDefaults.standard.synchronize()
     }
 }
 
@@ -439,12 +571,29 @@ struct ResetConfirmationModal: View {
     let onConfirm: () -> Void
     let onCancel: () -> Void
     
+    var resetDescription: String {
+        switch resetType {
+        case "reminders":
+            return "This will reset all reminders to default settings. Your custom reminder times and messages will be lost."
+        case "rituals":
+            return "This will permanently delete all saved rituals including photos, music, and custom content."
+        case "loved-ones":
+            return "This will remove all loved ones from your list and reset their settings."
+        case "integrations":
+            return "This will disconnect Spotify and Apple Music integrations. You'll need to reconnect them to use music in rituals."
+        case "all":
+            return "This will completely reset the app to its initial state. All your data, settings, and integrations will be permanently deleted."
+        default:
+            return "Are you sure you want to reset \(resetType)? This action cannot be undone."
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 20) {
             Text("Confirm Reset")
                 .font(.system(size: 18, weight: .semibold))
             
-            Text("Are you sure you want to reset \(resetType)? This action cannot be undone.")
+            Text(resetDescription)
                 .font(.system(size: 14))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -480,24 +629,34 @@ struct ResetConfirmationModal: View {
 struct IntegrationsSettingsView: View {
     @Binding var currentScreen: SettingsView.SettingsScreen
     @State private var spotifyConnected = false
-    @State private var appleMusicConnected = true
+    @State private var appleMusicConnected = false
+    @State private var showingSpotifyAuth = false
+    @State private var showingAppleMusicAuth = false
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
     
     var body: some View {
         VStack(spacing: 20) {
             IntegrationItem(
-                icon: "music.note",
-                iconColor: Color(hex: "1DB954"),
+                icon: "🎵", // Spotify green circle with music note
+                iconColor: Color.green,
                 title: "Spotify",
                 subtitle: "Play music in your rituals",
-                isConnected: $spotifyConnected
+                isConnected: $spotifyConnected,
+                connectAction: {
+                    connectToSpotify()
+                }
             )
             
             IntegrationItem(
-                icon: "music.note.list",
-                iconColor: Color(hex: "FA243C"),
+                icon: "🎵", // Apple Music with red-pink color
+                iconColor: Color.pink,
                 title: "Apple Music",
                 subtitle: "Access your music library",
-                isConnected: $appleMusicConnected
+                isConnected: $appleMusicConnected,
+                connectAction: {
+                    connectToAppleMusic()
+                }
             )
             
             CardView {
@@ -516,6 +675,41 @@ struct IntegrationsSettingsView: View {
         }
         .padding()
         .background(Color(UIColor.systemBackground))
+        .alert("Integration Status", isPresented: $showingAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(alertMessage)
+        }
+        .sheet(isPresented: $showingSpotifyAuth) {
+            SpotifyAuthView(isConnected: $spotifyConnected)
+        }
+        .sheet(isPresented: $showingAppleMusicAuth) {
+            AppleMusicAuthView(isConnected: $appleMusicConnected)
+        }
+    }
+    
+    private func connectToSpotify() {
+        if spotifyConnected {
+            // Disconnect
+            spotifyConnected = false
+            alertMessage = "Disconnected from Spotify"
+            showingAlert = true
+        } else {
+            // Show Spotify auth flow
+            showingSpotifyAuth = true
+        }
+    }
+    
+    private func connectToAppleMusic() {
+        if appleMusicConnected {
+            // Disconnect
+            appleMusicConnected = false
+            alertMessage = "Disconnected from Apple Music"
+            showingAlert = true
+        } else {
+            // Show Apple Music auth flow
+            showingAppleMusicAuth = true
+        }
     }
 }
 
@@ -525,15 +719,39 @@ struct IntegrationItem: View {
     let title: String
     let subtitle: String
     @Binding var isConnected: Bool
+    let connectAction: () -> Void
     
     var body: some View {
         HStack(spacing: 15) {
-            Image(systemName: icon)
-                .font(.system(size: 24))
-                .foregroundColor(.white)
-                .frame(width: 50, height: 50)
-                .background(iconColor)
-                .cornerRadius(12)
+            // Use emoji/text for better app representation
+            if title == "Spotify" {
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 0.114, green: 0.725, blue: 0.329)) // Spotify green
+                        .frame(width: 50, height: 50)
+                    
+                    Text("♫")
+                        .font(.system(size: 24))
+                        .foregroundColor(.white)
+                }
+            } else if title == "Apple Music" {
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 0.98, green: 0.14, blue: 0.24)) // Apple Music red
+                        .frame(width: 50, height: 50)
+                    
+                    Text("♪")
+                        .font(.system(size: 24))
+                        .foregroundColor(.white)
+                }
+            } else {
+                Image(systemName: icon)
+                    .font(.system(size: 24))
+                    .foregroundColor(.white)
+                    .frame(width: 50, height: 50)
+                    .background(iconColor)
+                    .cornerRadius(12)
+            }
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -546,19 +764,217 @@ struct IntegrationItem: View {
             
             Spacer()
             
-            Button(action: { isConnected.toggle() }) {
+            Button(action: connectAction) {
                 Text(isConnected ? "Connected" : "Connect")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-                    .background(isConnected ? Color.green : Color(hex: "555879"))
+                    .background(isConnected ? Color.green : ThemeColors.adaptivePrimaryBackground)
                     .cornerRadius(6)
             }
         }
         .padding()
-        .background(Color(UIColor.secondarySystemBackground))
+        .background(Color(UIColor.systemBackground))
         .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(UIColor.separator), lineWidth: 0.5)
+        )
+    }
+}
+
+// MARK: - Auth Views
+struct SpotifyAuthView: View {
+    @Binding var isConnected: Bool
+    @Environment(\.dismiss) private var dismiss
+    @State private var showingWebView = false
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 30) {
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 0.114, green: 0.725, blue: 0.329))
+                        .frame(width: 100, height: 100)
+                    
+                    Text("♫")
+                        .font(.system(size: 50))
+                        .foregroundColor(.white)
+                }
+                
+                VStack(spacing: 15) {
+                    Text("Connect to Spotify")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Text("We'll redirect you to Spotify to authorize access. We only request permission to control playback - we never access your personal data or playlists.")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                }
+                
+                VStack(spacing: 12) {
+                    PrimaryButton(title: "Connect to Spotify") {
+                        connectToSpotify()
+                    }
+                    
+                    SecondaryButton(title: "Cancel") {
+                        dismiss()
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Spotify")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func connectToSpotify() {
+        // In a real implementation, this would open Spotify's OAuth flow
+        // For now, we'll simulate a successful connection
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            isConnected = true
+            dismiss()
+        }
+    }
+}
+
+struct AppleMusicAuthView: View {
+    @Binding var isConnected: Bool
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 30) {
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 0.98, green: 0.14, blue: 0.24))
+                        .frame(width: 100, height: 100)
+                    
+                    Text("♪")
+                        .font(.system(size: 50))
+                        .foregroundColor(.white)
+                }
+                
+                VStack(spacing: 15) {
+                    Text("Connect to Apple Music")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Text("We'll request access to your Apple Music library to allow you to play music during your grief rituals. Your personal listening data remains private.")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                }
+                
+                VStack(spacing: 12) {
+                    PrimaryButton(title: "Connect to Apple Music") {
+                        connectToAppleMusic()
+                    }
+                    
+                    SecondaryButton(title: "Cancel") {
+                        dismiss()
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Apple Music")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+    
+    private func connectToAppleMusic() {
+        // In a real implementation, this would use MusicKit to request authorization
+        // For now, we'll simulate a successful connection
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            isConnected = true
+            dismiss()
+        }
+    }
+}
+
+// MARK: - Bug Report View
+struct BugReportView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @State private var issueType = "Bug"
+    @State private var description = ""
+    @State private var showingSubmitAlert = false
+    
+    let issueTypes = ["Bug", "Feature Request", "Performance Issue", "UI/UX Issue", "Other"]
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Issue Type")) {
+                    Picker("Type", selection: $issueType) {
+                        ForEach(issueTypes, id: \.self) { type in
+                            Text(type).tag(type)
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+                
+                Section(header: Text("Description (max 300 characters)")) {
+                    TextEditor(text: $description)
+                        .frame(height: 120)
+                        .onChange(of: description) { _, newValue in
+                            if newValue.count > 300 {
+                                description = String(newValue.prefix(300))
+                            }
+                        }
+                    
+                    Text("\(description.count)/300")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            }
+            .navigationTitle("Report Issue")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Submit") {
+                        // TODO: Implement email sending to wearesoulfulai@gmail.com
+                        showingSubmitAlert = true
+                    }
+                    .disabled(description.isEmpty)
+                }
+            }
+            .alert("Report Submitted", isPresented: $showingSubmitAlert) {
+                Button("OK") {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            } message: {
+                Text("Thank you for your feedback! We'll review it and get back to you if needed.")
+            }
+        }
     }
 }
 

@@ -1,0 +1,146 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project "Grief Support.xcodeproj" -scheme "Grief Support" -destination "platform=iOS Simulator,name=iPhone 16" build
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  swift-algorithms: https://github.com/apple/swift-algorithms.git @ 1.2.1
+  swift-numerics: https://github.com/apple/swift-numerics.git @ 1.0.3
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, arch:arm64, id:AA1D0B1D-B21F-4795-9B94-24A4B10D342F, OS:18.6, name:iPhone 16 }
+{ platform:iOS Simulator, arch:x86_64, id:AA1D0B1D-B21F-4795-9B94-24A4B10D342F, OS:18.6, name:iPhone 16 }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'Grief Support' in project 'Grief Support' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/danielleolson/Desktop/Vibe Coding/Grief Support/Grief Support/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: eea27aeee8d07af11d76edc27c140bc5
+Build description path: /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/XCBuildData/eea27aeee8d07af11d76edc27c140bc5.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk /Users/danielleolson/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -o /Users/danielleolson/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache
+
+WriteAuxiliaryFile /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support.SwiftFileList (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    write-file /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support.SwiftFileList
+
+WriteAuxiliaryFile /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support.LinkFileList (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    write-file /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support.LinkFileList
+
+CompileAssetCatalogVariant thinned /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Products/Debug-iphonesimulator/Grief\ Support.app /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Assets.xcassets (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Assets.xcassets --compile /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --filter-for-thinning-device-configuration iPhone17,3 --filter-for-device-os-version 18.6 --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 18.5 --platform iphonesimulator
+
+WriteAuxiliaryFile /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support.SwiftConstValuesFileList (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    write-file /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support.SwiftConstValuesFileList
+
+SwiftDriver Grief\ Support normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Grief_Support -Onone -enforce-exclusivity\=checked @/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support.SwiftFileList -DDEBUG -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -target arm64-apple-ios18.5-simulator -g -module-cache-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -index-store-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Index.noindex/DataStore -swift-version 5 -I /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Products/Debug-iphonesimulator -F /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64 -c -j8 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/danielleolson/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -output-file-map /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief_Support.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/danielleolson/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support_const_extract_protocols.json -Xcc -iquote -Xcc /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Grief\ Support-generated-files.hmap -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Grief\ Support-own-target-headers.hmap -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Grief\ Support-all-target-headers.hmap -Xcc -iquote -Xcc /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Grief\ Support-project-headers.hmap -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/DerivedSources-normal/arm64 -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/DerivedSources/arm64 -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief_Support-Swift.h -working-directory /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support -experimental-emit-module-separately -disable-cmo
+
+SwiftCompile normal arm64 Compiling\ AskForHelpView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/AskForHelpView.swift (in target 'Grief Support' from project 'Grief Support')
+SwiftCompile normal arm64 /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/AskForHelpView.swift (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    
+
+SwiftCompile normal arm64 Compiling\ RemindersView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/RemindersView.swift (in target 'Grief Support' from project 'Grief Support')
+
+SwiftCompile normal arm64 /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/RemindersView.swift (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    
+
+SwiftCompile normal arm64 Compiling\ RitualsView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/RitualsView.swift (in target 'Grief Support' from project 'Grief Support')
+
+SwiftCompile normal arm64 /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/RitualsView.swift (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    
+
+SwiftCompile normal arm64 Compiling\ ResourcesView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/ResourcesView.swift (in target 'Grief Support' from project 'Grief Support')
+
+SwiftCompile normal arm64 /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/ResourcesView.swift (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ Grief_Support (in target 'Grief Support' from project 'Grief Support')
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -emit-module -experimental-skip-non-inlinable-function-bodies-without-types /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/AskForHelpView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/SettingsView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/ContentView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/RemindersView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Grief_SupportApp.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/ResourcesView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/CommonComponents.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/RitualsView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Fonts/FontExtensions.swift /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/DerivedSources/GeneratedAssetSymbols.swift -target arm64-apple-ios18.5-simulator -Xllvm -aarch64-use-tbi -enable-objc-interop -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.5.sdk -I /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Products/Debug-iphonesimulator -F /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Products/Debug-iphonesimulator -no-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=5 -module-cache-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -profile-generate -profile-coverage-mapping -swift-version 5 -enforce-exclusivity\=checked -Onone -D DEBUG -serialize-debugging-options -const-gather-protocols-file /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support_const_extract_protocols.json -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/danielleolson/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift -enable-anonymous-context-mangled-names -file-compilation-dir /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support -Xcc -ivfsstatcache -Xcc /Users/danielleolson/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.5-22F76-d5fc8ad4295d2ef488fb7d0f804ce0c4.sdkstatcache -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Grief\ Support-generated-files.hmap -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Grief\ Support-own-target-headers.hmap -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Grief\ Support-all-target-headers.hmap -Xcc -iquote -Xcc /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Grief\ Support-project-headers.hmap -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/DerivedSources-normal/arm64 -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/DerivedSources/arm64 -Xcc -I/Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/DerivedSources -Xcc -DDEBUG\=1 -module-name Grief_Support -frontend-parseable-output -disable-clang-spi -target-sdk-version 18.5 -target-sdk-name iphonesimulator18.5 -external-plugin-path /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -external-plugin-path /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/local/lib/swift/host/plugins\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/lib/swift/host/plugins -emit-module-doc-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief_Support.swiftdoc -emit-module-source-info-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief_Support.swiftsourceinfo -emit-objc-header-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief_Support-Swift.h -serialize-diagnostics-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support-master-emit-module.dia -emit-dependencies-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief\ Support-master-emit-module.d -o /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief_Support.swiftmodule -emit-abi-descriptor-path /Users/danielleolson/Library/Developer/Xcode/DerivedData/Grief_Support-bqejvvzjmrglsldxejbjsexwrrmy/Build/Intermediates.noindex/Grief\ Support.build/Debug-iphonesimulator/Grief\ Support.build/Objects-normal/arm64/Grief_Support.abi.json
+
+EmitSwiftModule normal arm64 (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    
+/Users/danielleolson/Desktop/Vibe Coding/Grief Support/Grief Support/Views/RitualsView.swift:47:5: error: expected declaration
+    @State private var selectedRitualType: RitualType?
+    ^
+/Users/danielleolson/Desktop/Vibe Coding/Grief Support/Grief Support/Views/RitualsView.swift:46:8: note: in declaration of 'RitualsView'
+struct RitualsView: View {
+       ^
+/Users/danielleolson/Desktop/Vibe Coding/Grief Support/Grief Support/Views/RitualsView.swift:47:5: error: expected '}' in struct
+    @State private var selectedRitualType: RitualType?
+    ^
+/Users/danielleolson/Desktop/Vibe Coding/Grief Support/Grief Support/Views/RitualsView.swift:46:26: note: to match this opening '{'
+struct RitualsView: View {
+                         ^
+/Users/danielleolson/Desktop/Vibe Coding/Grief Support/Grief Support/Views/RitualsView.swift:46:8: error: type 'RitualsView' does not conform to protocol 'View'
+struct RitualsView: View {
+       ^
+/Users/danielleolson/Desktop/Vibe Coding/Grief Support/Grief Support/Views/RitualsView.swift:46:8: note: add stubs for conformance
+struct RitualsView: View {
+       ^
+SwiftUICore.View.Body:2:16: note: protocol requires nested type 'Body'
+associatedtype Body : View}
+               ^
+
+SwiftCompile normal arm64 Compiling\ CommonComponents.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/CommonComponents.swift (in target 'Grief Support' from project 'Grief Support')
+
+SwiftCompile normal arm64 /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/CommonComponents.swift (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    
+
+SwiftCompile normal arm64 Compiling\ SettingsView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/SettingsView.swift (in target 'Grief Support' from project 'Grief Support')
+SwiftCompile normal arm64 /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/Views/SettingsView.swift (in target 'Grief Support' from project 'Grief Support')
+    cd /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support
+    
+
+SwiftCompile normal arm64 Compiling\ ContentView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/ContentView.swift (in target 'Grief Support' from project 'Grief Support')
+Command SwiftCompile failed with a nonzero exit code
+
+note: Disabling hardened runtime with ad-hoc codesigning. (in target 'Grief Support' from project 'Grief Support')
+warning: no rule to process file '/Users/danielleolson/Desktop/Vibe Coding/Grief Support/Grief Support/Design-Docs' of type 'file' for architecture 'arm64' (in target 'Grief Support' from project 'Grief Support')
+warning: no rule to process file '/Users/danielleolson/Desktop/Vibe Coding/Grief Support/Grief Support/Prototypes' of type 'file' for architecture 'arm64' (in target 'Grief Support' from project 'Grief Support')
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftEmitModule normal arm64 Emitting\ module\ for\ Grief_Support (in target 'Grief Support' from project 'Grief Support')
+	EmitSwiftModule normal arm64 (in target 'Grief Support' from project 'Grief Support')
+	SwiftCompile normal arm64 Compiling\ ContentView.swift /Users/danielleolson/Desktop/Vibe\ Coding/Grief\ Support/Grief\ Support/ContentView.swift (in target 'Grief Support' from project 'Grief Support')
+	Building project Grief Support with scheme Grief Support
+(4 failures)

@@ -17,22 +17,26 @@ Light After Loss provides a private, non-judgmental space for grief support base
 ### Ask for Help
 - Pre-written message templates for requesting support
 - Practical and emotional support suggestions
-- Easy sharing options to reach out to your support network
+- Easy sharing options with iPad-compatible ShareSheet
+- In-app bug reporting with email integration
 
 ### Daily Reminders
-- Customizable notification times
+- Fully customizable notification times
 - Rotating supportive quotes and messages
 - Gentle touchpoints throughout your day
+- Custom time management interface
 
 ### Rituals
 - Create personal rituals for connection, reflection, birthdays, and anniversaries
-- Photo integration and symbolic imagery
+- Photo management with upload, display grid, and deletion (5-photo limit)
+- Music integration with Spotify and Apple Music
 - Step-by-step ritual creation guide
+- Full-screen ritual playback view
 
 ### Resources
 - Crisis support information (988 Suicide & Crisis Lifeline)
 - Grief support groups and helplines
-- Addiction resources for families
+- Family addiction resources (including mental health support)
 - Important awareness dates
 
 ## 🛠 Technical Details
@@ -46,7 +50,9 @@ Light After Loss provides a private, non-judgmental space for grief support base
 - SwiftUI-based interface
 - MVVM architecture pattern
 - Local data storage for privacy
-- Dark mode support
+- Responsive dark/light mode with adaptive colors
+- Custom font system with easy toggle capabilities
+- Music integration framework (Spotify/Apple Music)
 
 ### Project Structure
 ```
@@ -76,6 +82,16 @@ Grief Support/
 3. Select your target device/simulator
 4. Build and run (⌘+R)
 
+### Build Commands
+```bash
+# Build for iOS Simulator
+xcodebuild -project "Grief Support.xcodeproj" -scheme "Grief Support" -destination "platform=iOS Simulator,name=iPhone 16" build
+
+# Install and launch
+xcrun simctl install booted "path/to/Grief Support.app"
+xcrun simctl launch booted dmolson.Grief-Support
+```
+
 ## 📖 Documentation
 
 For detailed information about the app's design philosophy, user experience principles, and feature specifications, please refer to:
@@ -92,8 +108,9 @@ For detailed information about the app's design philosophy, user experience prin
 - Accent: #DED3C4 (Warm gray-beige)
 
 ### Typography
-- Primary: Inter (clean sans-serif)
-- Secondary: Cormorant Garamond (elegant serif for quotes)
+- Headers: Melodrama-Medium (custom font for "Light After Loss" header)
+- Body: Satoshi (with easy revert to system fonts via FontConfig.USE_SATOSHI toggle)
+- Quotes: Cormorant Garamond (elegant serif for quotes)
 
 ## 🫱🏽‍🫲🏾 Contributing
 

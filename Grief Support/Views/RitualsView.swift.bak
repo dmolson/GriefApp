@@ -1,0 +1,1299 @@
+//
+//  RitualsView.swift
+//  Grief Support
+//
+//  Created by Danielle Olson on 8/1/25.
+//
+
+import SwiftUI
+import PhotosUI
+
+enum RitualType: String, CaseIterable {
+    case connection = "Connection Ritual"
+    case reflection = "Reflection Ritual"
+    case birthday = "Birthday Ritual"
+    case anniversary = "Anniversary Ritual"
+    
+    var icon: String {
+        switch self {
+        case .connection: return "sunrise.fill"
+        case .reflection: return "moon.fill"
+        case .birthday: return "birthday.cake.fill"
+        case .anniversary: return "calendar.badge.plus"
+        }
+    }
+}
+
+struct MusicSelection {
+    let id: String
+    let title: String
+    let artist: String
+    let type: MusicType
+    let service: MusicService
+    let artworkURL: String?
+    
+    enum MusicType {
+        case song
+        case playlist
+    }
+    
+    enum MusicService {
+        case spotify
+        case appleMusic
+    }
+}
+
+struct RitualsView: View {
+    @State private var selectedRitualType: RitualType?
+    @State private var selectedPerson = ""
+    @State private var customIdeas = ""
+    @State private var connectionPrompts = ""
+    @State private var reflectionPrompts = ""
+    @State private var itemsText = ""
+    @State private var selectedImages: [UIImage] = []
+    @State private var selectedPresetImage: String? = nil
+    @State private var showingImagePicker = false
+    @State private var showingPhotoSavedAlert = false
+    @State private var photoSavedMessage = ""
+    @State private var showingLovedOnesSettings = false
+    @State private var selectedPersonFilter = "Create"
+    @State private var selectedMusic: MusicSelection? = nil
+    @State private var showingMusicPicker = false
+    @State private var showingMusicPlayer = false
+    @State private var showingRitualPlayback = false
+    @AppStorage("spotifyConnected") private var spotifyConnected = false
+    @AppStorage("appleMusicConnected") private var appleMusicConnected = false
+    
+    let lovedOnes = ["All", "Matthew", "Mom", "Smudge"] // This would come from data persistence
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // Create button - always visible and prominent
+                    HStack {
+                        Spacer()
+                        
+                        Button(action: {
+                            selectedPersonFilter = "Create"
+                            selectedRitualType = nil // Reset to show creation form
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+                                
+                                Text("Create New Ritual")
+                                    .font(.system(size: 16, weight: .semibold))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(ThemeColors.adaptivePrimaryBackground)
+                            .cornerRadius(25)
+                            .shadow(color: ThemeColors.adaptivePrimary.opacity(0.3), radius: 4, x: 0, y: 2)
+                        }
+                        
+                        Spacer()
+                    }
+                    
+                    // View Rituals section
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("View Rituals")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        // Loved ones filter buttons - flexible wrapping layout
+                        LazyVGrid(columns: [
+                            GridItem(.adaptive(minimum: 80), spacing: 8)
+                        ], spacing: 8) {
+                            Button(action: {
+                                selectedPersonFilter = "All"
+                            }) {
+                                Text("All")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(selectedPersonFilter == "All" ? ThemeColors.adaptivePrimaryText : ThemeColors.adaptivePrimary)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(selectedPersonFilter == "All" ? ThemeColors.adaptivePrimaryBackground : Color.clear)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(ThemeColors.adaptivePrimary, lineWidth: 1.5)
+                                    )
+                                    .cornerRadius(12)
+                            }
+                            
+                            ForEach(lovedOnes.dropFirst(), id: \.self) { person in
+                                Button(action: {
+                                    selectedPersonFilter = person.lowercased()
+                                }) {
+                                    Text(person)
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(selectedPersonFilter == person.lowercased() ? ThemeColors.adaptivePrimaryText : ThemeColors.adaptivePrimary)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(selectedPersonFilter == person.lowercased() ? ThemeColors.adaptivePrimaryBackground : Color.clear)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(ThemeColors.adaptivePrimary, lineWidth: 1.5)
+                                        )
+                                        .cornerRadius(12)
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Show different content based on filter selection
+                    if selectedPersonFilter == "Create" || selectedPersonFilter == "All" {
+                        // Show ritual creation form
+                        SectionHeaderView(title: "Create Your Ritual")
+                    CardView {
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("Choose Ritual Type")
+                                .font(.system(size: 16, weight: .semibold))
+                            
+                            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                                ForEach(RitualType.allCases, id: \.self) { type in
+                                    RitualTypeCard(
+                                        type: type,
+                                        isSelected: selectedRitualType == type,
+                                        action: { selectedRitualType = type }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Person Selection (for birthday/anniversary)
+                    if selectedRitualType == .birthday || selectedRitualType == .anniversary {
+                        CardView {
+                            VStack(alignment: .leading, spacing: 15) {
+                                Text("Select Your Loved One")
+                                    .font(.system(size: 16, weight: .semibold))
+                                
+                                Picker("Choose someone", selection: $selectedPerson) {
+                                    Text("Choose someone...").tag("")
+                                    Text("Matthew").tag("matthew")
+                                    Text("Mom").tag("mom")
+                                    Text("Smudge").tag("smudge")
+                                }
+                                .pickerStyle(MenuPickerStyle())
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                                .background(Color(UIColor.secondarySystemBackground))
+                                .cornerRadius(8)
+                                
+                                // Notification Banner
+                                if !selectedPerson.isEmpty {
+                                    NotificationBanner(
+                                        person: selectedPerson,
+                                        ritualType: selectedRitualType!,
+                                        onTap: { showingLovedOnesSettings = true }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Ritual-specific content
+                    if let selectedType = selectedRitualType {
+                        switch selectedType {
+                        case .connection:
+                            ConnectionRitualContent(
+                                customIdeas: $customIdeas,
+                                connectionPrompts: $connectionPrompts,
+                                itemsText: $itemsText
+                            )
+                        case .reflection:
+                            ReflectionRitualContent(
+                                customIdeas: $customIdeas,
+                                reflectionPrompts: $reflectionPrompts,
+                                itemsText: $itemsText
+                            )
+                        case .birthday, .anniversary:
+                            BirthdayAnniversaryRitualContent(customIdeas: $customIdeas)
+                        }
+                        
+                        // Upload Photos
+                        SectionHeaderView(title: "Upload Photos")
+                        
+                        // Show uploaded photos if any
+                        if !selectedImages.isEmpty {
+                            UploadedPhotosGrid(images: $selectedImages)
+                        }
+                        
+                        // Upload button
+                        Button(action: { 
+                            if selectedImages.count < 5 {
+                                showingImagePicker = true 
+                            }
+                        }) {
+                            VStack(spacing: 10) {
+                                Image(systemName: selectedImages.isEmpty ? "camera.fill" : "plus.circle.fill")
+                                    .font(.system(size: 32))
+                                    .foregroundColor(selectedImages.count >= 5 ? .gray : ThemeColors.adaptivePrimary)
+                                
+                                if selectedImages.isEmpty {
+                                    Text("Tap to add photos from your device")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.gray)
+                                } else if selectedImages.count >= 5 {
+                                    Text("Maximum 5 photos reached")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(.gray)
+                                } else {
+                                    Text("Add more photos (\(selectedImages.count)/5)")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(ThemeColors.adaptivePrimary)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: selectedImages.isEmpty ? 120 : 80)
+                            .background(Color(UIColor.secondarySystemBackground))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(style: StrokeStyle(lineWidth: 2, dash: [5]))
+                                    .foregroundColor(selectedImages.count >= 5 ? Color(UIColor.separator) : ThemeColors.adaptivePrimary)
+                            )
+                        }
+                        .disabled(selectedImages.count >= 5)
+                        
+                        // Preset Images
+                        SectionHeaderView(title: "Preset Images")
+                        
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 12) {
+                            PresetImageView(icon: "candle.fill", name: "candle", isSelected: selectedPresetImage == "candle") {
+                                selectPresetImage("candle")
+                            }
+                            PresetImageView(icon: "leaf.fill", name: "flower", isSelected: selectedPresetImage == "flower") {
+                                selectPresetImage("flower")
+                            }
+                            PresetImageView(icon: "book.fill", name: "reading", isSelected: selectedPresetImage == "reading") {
+                                selectPresetImage("reading")
+                            }
+                            PresetImageView(icon: "butterfly.fill", name: "butterfly", isSelected: selectedPresetImage == "butterfly") {
+                                selectPresetImage("butterfly")
+                            }
+                            PresetImageView(icon: "star.fill", name: "star", isSelected: selectedPresetImage == "star") {
+                                selectPresetImage("star")
+                            }
+                            PresetImageView(icon: "heart.fill", name: "heart", isSelected: selectedPresetImage == "heart") {
+                                selectPresetImage("heart")
+                            }
+                            PresetImageView(icon: "circle.dashed", name: "none", isSelected: selectedPresetImage == "none") {
+                                selectPresetImage("none")
+                            }
+                        }
+                        
+                        // Music Selection (only show if connected to a music service)
+                        if spotifyConnected || appleMusicConnected {
+                            SectionHeaderView(title: "Add Music")
+                            
+                            CardView {
+                                VStack(alignment: .leading, spacing: 15) {
+                                    if let music = selectedMusic {
+                                        // Show selected music
+                                        HStack(spacing: 12) {
+                                            // Music artwork placeholder or actual artwork
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .fill(Color(UIColor.secondarySystemBackground))
+                                                .frame(width: 60, height: 60)
+                                                .overlay(
+                                                    Image(systemName: music.type == .song ? "music.note" : "music.note.list")
+                                                        .font(.system(size: 24))
+                                                        .foregroundColor(ThemeColors.adaptivePrimary)
+                                                )
+                                            
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(music.title)
+                                                    .font(.system(size: 16, weight: .semibold))
+                                                    .lineLimit(1)
+                                                
+                                                Text(music.artist)
+                                                    .font(.system(size: 14))
+                                                    .foregroundColor(.secondary)
+                                                    .lineLimit(1)
+                                                
+                                                HStack {
+                                                    Image(systemName: music.service == .spotify ? "music.note" : "music.note")
+                                                        .font(.system(size: 12))
+                                                        .foregroundColor(.secondary)
+                                                    
+                                                    Text(music.service == .spotify ? "Spotify" : "Apple Music")
+                                                        .font(.system(size: 12))
+                                                        .foregroundColor(.secondary)
+                                                    
+                                                    Text("•")
+                                                        .font(.system(size: 12))
+                                                        .foregroundColor(.secondary)
+                                                    
+                                                    Text(music.type == .song ? "Song" : "Playlist")
+                                                        .font(.system(size: 12))
+                                                        .foregroundColor(.secondary)
+                                                }
+                                            }
+                                            
+                                            Spacer()
+                                            
+                                            VStack(spacing: 8) {
+                                                Button(action: { showingMusicPlayer = true }) {
+                                                    Image(systemName: "play.circle.fill")
+                                                        .font(.system(size: 24))
+                                                        .foregroundColor(ThemeColors.adaptivePrimary)
+                                                }
+                                                
+                                                Button(action: { selectedMusic = nil }) {
+                                                    Image(systemName: "xmark.circle")
+                                                        .font(.system(size: 20))
+                                                        .foregroundColor(.secondary)
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        // Show music selection button
+                                        Button(action: { showingMusicPicker = true }) {
+                                            HStack {
+                                                Image(systemName: "music.note.list")
+                                                    .font(.system(size: 20))
+                                                    .foregroundColor(ThemeColors.adaptivePrimary)
+                                                
+                                                VStack(alignment: .leading, spacing: 2) {
+                                                    Text("Add Music to Your Ritual")
+                                                        .font(.system(size: 16, weight: .semibold))
+                                                        .foregroundColor(.primary)
+                                                    
+                                                    Text("Choose a song or playlist from your connected music service")
+                                                        .font(.system(size: 14))
+                                                        .foregroundColor(.secondary)
+                                                }
+                                                
+                                                Spacer()
+                                                
+                                                Image(systemName: "chevron.right")
+                                                    .font(.system(size: 14))
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            .padding(.vertical, 8)
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Starting Points (moved to bottom)
+                        SectionHeaderView(title: "Starting Points")
+                        
+                        CardView {
+                            VStack(spacing: 8) {
+                                StartingPointView(
+                                    title: "Choose a Place",
+                                    description: "Find a safe, comfortable space where you feel okay showing emotions"
+                                )
+                                StartingPointView(
+                                    title: "Gather Items", 
+                                    description: "Objects that remind you of your loved one or bring comfort"
+                                )
+                                StartingPointView(
+                                    title: "Include Photos",
+                                    description: "Cherished memories you'd like to have present"
+                                )
+                            }
+                        }
+                        
+                        VStack(spacing: 12) {
+                            PrimaryButton(title: "Start Ritual") {
+                                showingRitualPlayback = true
+                            }
+                            
+                            SecondaryButton(title: selectedRitualType != nil ? "Save \(selectedRitualType!.rawValue)" : "Save My Ritual") {
+                                // TODO: Save ritual
+                            }
+                        }
+                    } else {
+                        // Show empty state for selected person with no rituals
+                        VStack(spacing: 24) {
+                            Spacer()
+                            
+                            Image(systemName: "heart.text.square")
+                                .font(.system(size: 64))
+                                .foregroundColor(ThemeColors.adaptivePrimary.opacity(0.6))
+                            
+                            VStack(spacing: 8) {
+                                Text("No Rituals Created Yet")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .multilineTextAlignment(.center)
+                                
+                                Text("Create your first ritual for \(selectedPersonFilter.capitalized) to begin honoring their memory")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .lineSpacing(4)
+                            }
+                            
+                            PrimaryButton(title: "Create First Ritual for \(selectedPersonFilter.capitalized)") {
+                                selectedPersonFilter = "Create"
+                                selectedRitualType = nil
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+                .padding()
+                .padding(.top, 144) // Account for header height
+            }
+            .background(Color(UIColor.systemBackground))
+            .navigationBarHidden(true)
+        }
+        .sheet(isPresented: $showingImagePicker) {
+            ImagePicker(images: $selectedImages, onPhotosSaved: { count in
+                photoSavedMessage = count == 1 ? "1 photo added to your ritual" : "\(count) photos added to your ritual"
+                showingPhotoSavedAlert = true
+            })
+        }
+        .sheet(isPresented: $showingLovedOnesSettings) {
+            SettingsView()
+        }
+        .alert("Photos Saved", isPresented: $showingPhotoSavedAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(photoSavedMessage)
+        }
+        .sheet(isPresented: $showingMusicPicker) {
+            MusicPickerView(selectedMusic: $selectedMusic, spotifyConnected: spotifyConnected, appleMusicConnected: appleMusicConnected)
+        }
+        .sheet(isPresented: $showingMusicPlayer) {
+            if let music = selectedMusic {
+                MusicPlayerView(music: music)
+            }
+        }
+    }
+    
+    private func selectPresetImage(_ name: String) {
+        if selectedPresetImage == name {
+            // Deselect if already selected
+            selectedPresetImage = nil
+        } else {
+            // Select the new image (automatically deselects any previously selected)
+            selectedPresetImage = name
+        }
+    }
+}
+
+// MARK: - Connection Ritual Content
+struct ConnectionRitualContent: View {
+    @Binding var customIdeas: String
+    @Binding var connectionPrompts: String
+    @Binding var itemsText: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            // Connection Prompts
+            CardView {
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("Connection Ideas")
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    Text("Here are some gentle ways to connect with your loved one. Choose what feels right for you today:")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        BulletPoint(text: "Write them a letter about what's happening in your life")
+                        BulletPoint(text: "Talk to them out loud about your day or your feelings")
+                        BulletPoint(text: "Sing a song that reminds you of them")
+                        BulletPoint(text: "Share a memory you love about them")
+                        BulletPoint(text: "Ask them for guidance and sit quietly to listen")
+                    }
+                    
+                    TextEditor(text: $connectionPrompts)
+                        .frame(height: 80)
+                        .padding(8)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(8)
+                        .overlay(
+                            Group {
+                                if connectionPrompts.isEmpty {
+                                    Text("What would you like to say or ask?")
+                                        .foregroundColor(.gray)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 16)
+                                        .allowsHitTesting(false)
+                                }
+                            },
+                            alignment: .topLeading
+                        )
+                }
+            }
+            
+            // Items section
+            CardView {
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("Items")
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    TextEditor(text: $itemsText)
+                        .frame(height: 80)
+                        .padding(8)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(8)
+                        .overlay(
+                            Group {
+                                if itemsText.isEmpty {
+                                    Text("What are objects that remind you of your loved one?")
+                                        .foregroundColor(.gray)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 16)
+                                        .allowsHitTesting(false)
+                                }
+                            },
+                            alignment: .topLeading
+                        )
+                }
+            }
+            
+            // Custom Ideas
+            CardView {
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("Custom Ritual Ideas")
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    TextEditor(text: $customIdeas)
+                        .frame(height: 100)
+                        .padding(8)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(8)
+                        .overlay(
+                            Group {
+                                if customIdeas.isEmpty {
+                                    Text("Add your own ideas for this connection ritual")
+                                        .foregroundColor(.gray)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 16)
+                                        .allowsHitTesting(false)
+                                }
+                            },
+                            alignment: .topLeading
+                        )
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Reflection Ritual Content
+struct ReflectionRitualContent: View {
+    @Binding var customIdeas: String
+    @Binding var reflectionPrompts: String
+    @Binding var itemsText: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            // Reflection Prompts
+            CardView {
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("Reflection Ideas")
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    Text("Take time to honor your healing journey. These prompts can help you connect with yourself:")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        BulletPoint(text: "What am I feeling right now, and that's okay")
+                        BulletPoint(text: "What do I need in this moment to feel supported?")
+                        BulletPoint(text: "What am I avoiding that might help me heal?")
+                        BulletPoint(text: "What would my loved one want me to know right now?")
+                        BulletPoint(text: "What songs, resources, or support do I want to seek out?")
+                    }
+                    
+                    TextEditor(text: $reflectionPrompts)
+                        .frame(height: 80)
+                        .padding(8)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(8)
+                        .overlay(
+                            Group {
+                                if reflectionPrompts.isEmpty {
+                                    Text("What thoughts or feelings want your attention?")
+                                        .foregroundColor(.gray)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 16)
+                                        .allowsHitTesting(false)
+                                }
+                            },
+                            alignment: .topLeading
+                        )
+                }
+            }
+            
+            // Items section
+            CardView {
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("Items")
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    TextEditor(text: $itemsText)
+                        .frame(height: 80)
+                        .padding(8)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(8)
+                        .overlay(
+                            Group {
+                                if itemsText.isEmpty {
+                                    Text("What are objects that remind you of your loved one?")
+                                        .foregroundColor(.gray)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 16)
+                                        .allowsHitTesting(false)
+                                }
+                            },
+                            alignment: .topLeading
+                        )
+                }
+            }
+            
+            // Custom Ideas
+            CardView {
+                VStack(alignment: .leading, spacing: 15) {
+                    Text("Custom Ritual Ideas")
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    TextEditor(text: $customIdeas)
+                        .frame(height: 100)
+                        .padding(8)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(8)
+                        .overlay(
+                            Group {
+                                if customIdeas.isEmpty {
+                                    Text("Add your own ideas for this reflection ritual")
+                                        .foregroundColor(.gray)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 16)
+                                        .allowsHitTesting(false)
+                                }
+                            },
+                            alignment: .topLeading
+                        )
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Birthday/Anniversary Ritual Content
+struct BirthdayAnniversaryRitualContent: View {
+    @Binding var customIdeas: String
+    
+    var body: some View {
+        CardView {
+            VStack(alignment: .leading, spacing: 15) {
+                Text("Custom Ritual Ideas")
+                    .font(.system(size: 16, weight: .semibold))
+                
+                TextEditor(text: $customIdeas)
+                    .frame(height: 100)
+                    .padding(8)
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(8)
+                    .overlay(
+                        Group {
+                            if customIdeas.isEmpty {
+                                Text("e.g. Eating her favorite cake, listen to his favorite songs, FaceTime with our family, 5K race")
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 16)
+                                    .allowsHitTesting(false)
+                            }
+                        },
+                        alignment: .topLeading
+                    )
+            }
+        }
+    }
+}
+
+// MARK: - Supporting Views
+struct BulletPoint: View {
+    let text: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Text("•")
+                .foregroundColor(ThemeColors.adaptivePrimary)
+                .font(.system(size: 14, weight: .semibold))
+            
+            Text(text)
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+        }
+    }
+}
+
+struct StartingPointView: View {
+    let title: String
+    let description: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Circle()
+                .fill(ThemeColors.adaptivePrimary.opacity(0.2))
+                .frame(width: 8, height: 8)
+                .offset(y: 4)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 14, weight: .semibold))
+                Text(description)
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct RitualTypeCard: View {
+    let type: RitualsView.RitualType
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: type.icon)
+                    .font(.system(size: 24))
+                    .foregroundColor(isSelected ? ThemeColors.adaptivePrimary : .gray)
+                
+                Text(type.rawValue)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(isSelected ? .primary : .secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 15)
+            .background(isSelected ? Color(UIColor.tertiarySystemBackground) : Color(UIColor.secondarySystemBackground))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? ThemeColors.adaptivePrimary : Color.clear, lineWidth: 2)
+            )
+        }
+    }
+}
+
+struct PresetImageView: View {
+    let icon: String
+    let name: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 24))
+                .foregroundColor(isSelected ? ThemeColors.adaptivePrimary : .gray)
+                .frame(width: 60, height: 60)
+                .background(Color(UIColor.secondarySystemBackground))
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isSelected ? ThemeColors.adaptivePrimary : Color.clear, lineWidth: 2)
+                )
+        }
+    }
+}
+
+struct NotificationBanner: View {
+    let person: String
+    let ritualType: RitualsView.RitualType
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack {
+                Image(systemName: "bell.slash.fill")
+                    .font(.system(size: 16))
+                
+                Text("Turn back on notifications in Your Loved Ones to receive ritual reminders")
+                    .font(.system(size: 14))
+                    .multilineTextAlignment(.leading)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14))
+            }
+            .padding()
+            .foregroundColor(.primary)
+            .background(Color(UIColor.secondarySystemBackground))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.orange, lineWidth: 1)
+            )
+        }
+    }
+}
+
+// MARK: - Uploaded Photos Grid
+struct UploadedPhotosGrid: View {
+    @Binding var images: [UIImage]
+    
+    var body: some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
+            ForEach(images.indices, id: \.self) { index in
+                ZStack(alignment: .topTrailing) {
+                    Image(uiImage: images[index])
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 100, height: 100)
+                        .clipped()
+                        .cornerRadius(8)
+                    
+                    Button(action: {
+                        images.remove(at: index)
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .background(Color.black.opacity(0.6))
+                            .clipShape(Circle())
+                    }
+                    .offset(x: 5, y: -5)
+                }
+            }
+        }
+        .padding(.bottom, 8)
+    }
+}
+
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var images: [UIImage]
+    let onPhotosSaved: (Int) -> Void
+    @Environment(\.presentationMode) var presentationMode
+    
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.filter = .images
+        config.selectionLimit = 5
+        
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let parent: ImagePicker
+        
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+        
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            parent.presentationMode.wrappedValue.dismiss()
+            
+            guard !results.isEmpty else { return }
+            
+            let group = DispatchGroup()
+            var loadedImages: [UIImage] = []
+            
+            for result in results {
+                if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
+                    group.enter()
+                    result.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+                        if let image = image as? UIImage {
+                            loadedImages.append(image)
+                        }
+                        group.leave()
+                    }
+                }
+            }
+            
+            group.notify(queue: .main) {
+                // Add images up to the limit of 5
+                let availableSlots = 5 - self.parent.images.count
+                let imagesToAdd = Array(loadedImages.prefix(availableSlots))
+                
+                self.parent.images.append(contentsOf: imagesToAdd)
+                
+                if !imagesToAdd.isEmpty {
+                    self.parent.onPhotosSaved(imagesToAdd.count)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Music Picker View
+struct MusicPickerView: View {
+    @Binding var selectedMusic: RitualsView.MusicSelection?
+    let spotifyConnected: Bool
+    let appleMusicConnected: Bool
+    @Environment(\.presentationMode) var presentationMode
+    @State private var searchText = ""
+    @State private var searchResults: [RitualsView.MusicSelection] = []
+    @State private var selectedService: RitualsView.MusicSelection.MusicService = .spotify
+    @State private var isLoading = false
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Service selector
+                if spotifyConnected && appleMusicConnected {
+                    Picker("Music Service", selection: $selectedService) {
+                        Text("Spotify").tag(RitualsView.MusicSelection.MusicService.spotify)
+                        Text("Apple Music").tag(RitualsView.MusicSelection.MusicService.appleMusic)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding()
+                }
+                
+                // Search bar
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                    
+                    TextField("Search songs and playlists...", text: $searchText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .onSubmit {
+                            performSearch()
+                        }
+                }
+                .padding(.horizontal)
+                
+                Divider()
+                    .padding(.top)
+                
+                // Results
+                if isLoading {
+                    VStack {
+                        Spacer()
+                        ProgressView("Searching...")
+                        Spacer()
+                    }
+                } else if searchResults.isEmpty && !searchText.isEmpty {
+                    VStack {
+                        Spacer()
+                        Image(systemName: "music.note.house")
+                            .font(.system(size: 48))
+                            .foregroundColor(.secondary)
+                        Text("No results found")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                        Text("Try a different search term")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                } else if searchText.isEmpty {
+                    VStack {
+                        Spacer()
+                        Image(systemName: "music.note.list")
+                            .font(.system(size: 48))
+                            .foregroundColor(.secondary)
+                        Text("Search for Music")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                        Text("Find songs and playlists to add to your ritual")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                        Spacer()
+                    }
+                    .padding()
+                } else {
+                    List(searchResults, id: \.id) { music in
+                        MusicResultRow(music: music) {
+                            selectedMusic = music
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Choose Music")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+            }
+            .onAppear {
+                if spotifyConnected && !appleMusicConnected {
+                    selectedService = .spotify
+                } else if appleMusicConnected && !spotifyConnected {
+                    selectedService = .appleMusic
+                }
+            }
+        }
+    }
+    
+    private func performSearch() {
+        guard !searchText.isEmpty else { return }
+        
+        isLoading = true
+        
+        // Simulate API call with demo data
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            isLoading = false
+            
+            // Demo results
+            searchResults = [
+                RitualsView.MusicSelection(
+                    id: "1",
+                    title: "Amazing Grace",
+                    artist: "Various Artists",
+                    type: .song,
+                    service: selectedService,
+                    artworkURL: nil
+                ),
+                RitualsView.MusicSelection(
+                    id: "2",
+                    title: "Peaceful Memories",
+                    artist: "Calm Collective",
+                    type: .playlist,
+                    service: selectedService,
+                    artworkURL: nil
+                ),
+                RitualsView.MusicSelection(
+                    id: "3",
+                    title: "Somewhere Over the Rainbow",
+                    artist: "Israel Kamakawiwoʻole",
+                    type: .song,
+                    service: selectedService,
+                    artworkURL: nil
+                ),
+                RitualsView.MusicSelection(
+                    id: "4",
+                    title: "Healing Playlist",
+                    artist: "Grief Support",
+                    type: .playlist,
+                    service: selectedService,
+                    artworkURL: nil
+                )
+            ]
+        }
+    }
+}
+
+struct MusicResultRow: View {
+    let music: RitualsView.MusicSelection
+    let onSelect: () -> Void
+    
+    var body: some View {
+        Button(action: onSelect) {
+            HStack(spacing: 12) {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(UIColor.secondarySystemBackground))
+                    .frame(width: 50, height: 50)
+                    .overlay(
+                        Image(systemName: music.type == .song ? "music.note" : "music.note.list")
+                            .font(.system(size: 20))
+                            .foregroundColor(ThemeColors.adaptivePrimary)
+                    )
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(music.title)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    
+                    Text(music.artist)
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                    
+                    HStack {
+                        Text(music.type == .song ? "Song" : "Playlist")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                        
+                        Text("•")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                        
+                        Text(music.service == .spotify ? "Spotify" : "Apple Music")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Spacer()
+                
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(ThemeColors.adaptivePrimary)
+            }
+            .padding(.vertical, 4)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Music Player View
+struct MusicPlayerView: View {
+    let music: RitualsView.MusicSelection
+    @Environment(\.presentationMode) var presentationMode
+    @State private var isPlaying = false
+    @State private var currentTime: Double = 0
+    @State private var totalTime: Double = 180 // 3 minutes demo
+    @State private var volume: Double = 0.7
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 30) {
+                Spacer()
+                
+                // Album artwork
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(
+                        LinearGradient(
+                            colors: [ThemeColors.adaptivePrimary.opacity(0.3), ThemeColors.adaptivePrimary.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 280, height: 280)
+                    .overlay(
+                        Image(systemName: music.type == .song ? "music.note" : "music.note.list")
+                            .font(.system(size: 80))
+                            .foregroundColor(ThemeColors.adaptivePrimary)
+                    )
+                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                
+                // Song info
+                VStack(spacing: 8) {
+                    Text(music.title)
+                        .font(.system(size: 24, weight: .bold))
+                        .multilineTextAlignment(.center)
+                    
+                    Text(music.artist)
+                        .font(.system(size: 18))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    
+                    HStack {
+                        Text(music.service == .spotify ? "Spotify" : "Apple Music")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                        
+                        Text("•")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                        
+                        Text(music.type == .song ? "Song" : "Playlist")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                // Progress bar
+                VStack(spacing: 8) {
+                    Slider(value: $currentTime, in: 0...totalTime)
+                        .accentColor(ThemeColors.adaptivePrimary)
+                    
+                    HStack {
+                        Text(timeString(from: currentTime))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Spacer()
+                        
+                        Text(timeString(from: totalTime))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(.horizontal)
+                
+                // Controls
+                HStack(spacing: 40) {
+                    Button(action: {}) {
+                        Image(systemName: "backward.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(ThemeColors.adaptivePrimary)
+                    }
+                    
+                    Button(action: { isPlaying.toggle() }) {
+                        Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(ThemeColors.adaptivePrimary)
+                    }
+                    
+                    Button(action: {}) {
+                        Image(systemName: "forward.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(ThemeColors.adaptivePrimary)
+                    }
+                }
+                
+                // Volume control
+                HStack {
+                    Image(systemName: "speaker.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(.secondary)
+                    
+                    Slider(value: $volume, in: 0...1)
+                        .accentColor(ThemeColors.adaptivePrimary)
+                    
+                    Image(systemName: "speaker.wave.3.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal)
+                
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Now Playing")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+            }
+            .onAppear {
+                // Start demo playback simulation
+                if music.type == .song {
+                    simulatePlayback()
+                }
+            }
+        }
+    }
+    
+    private func timeString(from seconds: Double) -> String {
+        let minutes = Int(seconds) / 60
+        let remainingSeconds = Int(seconds) % 60
+        return String(format: "%d:%02d", minutes, remainingSeconds)
+    }
+    
+    private func simulatePlayback() {
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            if isPlaying && currentTime < totalTime {
+                currentTime += 1
+            }
+            if currentTime >= totalTime {
+                timer.invalidate()
+                isPlaying = false
+                currentTime = 0
+            }
+        }
+    }
+}
+
+#Preview {
+    RitualsView()
+}

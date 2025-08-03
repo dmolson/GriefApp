@@ -19,13 +19,17 @@ This is a compassionate iOS application designed to support individuals navigati
 - **Architecture**: MVVM pattern
 - **Deployment**: Xcode 16.4+
 - **Dependencies**: Swift Algorithms package
+- **Fonts**: Melodrama-Medium (headers), Satoshi (body text with easy toggle)
 
 ## Key Features Implemented
-1. **Ask for Help** - Message templates and support suggestions
-2. **Daily Reminders** - Customizable notifications with supportive quotes
-3. **Rituals** - Create meaningful remembrance activities
+1. **Ask for Help** - Message templates and support suggestions with share sheet
+2. **Daily Reminders** - Customizable notifications with supportive quotes and custom times
+3. **Rituals** - Create meaningful remembrance activities with photo management and music integration
 4. **Resources** - Crisis support, grief groups, and awareness information
-5. **Settings** - Loved ones management, appearance, and data controls
+5. **Settings** - Loved ones management, appearance, data controls, and music integrations
+6. **Theme System** - Responsive dark/light mode with adaptive colors
+7. **Font System** - Custom fonts (Melodrama-Medium for headers) with easy revert capability
+8. **Bug Reporting** - In-app feedback system for user issues
 
 ## File Structure
 ```
@@ -33,12 +37,15 @@ Grief Support/
 ├── Grief_SupportApp.swift     # App entry point
 ├── ContentView.swift          # Main tab controller
 ├── Views/                     # Feature views
-│   ├── AskForHelpView.swift
-│   ├── RemindersView.swift
-│   ├── RitualsView.swift
-│   ├── ResourcesView.swift
-│   ├── SettingsView.swift
-│   └── CommonComponents.swift
+│   ├── AskForHelpView.swift   # Help templates with ShareSheet
+│   ├── RemindersView.swift    # Custom times and notifications
+│   ├── RitualsView.swift      # Photo management and music integration
+│   ├── ResourcesView.swift    # Support resources
+│   ├── SettingsView.swift     # Complete settings with bug reporting
+│   └── CommonComponents.swift # Adaptive theme colors
+├── Fonts/                     # Font system
+│   ├── FontExtensions.swift   # Custom font management
+│   └── Melodrama-Medium.otf   # Header font
 ├── Design-Docs/               # Design documentation
 │   ├── context.md            # Core design principles
 │   ├── development-log.md    # Implementation history
@@ -51,6 +58,8 @@ Grief Support/
 - **Gentle**: Soft color palette (#555879 primary, warm cream backgrounds)
 - **Private**: No social features, focus on personal journey
 - **Empowering**: User-controlled experience through customization
+- **Adaptive**: Responsive dark/light mode with immediate visual feedback
+- **Accessible**: Easy-to-use font system with toggle capabilities
 
 ## Build Commands
 ```bash
@@ -73,16 +82,24 @@ xcrun simctl launch booted dmolson.Grief-Support
 https://github.com/dmolson/GriefApp
 
 ## Recent Development Notes
-- Fixed build warnings by excluding Design-Docs and Prototypes folders from compilation
-- Created comprehensive README for public repository
-- Set up demo recording infrastructure using iOS Simulator's built-in video capture
-- All documentation files properly linked and accessible
+- ✅ Fixed Settings dark mode visibility issues with adaptive colors
+- ✅ Implemented responsive theme switching with immediate visual feedback
+- ✅ Added comprehensive photo management for rituals (5-photo limit)
+- ✅ Implemented custom times functionality for reminders
+- ✅ Added bug reporting system with in-app dialog
+- ✅ Created music integration framework for Spotify/Apple Music
+- ✅ Added reset functionality for all saved data types
+- ✅ Updated font system to Melodrama-Medium for headers with easy revert
+- ✅ Fixed ShareSheet for message functionality with iPad compatibility
+- ✅ All build errors resolved and app compiling successfully
 
 ## Next Steps Considerations
+- Complete music integration with actual Spotify/Apple Music APIs
 - Implement data persistence (Core Data or SwiftData)
 - Add notification scheduling functionality
-- Integrate photo picker for ritual creation
-- Implement music integration for rituals
+- Complete ritual playback full-screen view
+- Implement email integration for bug reports to wearesoulfulai@gmail.com
+- Add AI-powered template generation feature (using Apple's Foundation Model)
 - Add accessibility improvements
 - Consider watchOS companion app
 

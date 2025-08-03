@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+// MARK: - Font Configuration
+struct FontConfig {
+    // Set USE_SATOSHI to false to quickly revert to system fonts
+    static let USE_SATOSHI = false
+}
+
 extension Font {
     // MARK: - Chubbo Font (App Header)
     static func chubbo(size: CGFloat, weight: Font.Weight = .regular) -> Font {
@@ -18,9 +24,13 @@ extension Font {
         return Font.custom(exconFontName(for: weight), size: size)
     }
     
-    // MARK: - Ranade Font (Body Text)
-    static func ranade(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        return Font.custom(ranadeFontName(for: weight), size: size)
+    // MARK: - Satoshi Font (Body Text)
+    static func satoshi(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        if FontConfig.USE_SATOSHI {
+            return Font.custom(satoshiFontName(for: weight), size: size)
+        } else {
+            return Font.system(size: size, weight: weight)
+        }
     }
     
     // MARK: - Semantic Font Styles
@@ -33,21 +43,30 @@ extension Font {
     static let headline = Font.excon(size: 17, weight: .semibold)
     static let subheadline = Font.excon(size: 15, weight: .medium)
     
-    // Body text using Ranade
-    static let body = Font.ranade(size: 17, weight: .regular)
-    static let callout = Font.ranade(size: 16, weight: .regular)
-    static let footnote = Font.ranade(size: 13, weight: .regular)
-    static let caption1 = Font.ranade(size: 12, weight: .regular)
-    static let caption2 = Font.ranade(size: 11, weight: .regular)
+    // Body text using Satoshi
+    static let body = Font.satoshi(size: 17, weight: .regular)
+    static let callout = Font.satoshi(size: 16, weight: .regular)
+    static let footnote = Font.satoshi(size: 13, weight: .regular)
+    static let caption1 = Font.satoshi(size: 12, weight: .regular)
+    static let caption2 = Font.satoshi(size: 11, weight: .regular)
     
     // Custom app-specific styles
-    static let appHeaderTitle = Font.chubbo(size: 28, weight: .bold) // Main "Light After Loss" header
+    static let appHeaderTitle = Font.custom("Melodrama-Medium", size: 35) // Main "light after loss" header
     static let appTitle = Font.excon(size: 24, weight: .bold)
     static let tabTitle = Font.excon(size: 18, weight: .semibold)
     static let cardTitle = Font.excon(size: 16, weight: .semibold)
-    static let supportiveText = Font.ranade(size: 15, weight: .medium)
-    static let quoteText = Font.ranade(size: 15, weight: .medium)
-    static let buttonText = Font.ranade(size: 16, weight: .medium)
+    static let supportiveText = Font.satoshi(size: 15, weight: .medium)
+    static let quoteText = Font.satoshi(size: 15, weight: .medium)
+    static let buttonText = Font.satoshi(size: 16, weight: .medium)
+    
+    // Easy to use app font aliases
+    static let appBody = Font.satoshi(size: 16, weight: .regular)
+    static let appBodySmall = Font.satoshi(size: 14, weight: .regular)
+    static let appBodyLarge = Font.satoshi(size: 18, weight: .regular)
+    static let appCaption = Font.satoshi(size: 12, weight: .regular)
+    static let appHeadline = Font.satoshi(size: 18, weight: .medium)
+    static let appLargeTitle = Font.satoshi(size: 24, weight: .bold)
+    static let appSubheadline = Font.satoshi(size: 15, weight: .medium)
 }
 
 // MARK: - Font Name Helpers
@@ -101,28 +120,28 @@ private func exconFontName(for weight: Font.Weight) -> String {
     }
 }
 
-private func ranadeFontName(for weight: Font.Weight) -> String {
+private func satoshiFontName(for weight: Font.Weight) -> String {
     switch weight {
     case .ultraLight:
-        return "Ranade-Thin"
+        return "Satoshi-Light"
     case .thin:
-        return "Ranade-Thin"
+        return "Satoshi-Light"
     case .light:
-        return "Ranade-Light"
+        return "Satoshi-Light"
     case .regular:
-        return "Ranade-Regular"
+        return "Satoshi-Regular"
     case .medium:
-        return "Ranade-Medium"
+        return "Satoshi-Medium"
     case .semibold:
-        return "Ranade-SemiBold"
+        return "Satoshi-Bold"
     case .bold:
-        return "Ranade-Bold"
+        return "Satoshi-Bold"
     case .heavy:
-        return "Ranade-ExtraBold"
+        return "Satoshi-Black"
     case .black:
-        return "Ranade-Black"
+        return "Satoshi-Black"
     default:
-        return "Ranade-Regular"
+        return "Satoshi-Regular"
     }
 }
 
