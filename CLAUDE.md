@@ -26,10 +26,11 @@ This is a compassionate iOS application designed to support individuals navigati
 2. **Daily Reminders** - Customizable notifications with supportive quotes and custom times
 3. **Rituals** - Create meaningful remembrance activities with photo management and music integration
 4. **Resources** - Crisis support, grief groups, and awareness information
-5. **Settings** - Loved ones management, appearance, data controls, and music integrations
+5. **Settings** - Complete loved ones management with edit/delete/add functionality, appearance controls, data management, and music integrations
 6. **Theme System** - Responsive dark/light mode with adaptive colors
 7. **Font System** - Custom fonts (Melodrama-Medium for headers) with easy revert capability
 8. **Bug Reporting** - In-app feedback system for user issues
+9. **Loved Ones Management** - Full CRUD operations with elegant UX, confirmation dialogs, and real-time updates
 
 ## File Structure
 ```
@@ -91,7 +92,79 @@ https://github.com/dmolson/GriefApp
 - ✅ Added reset functionality for all saved data types
 - ✅ Updated font system to Melodrama-Medium for headers with easy revert
 - ✅ Fixed ShareSheet for message functionality with iPad compatibility
+- ✅ **Fixed disappearing rituals page issue** - Removed duplicate/conflicting files and stabilized implementation
+- ✅ **Implemented complete "Your Loved Ones" management system** - Edit, delete, and add functionality with elegant UX
 - ✅ All build errors resolved and app compiling successfully
+
+## Critical Issue Resolved: Disappearing Rituals Page
+**Problem**: The rituals page functionality was disappearing during development due to multiple conflicting file versions.
+
+**Root Cause**: 
+- Multiple versions of RitualsView files existed (RitualsView.swift, RitualsViewNew.swift, RitualsViewSimple.swift)
+- During development, the main implementation was being overwritten by stub versions
+- Build system confusion between multiple files with similar names
+
+**Solution Implemented**:
+1. Restored stable RitualsView.swift implementation from backup
+2. Removed duplicate/conflicting files (RitualsViewNew.swift, RitualsViewSimple.swift) 
+3. Added proper .gitignore to prevent build artifacts from being committed
+4. Cleaned build artifacts to ensure fresh compilation
+5. Committed stable version to prevent future loss
+
+**Prevention Measures**:
+- ✅ Added comprehensive .gitignore file
+- ✅ Removed all duplicate ritual view files
+- ✅ Committed stable implementation to version control
+- ✅ Documented issue and solution for future reference
+
+**Development Best Practices**:
+- Always use proper branching for experimental features
+- Never create multiple files with similar names in the same scope
+- Regularly commit working implementations
+- Clean build artifacts when encountering persistent build issues
+
+## New Feature Implemented: Complete "Your Loved Ones" Management System
+**Problem**: The three dot button (ellipsis) in "Your Loved Ones" cards had no functionality, and the "Add Someone Special" button was non-functional.
+
+**Solution Implemented**:
+
+### **🎯 Three Dot Button Features**
+- **Action Sheet** - Tap the enhanced three dot button to see "Edit Details" and "Delete" options
+- **Improved Design** - The button now has a subtle background circle and better visual feedback
+- **Confirmation Dialogs** - Safe deletion with clear warning messages
+
+### **✏️ Edit Functionality** 
+- **Full Edit Sheet** - Modal interface to modify name, birth date, date of passing, and reminder settings
+- **Smart Date Parsing** - Automatically converts existing date strings to editable date pickers
+- **Form Validation** - Cannot save with empty names, disabled state for save button
+- **Cancel/Save Actions** - Proper navigation with cancel and save options in toolbar
+
+### **🗑️ Delete Functionality**
+- **Confirmation Dialog** - Two-step deletion process with confirmation alert
+- **Clear Messaging** - Explains the action is permanent and cannot be undone
+- **Graceful Removal** - Smoothly removes the person from the list with proper state management
+
+### **➕ Enhanced "Add Someone Special"**
+- **Fully Functional** - The button was previously non-functional, now properly adds loved ones to the list
+- **Better UX** - Clearer date field labels ("Birth date", "Date of passing") with proper spacing
+- **Form Validation** - Button is disabled when name field is empty, prevents invalid submissions
+- **Auto-Reset** - Form automatically clears after successfully adding someone
+- **Date Formatting** - Uses proper date formatter for consistent display
+
+### **🔄 Live Updates & State Management**
+- **Toggle Sync** - Birthday and memorial reminder toggles update immediately in both card and edit views
+- **Real-time Changes** - All edits are reflected instantly in the UI without page refresh
+- **Proper Data Flow** - Callback-based architecture ensures state consistency across components
+- **Mutable Data Model** - Updated LovedOne struct to support editing while maintaining data integrity
+
+### **🎨 Elegant Design & UX**
+- **Consistent UI** - Matches app's design language with CardView components and ThemeColors
+- **User-Friendly Interactions** - Intuitive confirmation dialogs and clear action sheets
+- **Responsive Design** - Works seamlessly across different device sizes and orientations
+- **Accessibility** - Proper button roles (destructive for delete, cancel for cancel actions)
+
+**Files Modified**:
+- `SettingsView.swift:187-540` - Added complete loved ones management system with edit sheet, action dialogs, and functional add button
 
 ## Next Steps Considerations
 - Complete music integration with actual Spotify/Apple Music APIs

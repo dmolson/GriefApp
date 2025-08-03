@@ -192,13 +192,27 @@ struct LovedOnesSettingsView: View {
     @State private var newName = ""
     @State private var newBirthDate = Date()
     @State private var newPassDate = Date()
+    @State private var editingPerson: LovedOne? = nil
+    @State private var showingEditSheet = false
     
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
                 // Existing loved ones
                 ForEach(lovedOnes) { person in
-                    LovedOneCard(person: person)
+                    LovedOneCard(
+                        person: person,
+                        onEdit: { editPerson in
+                            editingPerson = editPerson
+                            showingEditSheet = true
+                        },
+                        onDelete: { personToDelete in
+                            deletePerson(personToDelete)
+                        },
+                        onToggleUpdate: { updatedPerson in
+                            updatePerson(updatedPerson)
+                        }
+                    )
                 }
                 
                 // Add new loved one
@@ -210,44 +224,109 @@ struct LovedOnesSettingsView: View {
                         TextField("Name (e.g., Matthew, Mom, Smudge)", text: $newName)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                         
-                        HStack(spacing: 10) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Birth date")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.secondary)
                             DatePicker("Birth date", selection: $newBirthDate, displayedComponents: .date)
                                 .datePickerStyle(CompactDatePickerStyle())
                                 .labelsHidden()
                             
+                            Text("Date of passing")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.secondary)
                             DatePicker("Date of passing", selection: $newPassDate, displayedComponents: .date)
                                 .datePickerStyle(CompactDatePickerStyle())
                                 .labelsHidden()
                         }
                         
                         PrimaryButton(title: "Add to My Loved Ones") {
-                            // TODO: Add loved one
+                            addNewPerson()
                         }
+                        .disabled(newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                 }
             }
             .padding()
         }
         .background(Color(UIColor.systemBackground))
+        .sheet(isPresented: $showingEditSheet) {
+            if let person = editingPerson {
+                EditLovedOneSheet(
+                    person: person,
+                    onSave: { updatedPerson in
+                        updatePerson(updatedPerson)
+                        showingEditSheet = false
+                        editingPerson = nil
+                    },
+                    onCancel: {
+                        showingEditSheet = false
+                        editingPerson = nil
+                    }
+                )
+            }
+        }
+    }
+    
+    private func addNewPerson() {
+        let name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else { return }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .long
+        
+        let newPerson = LovedOne(
+            name: name,
+            birthDate: dateFormatter.string(from: newBirthDate),
+            passDate: dateFormatter.string(from: newPassDate),
+            birthdayReminders: true,
+            memorialReminders: true
+        )
+        
+        lovedOnes.append(newPerson)
+        
+        // Reset form
+        newName = ""
+        newBirthDate = Date()
+        newPassDate = Date()
+    }
+    
+    private func updatePerson(_ updatedPerson: LovedOne) {
+        if let index = lovedOnes.firstIndex(where: { $0.id == updatedPerson.id }) {
+            lovedOnes[index] = updatedPerson
+        }
+    }
+    
+    private func deletePerson(_ person: LovedOne) {
+        lovedOnes.removeAll { $0.id == person.id }
     }
 }
 
 struct LovedOne: Identifiable {
     let id = UUID()
-    let name: String
-    let birthDate: String
-    let passDate: String
+    var name: String
+    var birthDate: String
+    var passDate: String
     var birthdayReminders: Bool
     var memorialReminders: Bool
 }
 
 struct LovedOneCard: View {
     let person: LovedOne
+    let onEdit: (LovedOne) -> Void
+    let onDelete: (LovedOne) -> Void
+    let onToggleUpdate: (LovedOne) -> Void
+    
     @State private var birthdayReminders: Bool
     @State private var memorialReminders: Bool
+    @State private var showingActionSheet = false
+    @State private var showingDeleteConfirmation = false
     
-    init(person: LovedOne) {
+    init(person: LovedOne, onEdit: @escaping (LovedOne) -> Void, onDelete: @escaping (LovedOne) -> Void, onToggleUpdate: @escaping (LovedOne) -> Void) {
         self.person = person
+        self.onEdit = onEdit
+        self.onDelete = onDelete
+        self.onToggleUpdate = onToggleUpdate
         self._birthdayReminders = State(initialValue: person.birthdayReminders)
         self._memorialReminders = State(initialValue: person.memorialReminders)
     }
@@ -261,14 +340,20 @@ struct LovedOneCard: View {
                     
                     Spacer()
                     
-                    Button(action: {}) {
+                    Button(action: {
+                        showingActionSheet = true
+                    }) {
                         Image(systemName: "ellipsis")
                             .foregroundColor(.secondary)
+                            .font(.system(size: 16, weight: .medium))
+                            .padding(8)
+                            .background(Color(UIColor.tertiarySystemBackground))
+                            .clipShape(Circle())
                     }
                 }
                 
                 Text("\(person.birthDate) - \(person.passDate)")
-                    .font(.custom("CormorantGaramond-Regular", size: 14))
+                    .font(.system(size: 14))
                     .foregroundColor(.secondary)
                 
                 VStack(spacing: 10) {
@@ -277,6 +362,11 @@ struct LovedOneCard: View {
                             .font(.system(size: 14))
                         Spacer()
                         CustomToggle(isOn: $birthdayReminders)
+                            .onChange(of: birthdayReminders) { newValue in
+                                var updatedPerson = person
+                                updatedPerson.birthdayReminders = newValue
+                                onToggleUpdate(updatedPerson)
+                            }
                     }
                     
                     HStack {
@@ -284,10 +374,168 @@ struct LovedOneCard: View {
                             .font(.system(size: 14))
                         Spacer()
                         CustomToggle(isOn: $memorialReminders)
+                            .onChange(of: memorialReminders) { newValue in
+                                var updatedPerson = person
+                                updatedPerson.memorialReminders = newValue
+                                onToggleUpdate(updatedPerson)
+                            }
                     }
                 }
             }
         }
+        .confirmationDialog("Manage \(person.name)", isPresented: $showingActionSheet, titleVisibility: .visible) {
+            Button("Edit Details") {
+                onEdit(person)
+            }
+            
+            Button("Delete", role: .destructive) {
+                showingDeleteConfirmation = true
+            }
+            
+            Button("Cancel", role: .cancel) { }
+        }
+        .alert("Delete \(person.name)?", isPresented: $showingDeleteConfirmation) {
+            Button("Delete", role: .destructive) {
+                onDelete(person)
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This will permanently remove \(person.name) from your loved ones list. This action cannot be undone.")
+        }
+    }
+}
+
+// MARK: - Edit Loved One Sheet
+struct EditLovedOneSheet: View {
+    let person: LovedOne
+    let onSave: (LovedOne) -> Void
+    let onCancel: () -> Void
+    
+    @State private var editedName: String
+    @State private var editedBirthDate: Date
+    @State private var editedPassDate: Date
+    @State private var editedBirthdayReminders: Bool
+    @State private var editedMemorialReminders: Bool
+    
+    init(person: LovedOne, onSave: @escaping (LovedOne) -> Void, onCancel: @escaping () -> Void) {
+        self.person = person
+        self.onSave = onSave
+        self.onCancel = onCancel
+        
+        // Initialize state with current values
+        _editedName = State(initialValue: person.name)
+        _editedBirthdayReminders = State(initialValue: person.birthdayReminders)
+        _editedMemorialReminders = State(initialValue: person.memorialReminders)
+        
+        // Parse dates from strings
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .long
+        
+        if let birthDate = dateFormatter.date(from: person.birthDate) {
+            _editedBirthDate = State(initialValue: birthDate)
+        } else {
+            _editedBirthDate = State(initialValue: Date())
+        }
+        
+        if let passDate = dateFormatter.date(from: person.passDate) {
+            _editedPassDate = State(initialValue: passDate)
+        } else {
+            _editedPassDate = State(initialValue: Date())
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    CardView {
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text("Edit Details")
+                                .font(.system(size: 20, weight: .semibold))
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Name")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                TextField("Name", text: $editedName)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Birth Date")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                DatePicker("Birth date", selection: $editedBirthDate, displayedComponents: .date)
+                                    .datePickerStyle(CompactDatePickerStyle())
+                                    .labelsHidden()
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Date of Passing")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                DatePicker("Date of passing", selection: $editedPassDate, displayedComponents: .date)
+                                    .datePickerStyle(CompactDatePickerStyle())
+                                    .labelsHidden()
+                            }
+                        }
+                    }
+                    
+                    CardView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Reminder Settings")
+                                .font(.system(size: 16, weight: .semibold))
+                            
+                            HStack {
+                                Text("Birthday reminders")
+                                    .font(.system(size: 14))
+                                Spacer()
+                                CustomToggle(isOn: $editedBirthdayReminders)
+                            }
+                            
+                            HStack {
+                                Text("Memorial day reminders")
+                                    .font(.system(size: 14))
+                                Spacer()
+                                CustomToggle(isOn: $editedMemorialReminders)
+                            }
+                        }
+                    }
+                }
+                .padding()
+            }
+            .background(Color(UIColor.systemBackground))
+            .navigationTitle("Edit \(person.name)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        onCancel()
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        saveChanges()
+                    }
+                    .disabled(editedName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
+        }
+    }
+    
+    private func saveChanges() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .long
+        
+        var updatedPerson = person
+        updatedPerson.name = editedName.trimmingCharacters(in: .whitespacesAndNewlines)
+        updatedPerson.birthDate = dateFormatter.string(from: editedBirthDate)
+        updatedPerson.passDate = dateFormatter.string(from: editedPassDate)
+        updatedPerson.birthdayReminders = editedBirthdayReminders
+        updatedPerson.memorialReminders = editedMemorialReminders
+        
+        onSave(updatedPerson)
     }
 }
 
