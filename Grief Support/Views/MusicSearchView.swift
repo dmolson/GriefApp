@@ -11,6 +11,7 @@ struct MusicSearchView: View {
     @ObservedObject var musicService: MusicIntegrationService
     let onMusicSelected: (MusicSelection) -> Void
     
+    @StateObject private var musicPreferences = MusicPreferencesService.shared
     @State private var searchQuery = ""
     @State private var selectedService: MusicService? = nil
     @Environment(\.presentationMode) var presentationMode
@@ -24,27 +25,28 @@ struct MusicSearchView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
                     
-                    HStack(spacing: 12) {
-                        if musicService.appleMusicAvailable {
-                            MusicServiceButton(
-                                service: .appleMusic,
-                                isSelected: selectedService == .appleMusic,
-                                onSelect: { selectedService = .appleMusic }
-                            )
+                    if musicPreferences.hasEnabledServices {
+                        HStack(spacing: 12) {
+                            ForEach(musicPreferences.enabledServices, id: \.self) { service in
+                                MusicServiceButton(
+                                    service: service,
+                                    isSelected: selectedService == service,
+                                    onSelect: { selectedService = service }
+                                )
+                            }
                         }
-                        
-                        if musicService.spotifyAvailable {
-                            MusicServiceButton(
-                                service: .spotify,
-                                isSelected: selectedService == .spotify,
-                                onSelect: { selectedService = .spotify }
-                            )
-                        }
-                        
-                        if !musicService.spotifyAvailable && !musicService.appleMusicAvailable {
-                            Text("No music services available")
+                    } else {
+                        VStack(spacing: 12) {
+                            Text("No music services enabled")
                                 .font(.system(size: 14))
                                 .foregroundColor(.secondary)
+                            
+                            Button("Configure in Settings") {
+                                presentationMode.wrappedValue.dismiss()
+                                // This would ideally navigate to settings, but for now we'll just dismiss
+                            }
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(ThemeColors.adaptivePrimary)
                         }
                     }
                 }
@@ -64,7 +66,7 @@ struct MusicSearchView: View {
                             Image(systemName: musicService.isSearching ? "stop.circle" : "magnifyingglass")
                                 .foregroundColor(ThemeColors.adaptivePrimary)
                         }
-                        .disabled(searchQuery.isEmpty)
+                        .disabled(searchQuery.isEmpty || !musicPreferences.hasEnabledServices)
                     }
                 }
                 .padding(.horizontal)
@@ -112,6 +114,7 @@ struct MusicSearchView: View {
                 
                 Spacer()
             }
+            .background(ThemeColors.adaptiveSystemBackground)
             .navigationTitle("Add Music")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -123,11 +126,12 @@ struct MusicSearchView: View {
             }
         }
         .onAppear {
-            // Auto-select first available service
-            if musicService.appleMusicAvailable && selectedService == nil {
-                selectedService = .appleMusic
-            } else if musicService.spotifyAvailable && selectedService == nil {
-                selectedService = .spotify
+            musicPreferences.checkTechnicalAvailability()
+            // Auto-select user's preferred service
+            if let preferredService = musicPreferences.preferredService {
+                selectedService = preferredService
+            } else if let firstEnabled = musicPreferences.enabledServices.first {
+                selectedService = firstEnabled
             }
         }
     }
@@ -158,7 +162,7 @@ struct MusicServiceButton: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            .background(isSelected ? service.color : Color(UIColor.secondarySystemBackground))
+            .background(isSelected ? service.color : ThemeColors.adaptiveSecondaryBackground)
             .cornerRadius(20)
         }
         .buttonStyle(PlainButtonStyle())
@@ -208,7 +212,7 @@ struct MusicResultRow: View {
                     .foregroundColor(.secondary)
             }
             .padding()
-            .background(Color(UIColor.secondarySystemBackground))
+            .background(ThemeColors.adaptiveSecondaryBackground)
             .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())

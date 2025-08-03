@@ -18,7 +18,7 @@ struct CardView<Content: View>: View {
     var body: some View {
         content
             .padding()
-            .background(Color(red: 0.95, green: 0.95, blue: 0.97))
+            .background(ThemeColors.adaptiveCardBackground)
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
@@ -87,6 +87,7 @@ struct CustomToggle: View {
 
 // MARK: - Theme Colors
 struct ThemeColors {
+    // Legacy static colors (kept for reference but not recommended for direct use)
     static let primary = Color(hex: "555879")
     static let backgroundLight = Color(hex: "F4EFE8")
     static let backgroundCards = Color(hex: "F0EBE2")
@@ -101,21 +102,112 @@ struct ThemeColors {
     static let darkTextPrimary = Color(hex: "E8EBF0")
     static let darkTextSecondary = Color(hex: "B8C1D6")
     
-    // Dynamic colors that adapt to light/dark mode
+    // MARK: - Dynamic Adaptive Colors
+    
+    /// Primary brand color that adapts to light/dark mode
     static var adaptivePrimary: Color {
-        Color(hex: "555879") // Will be handled by SwiftUI's automatic adaptation
+        Color(UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return UIColor(red: 0.75, green: 0.8, blue: 0.95, alpha: 1.0) // Much lighter purple for dark mode visibility
+            } else {
+                return UIColor(red: 0.33, green: 0.35, blue: 0.47, alpha: 1.0) // Original #555879
+            }
+        })
     }
     
+    /// Primary background color (for buttons, highlights)
     static var adaptivePrimaryBackground: Color {
-        Color(hex: "555879") // Will be handled by SwiftUI's automatic adaptation
+        Color(UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return UIColor(red: 0.45, green: 0.5, blue: 0.7, alpha: 1.0) // Medium purple for dark mode buttons
+            } else {
+                return UIColor(red: 0.33, green: 0.35, blue: 0.47, alpha: 1.0) // Original #555879
+            }
+        })
     }
     
+    /// Primary text color (white on primary background)
     static var adaptivePrimaryText: Color {
-        Color.primary // SwiftUI automatically adapts text color
+        Color(UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return UIColor.white // White text on dark purple buttons
+            } else {
+                return UIColor.white // White text on purple buttons
+            }
+        })
     }
     
+    /// Card and surface background color
+    static var adaptiveCardBackground: Color {
+        Color(UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return UIColor(red: 0.11, green: 0.11, blue: 0.13, alpha: 1.0) // Darker cards for better contrast
+            } else {
+                return UIColor(red: 0.98, green: 0.98, blue: 0.99, alpha: 1.0) // Very light cards
+            }
+        })
+    }
+    
+    /// Secondary surface background (slightly different from cards)
+    static var adaptiveSecondaryBackground: Color {
+        Color(UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return UIColor(red: 0.08, green: 0.08, blue: 0.1, alpha: 1.0) // Even darker secondary surface
+            } else {
+                return UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0) // Light secondary surface
+            }
+        })
+    }
+    
+    /// Accent color for highlights and selections
     static var adaptiveAccent: Color {
-        Color(hex: "3F2E63") // Will be handled by SwiftUI's automatic adaptation
+        Color(UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return UIColor(red: 0.7, green: 0.55, blue: 0.9, alpha: 1.0) // Bright purple accent for dark mode
+            } else {
+                return UIColor(red: 0.45, green: 0.35, blue: 0.6, alpha: 1.0) // Purple accent for light mode
+            }
+        })
+    }
+    
+    /// Resource button background (purple with white iconography in light mode)
+    static var adaptiveResourceButtonBackground: Color {
+        Color(UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return UIColor(red: 0.45, green: 0.5, blue: 0.7, alpha: 1.0) // Medium purple for dark mode
+            } else {
+                return UIColor(red: 0.33, green: 0.35, blue: 0.47, alpha: 1.0) // Purple background for white icons
+            }
+        })
+    }
+    
+    /// Resource button icon color (always white for contrast)
+    static var adaptiveResourceButtonIcon: Color {
+        Color(UIColor { traitCollection in
+            return UIColor.white // Always white for good contrast on purple
+        })
+    }
+    
+    /// Main system background (replaces UIColor.systemBackground)
+    static var adaptiveSystemBackground: Color {
+        Color(UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return UIColor(red: 0.05, green: 0.05, blue: 0.07, alpha: 1.0) // Very dark gray for dark mode
+            } else {
+                return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0) // Pure white for light mode
+            }
+        })
+    }
+    
+    /// Tertiary system background (for grouped content)
+    static var adaptiveTertiaryBackground: Color {
+        Color(UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return UIColor(red: 0.15, green: 0.15, blue: 0.17, alpha: 1.0) // Medium dark for dark mode
+            } else {
+                return UIColor(red: 0.92, green: 0.92, blue: 0.95, alpha: 1.0) // Light tertiary for light mode
+            }
+        })
     }
 }
 

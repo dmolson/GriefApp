@@ -132,7 +132,7 @@ struct ResourcesView: View {
                 .padding()
                 .padding(.top, 144) // Account for header height
             }
-            .background(Color(UIColor.systemBackground))
+            .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
         .alert("Calendar Events", isPresented: $showingAlert) {
@@ -278,9 +278,9 @@ struct ResourceLink: View {
             HStack(spacing: 12) {
                 Image(systemName: resource.icon)
                     .font(.system(size: 20))
-                    .foregroundColor(ThemeColors.adaptivePrimaryText)
+                    .foregroundColor(ThemeColors.adaptiveResourceButtonIcon)
                     .frame(width: 40, height: 40)
-                    .background(ThemeColors.adaptivePrimaryBackground)
+                    .background(ThemeColors.adaptiveResourceButtonBackground)
                     .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -300,7 +300,7 @@ struct ResourceLink: View {
                     .foregroundColor(.secondary)
             }
             .padding()
-            .background(Color(UIColor.secondarySystemBackground))
+            .background(ThemeColors.adaptiveSecondaryBackground)
             .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())

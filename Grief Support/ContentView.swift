@@ -117,17 +117,7 @@ struct HeaderView: View {
             }
         }
         .onAppear {
-            // Log skipped quotes for developer awareness
-            let skippedQuotes = [
-                "Grief is love with nowhere to go — Jamie Anderson",
-                "Grief is the price we pay for love — Queen Elizabeth II", 
-                "Grief changes shape, but it never ends — Keanu Reeves",
-                "You don't move on from grief, you move forward with it — Nora McInerny",
-                "Love is the bridge between you and everything — Rumi"
-            ]
-            for quote in skippedQuotes {
-                print("⚠️ HeaderView: Skipped quote due to length: \(quote)")
-            }
+            // Quote rotation will start automatically with timer
         }
     }
 }

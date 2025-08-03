@@ -48,34 +48,35 @@ struct MusicSelection: Codable, Identifiable {
 
 @MainActor
 class MusicIntegrationService: ObservableObject {
-    @Published var appleMusicAvailable = false
-    @Published var spotifyAvailable = false
     @Published var searchResults: [MusicSelection] = []
     @Published var isSearching = false
     
+    private let preferencesService = MusicPreferencesService.shared
+    
     init() {
-        checkAvailability()
+        // Preferences service handles availability checking
     }
     
-    // MARK: - Availability Check
-    func checkAvailability() {
-        // Check Apple Music availability
-        appleMusicAvailable = true // MusicKit is always available on iOS 15+
-        
-        // Check if Spotify app is installed
-        if let url = URL(string: "spotify:"), UIApplication.shared.canOpenURL(url) {
-            spotifyAvailable = true
-        }
+    // MARK: - Convenience Properties
+    var appleMusicAvailable: Bool {
+        return preferencesService.isServiceEnabled(.appleMusic)
+    }
+    
+    var spotifyAvailable: Bool {
+        return preferencesService.isServiceEnabled(.spotify)
+    }
+    
+    var enabledServices: [MusicService] {
+        return preferencesService.enabledServices
     }
     
     // MARK: - Apple Music Integration
     func requestAppleMusicPermission() async -> Bool {
-        let status = await MusicAuthorization.request()
-        return status == .authorized
+        return await preferencesService.enableAppleMusic()
     }
     
     func searchAppleMusic(query: String) async -> [MusicSelection] {
-        guard appleMusicAvailable else { return [] }
+        guard preferencesService.isServiceEnabled(.appleMusic) else { return [] }
         
         let status = await MusicAuthorization.request()
         guard status == .authorized else { return [] }
@@ -149,7 +150,7 @@ class MusicIntegrationService: ObservableObject {
     func searchSpotify(query: String) async -> [MusicSelection] {
         // Note: This would require Spotify Web API implementation
         // For now, return mock results that can deep link to Spotify
-        guard spotifyAvailable else { return [] }
+        guard preferencesService.isServiceEnabled(.spotify) else { return [] }
         
         // Mock search results - in real implementation, this would call Spotify Web API
         return [
@@ -190,18 +191,20 @@ class MusicIntegrationService: ObservableObject {
     // MARK: - Universal Search
     func searchMusic(query: String, service: MusicService? = nil) async {
         guard !query.isEmpty else { return }
+        guard preferencesService.hasEnabledServices else { return }
         
         isSearching = true
         searchResults = []
         
         var results: [MusicSelection] = []
         
-        if service == nil || service == .appleMusic {
+        // Only search enabled services
+        if (service == nil || service == .appleMusic) && preferencesService.isServiceEnabled(.appleMusic) {
             let appleResults = await searchAppleMusic(query: query)
             results.append(contentsOf: appleResults)
         }
         
-        if service == nil || service == .spotify {
+        if (service == nil || service == .spotify) && preferencesService.isServiceEnabled(.spotify) {
             let spotifyResults = await searchSpotify(query: query)
             results.append(contentsOf: spotifyResults)
         }

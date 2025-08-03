@@ -60,11 +60,33 @@ struct RitualsView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // View Rituals Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        SectionHeaderView(title: "Your Rituals")
+            VStack(spacing: 0) {
+                // Custom Header with + Button
+                HStack {
+                    Text("Rituals")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        showingSettings = true
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(ThemeColors.adaptivePrimary)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 60) // Account for status bar
+                .padding(.bottom, 20)
+                .background(ThemeColors.adaptiveSystemBackground)
+                
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 20) {
+                        // View Rituals Section
+                        LazyVStack(alignment: .leading, spacing: 16) {
+                            SectionHeaderView(title: "Your Rituals")
                         
                         // Filter Buttons
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -123,7 +145,7 @@ struct RitualsView: View {
                                 }
                                 .padding()
                                 .padding(.vertical, 20)
-                                .background(Color(red: 0.95, green: 0.95, blue: 0.97))
+                                .background(ThemeColors.adaptiveCardBackground)
                                 .cornerRadius(12)
                                 .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                             } else {
@@ -142,8 +164,10 @@ struct RitualsView: View {
                                         .foregroundColor(.secondary)
                                         .multilineTextAlignment(.center)
                                 }
+                                .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(Color(red: 0.95, green: 0.95, blue: 0.97))
+                                .padding(.vertical, 20)
+                                .background(ThemeColors.adaptiveCardBackground)
                                 .cornerRadius(12)
                                 .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                             }
@@ -166,11 +190,11 @@ struct RitualsView: View {
                     }
                     
                     // Create Rituals Section
-                    VStack(alignment: .leading, spacing: 16) {
+                    LazyVStack(alignment: .leading, spacing: 16) {
                         SectionHeaderView(title: "Create New Ritual")
                         
                         // Ritual Type Selection (with lighter background)
-                        VStack(alignment: .leading, spacing: 15) {
+                        LazyVStack(alignment: .leading, spacing: 15) {
                             Text("Choose Ritual Type")
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.primary)
@@ -192,7 +216,7 @@ struct RitualsView: View {
                             }
                         }
                         .padding()
-                        .background(Color(hex: "F0EBE2"))
+                        .background(ThemeColors.adaptiveCardBackground)
                         .cornerRadius(12)
                         
                         // Ritual Creation Form (when type is selected)
@@ -210,15 +234,17 @@ struct RitualsView: View {
                                 lovedOnes: lovedOnes,
                                 lovedOnesService: lovedOnesService,
                                 musicService: musicService,
-                                onSave: saveRitual
+                                onSave: saveRitual,
+                                onAddLovedOne: { showingSettings = true }
                             )
                         }
                     }
                 }
                 .padding()
-                .padding(.top, 144) // Account for header height
+                .padding(.top, 20) // Reduced padding since we have custom header
             }
-            .background(Color(UIColor.systemBackground))
+            }
+            .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
         .alert("Ritual Saved!", isPresented: $showingSaveConfirmation) {
@@ -321,6 +347,7 @@ struct RitualCreationForm: View {
     @ObservedObject var lovedOnesService: LovedOnesDataService
     @ObservedObject var musicService: MusicIntegrationService
     let onSave: () -> Void
+    let onAddLovedOne: () -> Void
     
     @State private var showingMusicSearch = false
     @State private var musicSearchQuery = ""
@@ -340,7 +367,7 @@ struct RitualCreationForm: View {
     
     var body: some View {
         CardView {
-            VStack(alignment: .leading, spacing: 20) {
+            LazyVStack(alignment: .leading, spacing: 20) {
                 // Guidance Section
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Ritual Guidance")
@@ -353,7 +380,7 @@ struct RitualCreationForm: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding()
-                .background(Color(UIColor.tertiarySystemBackground))
+                .background(ThemeColors.adaptiveTertiaryBackground)
                 .cornerRadius(8)
                 
                 // Person Selection
@@ -368,6 +395,17 @@ struct RitualCreationForm: View {
                                 selectedPerson = lovedOne.1
                             }
                         }
+                        
+                        Divider()
+                        
+                        Button(action: {
+                            onAddLovedOne()
+                        }) {
+                            HStack {
+                                Image(systemName: "plus.circle")
+                                Text("Add Loved One")
+                            }
+                        }
                     } label: {
                         HStack {
                             Text(selectedPerson.isEmpty ? "Select loved one" : selectedPerson.capitalized)
@@ -378,7 +416,7 @@ struct RitualCreationForm: View {
                                 .font(.system(size: 12))
                         }
                         .padding()
-                        .background(Color(UIColor.secondarySystemBackground))
+                        .background(ThemeColors.adaptiveSecondaryBackground)
                         .cornerRadius(8)
                     }
                 }
@@ -392,12 +430,12 @@ struct RitualCreationForm: View {
                     TextEditor(text: $ritualDescription)
                         .frame(height: 80)
                         .padding(8)
-                        .background(Color(UIColor.secondarySystemBackground))
+                        .background(ThemeColors.adaptiveSecondaryBackground)
                         .cornerRadius(8)
                 }
                 
                 // Optional Fields
-                VStack(alignment: .leading, spacing: 16) {
+                LazyVStack(alignment: .leading, spacing: 16) {
                     Text("Optional Details")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
@@ -453,7 +491,7 @@ struct RitualCreationForm: View {
                                 }
                             }
                             .padding()
-                            .background(Color(UIColor.tertiarySystemBackground))
+                            .background(ThemeColors.adaptiveTertiaryBackground)
                             .cornerRadius(8)
                         } else {
                             // Music search button
@@ -471,7 +509,7 @@ struct RitualCreationForm: View {
                                         .font(.system(size: 12))
                                 }
                                 .padding()
-                                .background(Color(UIColor.secondarySystemBackground))
+                                .background(ThemeColors.adaptiveSecondaryBackground)
                                 .cornerRadius(8)
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -485,7 +523,7 @@ struct RitualCreationForm: View {
                 }
                 
                 // Notification Settings
-                VStack(alignment: .leading, spacing: 12) {
+                LazyVStack(alignment: .leading, spacing: 12) {
                     Text("Reminder Settings")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
@@ -658,12 +696,12 @@ struct FilterButton: View {
                     .foregroundColor(isSelected ? .white : .secondary)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(isSelected ? Color.white.opacity(0.3) : Color(UIColor.secondarySystemBackground))
+                    .background(isSelected ? Color.white.opacity(0.3) : ThemeColors.adaptiveSecondaryBackground)
                     .cornerRadius(8)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? ThemeColors.adaptivePrimary : Color(UIColor.secondarySystemBackground))
+            .background(isSelected ? ThemeColors.adaptivePrimary : ThemeColors.adaptiveSecondaryBackground)
             .cornerRadius(20)
         }
         .buttonStyle(PlainButtonStyle())
@@ -689,7 +727,7 @@ struct RitualTypeCard: View {
             }
             .frame(maxWidth: .infinity)
             .padding(15)
-            .background(isSelected ? ThemeColors.adaptivePrimary.opacity(0.1) : Color(UIColor.secondarySystemBackground))
+            .background(isSelected ? ThemeColors.adaptivePrimary.opacity(0.1) : ThemeColors.adaptiveSecondaryBackground)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
@@ -728,7 +766,7 @@ struct RitualStep: View {
             Spacer()
         }
         .padding(15)
-        .background(Color(UIColor.secondarySystemBackground))
+        .background(ThemeColors.adaptiveSecondaryBackground)
         .cornerRadius(8)
         .overlay(
             Rectangle()
@@ -740,58 +778,6 @@ struct RitualStep: View {
     }
 }
 
-struct NotificationBanner: View {
-    let ritualType: RitualType
-    let personName: String
-    
-    // Simulated notification settings - in real app this would come from SettingsView
-    private var isNotificationEnabled: Bool {
-        // Simulate that some people have notifications enabled/disabled
-        switch personName {
-        case "matthew": return ritualType == .birthday || ritualType == .anniversary
-        case "mom": return ritualType == .anniversary
-        case "smudge": return ritualType == .birthday
-        default: return false
-        }
-    }
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: isNotificationEnabled ? "bell.fill" : "bell.slash.fill")
-                .foregroundColor(isNotificationEnabled ? .green : .orange)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                if isNotificationEnabled {
-                    Text("You'll receive a reminder to do this ritual on \(personName.capitalized)'s \(ritualType.rawValue.lowercased())")
-                        .font(.system(size: 14))
-                        .foregroundColor(.primary)
-                } else {
-                    Text("Turn back on notifications in Your Loved Ones to receive ritual reminders")
-                        .font(.system(size: 14))
-                        .foregroundColor(.primary)
-                }
-            }
-            
-            Spacer()
-            
-            if isNotificationEnabled {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green)
-            } else {
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.secondary)
-                    .font(.system(size: 12))
-            }
-        }
-        .padding(12)
-        .background(isNotificationEnabled ? Color.green.opacity(0.1) : Color.orange.opacity(0.1))
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(isNotificationEnabled ? Color.green : Color.orange, lineWidth: 1)
-        )
-    }
-}
 
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var selectedImages: [UIImage]

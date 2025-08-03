@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AskForHelpView: View {
     @State private var showingShareSheet = false
-    @State private var selectedMessage = ""
+    @State private var messageToShare = ""
     
     var body: some View {
         NavigationView {
@@ -125,16 +125,16 @@ struct AskForHelpView: View {
                 .padding()
                 .padding(.top, 144) // Account for header height
             }
-            .background(Color(UIColor.systemBackground))
+            .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingShareSheet) {
-            ShareSheet(activityItems: [selectedMessage])
+            ShareSheet(activityItems: [messageToShare])
         }
     }
     
     private func sendMessage(_ message: String) {
-        selectedMessage = message
+        messageToShare = message
         showingShareSheet = true
     }
 }
@@ -184,7 +184,7 @@ struct MessageTemplateView: View {
                     .multilineTextAlignment(.leading)
             }
             .padding()
-            .background(Color(UIColor.secondarySystemBackground))
+            .background(ThemeColors.adaptiveSecondaryBackground)
             .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())
@@ -195,35 +195,30 @@ struct ShareSheet: UIViewControllerRepresentable {
     let activityItems: [Any]
     
     func makeUIViewController(context: Context) -> UIActivityViewController {
+        // Ensure we have valid string content
+        let validItems = activityItems.compactMap { item -> String? in
+            if let string = item as? String, !string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return string
+            }
+            return nil
+        }
+        
+        let finalItems = validItems.isEmpty ? ["Message template"] : validItems
+        
         let controller = UIActivityViewController(
-            activityItems: activityItems,
+            activityItems: finalItems,
             applicationActivities: nil
         )
         
-        // Exclude activity types we don't want to show
-        controller.excludedActivityTypes = [
-            .postToFacebook,
-            .postToTwitter,
-            .postToWeibo,
-            .postToVimeo,
-            .postToTencentWeibo,
-            .postToFlickr,
-            .airDrop,
-            .print,
-            .assignToContact,
-            .saveToCameraRoll,
-            .addToReadingList,
-            .openInIBooks
-        ]
-        
-        // Configure for iPad compatibility
+        // Configure for iPad compatibility first
         if let popover = controller.popoverPresentationController {
-            popover.sourceView = UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-                .first?.windows
-                .first { $0.isKeyWindow }
-            popover.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2, width: 0, height: 0)
-            popover.permittedArrowDirections = []
+            // Get the current window scene
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first(where: { $0.isKeyWindow }) {
+                popover.sourceView = window.rootViewController?.view
+                popover.sourceRect = CGRect(x: window.bounds.midX, y: window.bounds.midY, width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
         }
         
         return controller

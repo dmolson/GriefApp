@@ -18,7 +18,7 @@ struct RemindersView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                LazyVStack(alignment: .leading, spacing: 20) {
                     SectionHeaderView(title: "Daily Reminders")
                     
                     if reminders.isEmpty {
@@ -48,7 +48,7 @@ struct RemindersView: View {
                     }
                     
                     if !reminders.isEmpty {
-                        List {
+                        LazyVStack(spacing: 0) {
                             ForEach(reminders.indices, id: \.self) { index in
                                 ReminderRow(
                                     reminder: $reminders[index],
@@ -60,12 +60,16 @@ struct RemindersView: View {
                                         deleteReminder(reminder)
                                     }
                                 )
-                                .listRowBackground(Color(red: 0.95, green: 0.95, blue: 0.97))
-                                .listRowSeparator(.hidden)
+                                .padding(.horizontal)
+                                .padding(.vertical, 8)
+                                
+                                if index < reminders.count - 1 {
+                                    Divider()
+                                        .padding(.horizontal)
+                                }
                             }
                         }
-                        .listStyle(PlainListStyle())
-                        .scrollDisabled(true)
+                        .background(ThemeColors.adaptiveCardBackground)
                         .cornerRadius(12)
                         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                     }
@@ -79,9 +83,9 @@ struct RemindersView: View {
                     }
                 }
                 .padding()
-                .padding(.top, 144)
+                .padding(.top, 100)
             }
-            .background(Color(UIColor.systemBackground))
+            .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingAddReminder) {
@@ -113,24 +117,15 @@ struct RemindersView: View {
         .onAppear {
             loadReminders()
         }
-        .onChange(of: reminders) { _, _ in
-            saveReminders()
-        }
     }
     
     private func loadReminders() {
-        if reminders.isEmpty {
-            if let data = UserDefaults.standard.data(forKey: "savedReminders"),
-               let decoded = try? JSONDecoder().decode([Reminder].self, from: data) {
-                reminders = decoded
-            } else {
-                reminders = [
-                    Reminder(time: "8:00 AM", message: "Each day is a step forward in your healing journey.", isEnabled: true),
-                    Reminder(time: "12:00 PM", message: "Your loved one's memory lives on through your love.", isEnabled: true),
-                    Reminder(time: "6:00 PM", message: "It's okay to feel whatever you're feeling today.", isEnabled: true)
-                ]
-                saveReminders()
-            }
+        if let data = UserDefaults.standard.data(forKey: "savedReminders"),
+           let decoded = try? JSONDecoder().decode([Reminder].self, from: data) {
+            reminders = decoded
+        } else {
+            // Initialize with empty array - users start fresh
+            reminders = []
         }
     }
     
@@ -143,15 +138,13 @@ struct RemindersView: View {
     private func updateReminder(_ updatedReminder: Reminder) {
         if let index = reminders.firstIndex(where: { $0.id == updatedReminder.id }) {
             reminders[index] = updatedReminder
-            saveReminders() // Explicit save
-            loadReminders() // Force refresh
+            saveReminders()
         }
     }
     
     private func deleteReminder(_ reminder: Reminder) {
         reminders.removeAll { $0.id == reminder.id }
-        saveReminders() // Explicit save
-        loadReminders() // Force refresh
+        saveReminders()
     }
 }
 
@@ -285,7 +278,7 @@ struct EditReminderView: View {
                                 TextEditor(text: $editedMessage)
                                     .frame(height: 80)
                                     .padding(8)
-                                    .background(Color(UIColor.secondarySystemBackground))
+                                    .background(ThemeColors.adaptiveSecondaryBackground)
                                     .cornerRadius(8)
                             }
                             
@@ -323,7 +316,7 @@ struct EditReminderView: View {
                                         }
                                         .padding(.vertical, 8)
                                         .padding(.horizontal, 12)
-                                        .background(editedMessage == message ? ThemeColors.adaptivePrimary.opacity(0.1) : Color(UIColor.tertiarySystemBackground))
+                                        .background(editedMessage == message ? ThemeColors.adaptivePrimary.opacity(0.1) : ThemeColors.adaptiveTertiaryBackground)
                                         .cornerRadius(8)
                                     }
                                     .buttonStyle(PlainButtonStyle())
@@ -334,7 +327,7 @@ struct EditReminderView: View {
                 }
                 .padding()
             }
-            .background(Color(UIColor.systemBackground))
+            .background(ThemeColors.adaptiveSystemBackground)
             .navigationTitle("Edit Reminder")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -383,7 +376,9 @@ struct AddReminderView: View {
     
     var body: some View {
         NavigationView {
-            Form {
+            ScrollView {
+                LazyVStack(spacing: 20) {
+                    VStack(spacing: 0) {
                 Section(header: Text("Time")) {
                     DatePicker("Reminder Time", selection: $selectedTime, displayedComponents: .hourAndMinute)
                         .datePickerStyle(WheelDatePickerStyle())
@@ -406,7 +401,15 @@ struct AddReminderView: View {
                         }
                     }
                 }
+                    }
+                    .padding()
+                    .background(ThemeColors.adaptiveCardBackground)
+                    .cornerRadius(12)
+                    .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                }
+                .padding()
             }
+            .background(ThemeColors.adaptiveSystemBackground)
             .navigationTitle("Add Reminder")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -444,7 +447,7 @@ struct CustomizeTimesView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 20) {
+                LazyVStack(spacing: 20) {
                     SectionHeaderView(title: "Customize Reminder Times")
                         .padding(.horizontal)
                     
@@ -470,7 +473,7 @@ struct CustomizeTimesView: View {
                 }
                 .padding(.vertical)
             }
-            .background(Color(UIColor.systemBackground))
+            .background(ThemeColors.adaptiveSystemBackground)
             .navigationTitle("Customize Times")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -523,7 +526,7 @@ struct CustomizeTimeRow: View {
                     .foregroundColor(ThemeColors.adaptivePrimary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(Color(UIColor.secondarySystemBackground))
+                    .background(ThemeColors.adaptiveSecondaryBackground)
                     .cornerRadius(8)
             }
             

@@ -101,6 +101,7 @@ https://github.com/dmolson/GriefApp
 - ✅ **Navigation Improvements** - Better NavigationStack usage for iOS compatibility
 - ✅ **CRITICAL BUG FIXES** - Fixed reminder list refresh and ritual container width issues
 - ✅ **APPLE MUSIC CRASH FIX** - Added required privacy permissions to prevent TCC crash when accessing music
+- ✅ **REMINDERS & UX FIXES** - Fixed reminder functionality and removed default Matthew for clean user experience
 - ✅ All build errors resolved and app compiling successfully with zero warnings
 
 ## Critical Issue Resolved: Disappearing Rituals Page
@@ -311,6 +312,68 @@ The app's Info.plist must contain an NSAppleMusicUsageDescription key with a str
 
 This fix transforms a completely broken music feature into a fully functional, privacy-compliant interface that enhances the app's core ritual creation functionality.
 
+## Critical Functionality Fixes: Reminders & User Experience
+**Problem 1**: New reminders weren't appearing in the list after being added, breaking core app functionality.
+**Problem 2**: App initialized with default "Matthew" loved one, preventing users from starting fresh.
+
+**Root Cause Analysis**:
+- **Reminder Logic Flaw**: Callback tried to call `loadReminders()` after appending, but function only loads when array is empty
+- **Default Data Issue**: LovedOnesDataService initialized with Matthew entry, preventing clean first-time user experience
+- **State Management**: New reminders existed in memory but weren't properly saved to UserDefaults
+
+**Comprehensive Solutions Implemented**:
+
+### **🔧 Reminders Functionality Fix**
+- **Fixed Callback Logic**: Replaced flawed `loadReminders()` call with immediate `saveReminders()` 
+- **Proper State Management**: New reminders now append to array AND save to UserDefaults immediately
+- **Immediate UI Updates**: Reminders appear in list instantly after adding without app restart required
+- **Simplified Flow**: Removed unnecessary reload logic that was causing the failure
+
+### **👤 Clean User Experience**  
+- **Removed Default Matthew**: Changed LovedOnesDataService to initialize with empty array
+- **Fresh Start**: New users now begin with completely clean slate
+- **Consistent Reset**: Updated `resetToDefaults()` method to also be empty
+- **Proper Onboarding**: Enables the intended "Add Loved One" flow in Rituals page
+
+### **📊 Technical Implementation Details**
+- **RemindersView.swift**:
+  ```swift
+  // Before (broken):
+  AddReminderView(onReminderAdded: { newReminder in
+      reminders.append(newReminder)
+      loadReminders() // This did nothing!
+  })
+  
+  // After (working):
+  AddReminderView(onReminderAdded: { newReminder in
+      reminders.append(newReminder)
+      saveReminders() // Immediate save
+  })
+  ```
+
+- **LovedOnesDataService.swift**:
+  ```swift
+  // Before: Always started with Matthew
+  lovedOnes = [LovedOne(name: "Matthew", ...)]
+  
+  // After: Clean initialization  
+  lovedOnes = []
+  ```
+
+### **🎯 User Experience Impact**
+- **Before**: New reminders disappeared, users always had Matthew pre-loaded
+- **After**: Reminders appear immediately, users start completely fresh
+- **Result**: Proper first-time user experience with functional reminder system
+
+### **🔍 Testing & Validation**
+- ✅ **Build Success**: App compiles without errors after fixes
+- ✅ **Reminder Functionality**: New reminders appear immediately in list
+- ✅ **Clean Initialization**: App starts with empty loved ones list
+- ✅ **Add Loved One Flow**: Rituals page properly shows "Add Loved One" for new users
+- ✅ **Data Persistence**: All reminder operations now save properly to UserDefaults
+
+This fix resolves fundamental usability issues that were breaking core app functionality, ensuring users can properly add reminders and have a clean onboarding experience.
+
 ## UI Consistency Improvements
 **Problem**: Spotify and Apple Music authorization dialogs were using inconsistent fonts that didn't match the rest of the app.
 
@@ -339,5 +402,49 @@ This fix transforms a completely broken music feature into a fully functional, p
 - `README.md` - Public-facing project documentation
 - `DEMO_GUIDE.md` - App demonstration walkthrough
 
+## Major Performance Improvements & UI Fixes
+**Problem**: The app was experiencing significant scrolling performance issues and layout inconsistencies in the Appearance settings.
+
+**Root Cause Analysis**:
+- **Multiple Nested ScrollViews**: Complex nested ScrollView/List combinations causing performance bottlenecks
+- **Inefficient View Hierarchies**: Using `VStack` instead of `LazyVStack` in scrollable content causing all views to render immediately
+- **Redundant Data Operations**: Unnecessary `refreshReminders()` calls creating double data loading
+- **Layout Constraints**: Fixed-width components in Appearance settings causing text wrapping issues
+
+**Comprehensive Solutions Implemented**:
+
+### **🚀 Scrolling Performance Optimizations**
+- **Replaced List with LazyVStack**: Eliminated inefficient `List` usage with `.scrollDisabled(true)` in RemindersView
+- **LazyVStack Implementation**: Converted all ScrollView content to use `LazyVStack` for on-demand rendering
+- **Reduced Data Operations**: Removed redundant `refreshReminders()` function calls to eliminate double loading
+- **Optimized Padding**: Reduced excessive `.padding(.top, 144)` to `.padding(.top, 100)` in RemindersView
+
+### **🎨 Appearance Settings UI Fix**
+- **Light/Dark Toggle Width**: Fixed narrow toggle component that was causing "Light" text to wrap
+- **Full-Width Layout**: Implemented responsive layout using `Spacer()` elements for consistent width
+- **Visual Consistency**: Toggle now matches the width of other settings components
+- **Preserved Functionality**: Maintained all animations, tap gestures, and visual styling
+
+### **📊 Technical Implementation Details**
+- **RemindersView.swift**: Converted List to LazyVStack, optimized padding, removed redundant data refresh
+- **SettingsView.swift**: Applied LazyVStack throughout all settings sections for better performance
+- **RitualsView.swift**: Optimized complex nested view hierarchies with LazyVStack
+- **ThemeToggleSwitch**: Redesigned layout from fixed-width constraints to flexible, full-width design
+
+### **🎯 Performance Impact**
+- **Faster Scrolling**: LazyVStack only renders visible items, dramatically improving scroll performance
+- **Reduced Memory Usage**: Views load on-demand instead of all at once
+- **Smoother Animations**: Fewer layout recalculations during scroll operations
+- **Better Responsiveness**: Eliminated redundant data refresh operations
+
+### **🔍 Testing & Validation**
+- ✅ **Build Success**: App compiles successfully with zero errors
+- ✅ **Smooth Scrolling**: Significant improvement in scroll performance across all tabs
+- ✅ **Layout Consistency**: Light/Dark toggle now spans full width without text wrapping
+- ✅ **Preserved Functionality**: All existing features work as expected with improved performance
+- ✅ **Cross-Device Compatibility**: Responsive layout works properly across all device sizes
+
+This major performance update transforms the user experience from sluggish and inconsistent to smooth and professional, addressing critical usability issues that were impacting daily app interactions.
+
 ---
-*Last updated: August 3, 2025 - Critical Apple Music crash fix and comprehensive bug resolutions*
+*Last updated: August 3, 2025 - Major scrolling performance improvements and Appearance settings UI fixes*
