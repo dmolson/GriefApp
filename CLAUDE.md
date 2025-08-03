@@ -99,6 +99,7 @@ https://github.com/dmolson/GriefApp
 - ✅ **Professional Beta Messaging** - Updated beta statement to supportive, user-friendly language
 - ✅ **Enhanced Date Handling** - Multiple format support (MMMM d, yyyy; MMM d, yyyy; M/d/yyyy; ISO)
 - ✅ **Navigation Improvements** - Better NavigationStack usage for iOS compatibility
+- ✅ **CRITICAL BUG FIXES** - Fixed reminder list refresh and ritual container width issues
 - ✅ All build errors resolved and app compiling successfully with zero warnings
 
 ## Critical Issue Resolved: Disappearing Rituals Page
@@ -226,6 +227,50 @@ https://github.com/dmolson/GriefApp
 
 This fix transforms a completely broken feature into a fully functional, user-friendly interface that enhances the app's core functionality for managing loved ones' information.
 
+## Critical Bug Fixes: Reminder List Refresh & UI Consistency
+**Problem 1**: New reminders weren't appearing in the list after being added, creating a confusing user experience.
+**Problem 2**: The "No Rituals" container was narrower than the "Choose Ritual Type" container, creating visual inconsistency.
+
+**Root Cause Analysis**:
+- **Reminder Refresh Issue**: Direct array manipulation in child views wasn't properly triggering parent @State updates
+- **Width Mismatch**: Different padding/styling approaches between containers caused visual inconsistency
+
+**Comprehensive Solutions Implemented**:
+
+### **🔧 Reminder List Refresh Fix**
+- **Callback Pattern**: Replaced direct binding manipulation with proper callback architecture
+- **Explicit State Management**: Added explicit `saveReminders()` and `loadReminders()` calls after all operations
+- **Improved Data Flow**: Enhanced parent-child communication with callback-based updates
+- **User Feedback**: Ensures immediate visual feedback for all reminder operations
+
+### **🎨 UI Consistency Fix**  
+- **Standardized Styling**: Applied matching `.padding()` and `.background()` to both containers
+- **Width Alignment**: Ensured consistent horizontal spacing across Rituals page
+- **Visual Hierarchy**: Maintained proper visual consistency with shadows and corner radius
+
+### **📊 Technical Implementation Details**
+- **RemindersView.swift**: 
+  - Updated `AddReminderView` to use `onReminderAdded` callback
+  - Enhanced `updateReminder()` and `deleteReminder()` with explicit refresh calls
+  - Improved state synchronization between parent and child views
+- **RitualsView.swift**:
+  - Removed extra `.padding(.vertical, 20)` from "No rituals" container
+  - Applied consistent styling pattern matching "Choose Ritual Type" container
+  - Standardized visual appearance across all containers
+
+### **🎯 User Experience Impact**
+- **Before**: New reminders disappeared after adding, containers had mismatched widths
+- **After**: Immediate refresh of reminder list, perfectly aligned container widths
+- **Result**: Seamless user experience with reliable functionality and visual consistency
+
+### **🔍 Testing & Validation**
+- ✅ **Build Success**: Zero compilation errors after implementation
+- ✅ **Reminder Operations**: Add/edit/delete operations now provide immediate visual feedback
+- ✅ **UI Consistency**: All containers maintain consistent width and styling
+- ✅ **State Management**: Proper parent-child communication with reliable data persistence
+
+This fix resolves critical usability issues that were impacting core app functionality, ensuring users can reliably add reminders and experience consistent visual design throughout the interface.
+
 ## UI Consistency Improvements
 **Problem**: Spotify and Apple Music authorization dialogs were using inconsistent fonts that didn't match the rest of the app.
 
@@ -255,4 +300,4 @@ This fix transforms a completely broken feature into a fully functional, user-fr
 - `DEMO_GUIDE.md` - App demonstration walkthrough
 
 ---
-*Last updated: August 3, 2025 - Major "My Loved Ones" edit functionality fix and UI consistency improvements*
+*Last updated: August 3, 2025 - Critical bug fixes for reminder list refresh and UI consistency improvements*

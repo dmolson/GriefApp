@@ -415,6 +415,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = AfterLight;
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app uses Apple Music to help you add meaningful songs to your memorial rituals, providing comfort through music that honors your loved ones.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app needs access to your calendar to add awareness event reminders for grief support.";
 				INFOPLIST_KEY_UIAppFonts = "Chubbo-Regular.otf Chubbo-Bold.otf Chubbo-Medium.otf Chubbo-Light.otf Comico-Regular.otf Satoshi-Regular.otf Satoshi-Medium.otf Satoshi-Bold.otf Satoshi-Light.otf Satoshi-Black.otf Satoshi-Italic.otf Satoshi-MediumItalic.otf Satoshi-BoldItalic.otf Satoshi-LightItalic.otf Satoshi-BlackItalic.otf";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -457,6 +458,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = AfterLight;
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app uses Apple Music to help you add meaningful songs to your memorial rituals, providing comfort through music that honors your loved ones.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app needs access to your calendar to add awareness event reminders for grief support.";
 				INFOPLIST_KEY_UIAppFonts = "Chubbo-Regular.otf Chubbo-Bold.otf Chubbo-Medium.otf Chubbo-Light.otf Comico-Regular.otf Satoshi-Regular.otf Satoshi-Medium.otf Satoshi-Bold.otf Satoshi-Light.otf Satoshi-Black.otf Satoshi-Italic.otf Satoshi-MediumItalic.otf Satoshi-BoldItalic.otf Satoshi-LightItalic.otf Satoshi-BlackItalic.otf";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
