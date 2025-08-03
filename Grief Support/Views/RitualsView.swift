@@ -25,49 +25,12 @@ enum RitualType: String, CaseIterable {
     }
 }
 
-struct MusicSelection {
-    let id: String
-    let title: String
-    let artist: String
-    let type: MusicType
-    let service: MusicService
-    let artworkURL: String?
-    
-    enum MusicType {
-        case song
-        case playlist
-    }
-    
-    enum MusicService {
-        case spotify
-        case appleMusic
+struct RitualsView: View {
+    var body: some View {
+        Text("Rituals Working!")
     }
 }
 
-struct RitualsView: View {
-    @State private var selectedRitualType: RitualType?
-    @State private var selectedPerson = ""
-    @State private var customIdeas = ""
-    @State private var connectionPrompts = ""
-    @State private var reflectionPrompts = ""
-    @State private var itemsText = ""
-    @State private var selectedImages: [UIImage] = []
-    @State private var selectedPresetImage: String? = nil
-    @State private var showingImagePicker = false
-    @State private var showingPhotoSavedAlert = false
-    @State private var photoSavedMessage = ""
-    @State private var showingLovedOnesSettings = false
-    @State private var selectedPersonFilter = "Create"
-    @State private var selectedMusic: MusicSelection? = nil
-    @State private var showingMusicPicker = false
-    @State private var showingMusicPlayer = false
-    @State private var showingRitualPlayback = false
-    @AppStorage("spotifyConnected") private var spotifyConnected = false
-    @AppStorage("appleMusicConnected") private var appleMusicConnected = false
-    
-    let lovedOnes = ["All", "Matthew", "Mom", "Smudge"]
-    
-    var body: some View {
-        Text("Test")
-    }
+#Preview {
+    RitualsView()
 }

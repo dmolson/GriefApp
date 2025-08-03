@@ -22,6 +22,7 @@ struct Grief_SupportApp: App {
         let fontNames = [
             "Chubbo-Regular", "Chubbo-Bold", "Chubbo-Medium", "Chubbo-Light", 
             "Comico-Regular",
+            "Melodrama-Regular", "Melodrama-Light", "Melodrama-Medium", "Melodrama-Bold", "Melodrama-Semibold",
             "Satoshi-Regular", "Satoshi-Medium", "Satoshi-Bold", "Satoshi-Light", "Satoshi-Black",
             "Satoshi-Italic", "Satoshi-MediumItalic", "Satoshi-BoldItalic", "Satoshi-LightItalic", "Satoshi-BlackItalic"
         ]

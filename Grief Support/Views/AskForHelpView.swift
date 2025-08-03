@@ -24,10 +24,11 @@ struct AskForHelpView: View {
                             Text("Practical Support")
                                 .font(.appHeadline)
                             
-                            HelpSuggestionView(text: "Help with grocery shopping or meal preparation")
-                            HelpSuggestionView(text: "Assistance with household tasks or childcare")
+                            HelpSuggestionView(text: "Help with grocery shopping, meal preparation, or food delivery to your doorstep")
+                            HelpSuggestionView(text: "Assistance with household tasks such as dog walking, dishes, laundry, or childcare")
                             HelpSuggestionView(text: "Transportation to appointments or support groups")
                             HelpSuggestionView(text: "Help organizing memorial services or legal matters")
+                            HelpSuggestionView(text: "Assistance with or company during cleaning out your loved one's belongings")
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -41,6 +42,8 @@ struct AskForHelpView: View {
                             HelpSuggestionView(text: "Someone to listen without judgment")
                             HelpSuggestionView(text: "Companionship during difficult moments")
                             HelpSuggestionView(text: "Help processing difficult emotions")
+                            HelpSuggestionView(text: "Someone who encourages you to share memories of your loved one")
+                            HelpSuggestionView(text: "A friend who asks about your loved one and wants to hear their stories")
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -51,8 +54,20 @@ struct AskForHelpView: View {
                     CardView {
                         VStack(spacing: 12) {
                             MessageTemplateView(
+                                title: "Hard Grief Day",
+                                preview: "I'm having a hard grief day. I just need someone to listen so I wanted to reach out.",
+                                action: { sendMessage($0) }
+                            )
+                            
+                            MessageTemplateView(
                                 title: "Asking for Company",
                                 preview: "I'm having a really difficult day and could use some company. Would you be able to come over or talk on the phone?",
+                                action: { sendMessage($0) }
+                            )
+                            
+                            MessageTemplateView(
+                                title: "Just Listening",
+                                preview: "I need someone to talk to about what I'm going through. Are you free to listen for a bit?",
                                 action: { sendMessage($0) }
                             )
                             
@@ -63,8 +78,44 @@ struct AskForHelpView: View {
                             )
                             
                             MessageTemplateView(
-                                title: "Just Listening",
-                                preview: "I need someone to talk to about what I'm going through. Are you free to listen for a bit?",
+                                title: "Thank You for Understanding",
+                                preview: "Thank you for your support. I've needed some space and time lately, and I really appreciate you understanding that I haven't felt like talking much.",
+                                action: { sendMessage($0) }
+                            )
+                            
+                            MessageTemplateView(
+                                title: "Need a Distraction",
+                                preview: "I need a distraction from my grief. Do you have any good movies, shows, or podcasts that you can recommend me?",
+                                action: { sendMessage($0) }
+                            )
+                            
+                            MessageTemplateView(
+                                title: "Important Dates Reminder",
+                                preview: "[Date] is my loved one's birthday/anniversary. I wanted to let you know in case you'd like to check in on me that day.",
+                                action: { sendMessage($0) }
+                            )
+                            
+                            MessageTemplateView(
+                                title: "Share a Memory",
+                                preview: "Would you be open to me telling you a story about my loved one? I'd love to share a memory with someone.",
+                                action: { sendMessage($0) }
+                            )
+                            
+                            MessageTemplateView(
+                                title: "Connect with Another Griever",
+                                preview: "I know you're also grieving. Would you be up to talk about our loved ones for a while? I think it might help us both.",
+                                action: { sendMessage($0) }
+                            )
+                            
+                            MessageTemplateView(
+                                title: "Work - Bereavement Leave",
+                                preview: "I wanted to let you know that my loved one has passed away and I need to take some time off of work to handle arrangements and grieve.",
+                                action: { sendMessage($0) }
+                            )
+                            
+                            MessageTemplateView(
+                                title: "Requesting a Sick Day",
+                                preview: "I need to request a sick day today to take care of my mental health as I'm struggling with my grief.",
                                 action: { sendMessage($0) }
                             )
                         }
@@ -148,6 +199,22 @@ struct ShareSheet: UIViewControllerRepresentable {
             activityItems: activityItems,
             applicationActivities: nil
         )
+        
+        // Exclude activity types we don't want to show
+        controller.excludedActivityTypes = [
+            .postToFacebook,
+            .postToTwitter,
+            .postToWeibo,
+            .postToVimeo,
+            .postToTencentWeibo,
+            .postToFlickr,
+            .airDrop,
+            .print,
+            .assignToContact,
+            .saveToCameraRoll,
+            .addToReadingList,
+            .openInIBooks
+        ]
         
         // Configure for iPad compatibility
         if let popover = controller.popoverPresentationController {

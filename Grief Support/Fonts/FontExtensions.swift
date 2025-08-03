@@ -51,7 +51,7 @@ extension Font {
     static let caption2 = Font.satoshi(size: 11, weight: .regular)
     
     // Custom app-specific styles
-    static let appHeaderTitle = Font.custom("Melodrama-Medium", size: 35) // Main "light after loss" header
+    static let appHeaderTitle = Font.custom("Chubbo-Light", size: 35) // Main "light after loss" header
     static let appTitle = Font.excon(size: 24, weight: .bold)
     static let tabTitle = Font.excon(size: 18, weight: .semibold)
     static let cardTitle = Font.excon(size: 16, weight: .semibold)
