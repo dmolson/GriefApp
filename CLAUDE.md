@@ -182,4 +182,4 @@ https://github.com/dmolson/GriefApp
 - `DEMO_GUIDE.md` - App demonstration walkthrough
 
 ---
-*Last updated: August 2, 2025*
+*Last updated: August 3, 2025*

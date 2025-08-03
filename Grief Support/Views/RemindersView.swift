@@ -6,15 +6,14 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct RemindersView: View {
-    @State private var reminders: [Reminder] = [
-        Reminder(time: "8:00 AM", message: "Each day is a step forward in your healing journey.", isEnabled: true),
-        Reminder(time: "12:00 PM", message: "Your loved one's memory lives on through your love.", isEnabled: true),
-        Reminder(time: "6:00 PM", message: "It's okay to feel whatever you're feeling today.", isEnabled: true)
-    ]
+    @State private var reminders: [Reminder] = []
     @State private var showingAddReminder = false
     @State private var showingCustomizeTimes = false
+    @State private var editingReminder: Reminder? = nil
+    @State private var showingEditSheet = false
     
     var body: some View {
         NavigationView {
@@ -22,14 +21,51 @@ struct RemindersView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     SectionHeaderView(title: "Daily Reminders")
                     
-                    CardView {
-                        VStack(spacing: 0) {
-                            ForEach(reminders.indices, id: \.self) { index in
-                                ReminderRow(reminder: $reminders[index])
+                    if reminders.isEmpty {
+                        // Empty state
+                        CardView {
+                            VStack(spacing: 16) {
+                                Image(systemName: "bell.slash")
+                                    .font(.system(size: 48))
+                                    .foregroundColor(.secondary)
                                 
-                                if index < reminders.count - 1 {
-                                    Divider()
-                                        .padding(.vertical, 8)
+                                Text("No Reminders")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                
+                                Text("Add your first reminder to get gentle daily support")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.vertical, 20)
+                        }
+                    } else {
+                        Text("Swipe left on any reminder to edit or delete")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal)
+                    }
+                    
+                    if !reminders.isEmpty {
+                        CardView {
+                            VStack(spacing: 0) {
+                                ForEach(reminders.indices, id: \.self) { index in
+                                    ReminderRow(
+                                        reminder: $reminders[index],
+                                        onEdit: { reminder in
+                                            editingReminder = reminder
+                                            showingEditSheet = true
+                                        },
+                                        onDelete: { reminder in
+                                            deleteReminder(reminder)
+                                        }
+                                    )
+                                    
+                                    if index < reminders.count - 1 {
+                                        Divider()
+                                            .padding(.vertical, 8)
+                                    }
                                 }
                             }
                         }
@@ -44,7 +80,7 @@ struct RemindersView: View {
                     }
                 }
                 .padding()
-                .padding(.top, 144) // Account for header height
+                .padding(.top, 144)
             }
             .background(Color(UIColor.systemBackground))
             .navigationBarHidden(true)
@@ -55,28 +91,97 @@ struct RemindersView: View {
         .sheet(isPresented: $showingCustomizeTimes) {
             CustomizeTimesView(reminders: $reminders)
         }
+        .sheet(isPresented: $showingEditSheet) {
+            if let reminder = editingReminder {
+                EditReminderView(
+                    reminder: reminder,
+                    onSave: { updatedReminder in
+                        updateReminder(updatedReminder)
+                        showingEditSheet = false
+                        editingReminder = nil
+                    },
+                    onCancel: {
+                        showingEditSheet = false
+                        editingReminder = nil
+                    }
+                )
+            }
+        }
+        .onAppear {
+            loadReminders()
+        }
+        .onChange(of: reminders) { _, _ in
+            saveReminders()
+        }
+    }
+    
+    private func loadReminders() {
+        if reminders.isEmpty {
+            if let data = UserDefaults.standard.data(forKey: "savedReminders"),
+               let decoded = try? JSONDecoder().decode([Reminder].self, from: data) {
+                reminders = decoded
+            } else {
+                reminders = [
+                    Reminder(time: "8:00 AM", message: "Each day is a step forward in your healing journey.", isEnabled: true),
+                    Reminder(time: "12:00 PM", message: "Your loved one's memory lives on through your love.", isEnabled: true),
+                    Reminder(time: "6:00 PM", message: "It's okay to feel whatever you're feeling today.", isEnabled: true)
+                ]
+                saveReminders()
+            }
+        }
+    }
+    
+    private func saveReminders() {
+        if let encoded = try? JSONEncoder().encode(reminders) {
+            UserDefaults.standard.set(encoded, forKey: "savedReminders")
+        }
+    }
+    
+    private func updateReminder(_ updatedReminder: Reminder) {
+        if let index = reminders.firstIndex(where: { $0.id == updatedReminder.id }) {
+            reminders[index] = updatedReminder
+        }
+    }
+    
+    private func deleteReminder(_ reminder: Reminder) {
+        reminders.removeAll { $0.id == reminder.id }
     }
 }
 
-struct Reminder: Identifiable {
-    let id = UUID()
+struct Reminder: Identifiable, Codable, Equatable {
+    let id: UUID
     var time: String
     var message: String
     var isEnabled: Bool
+    
+    init(time: String, message: String, isEnabled: Bool) {
+        self.id = UUID()
+        self.time = time
+        self.message = message
+        self.isEnabled = isEnabled
+    }
+    
+    static func == (lhs: Reminder, rhs: Reminder) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 struct ReminderRow: View {
     @Binding var reminder: Reminder
+    let onEdit: (Reminder) -> Void
+    let onDelete: (Reminder) -> Void
+    
+    @State private var showingDeleteConfirmation = false
     
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 5) {
                 Text(reminder.time)
-                    .font(.appHeadline)
+                    .font(.system(size: 18, weight: .medium))
                     .foregroundColor(ThemeColors.adaptivePrimary)
                 
                 Text(reminder.message)
-                    .font(.appBodySmall)
+                    .font(.system(size: 14))
                     .foregroundColor(.secondary)
             }
             
@@ -85,6 +190,173 @@ struct ReminderRow: View {
             CustomToggle(isOn: $reminder.isEnabled)
         }
         .padding(.vertical, 8)
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(action: {
+                showingDeleteConfirmation = true
+            }) {
+                Label("Delete", systemImage: "trash")
+            }
+            .tint(.red)
+            
+            Button(action: {
+                onEdit(reminder)
+            }) {
+                Label("Edit", systemImage: "pencil")
+            }
+            .tint(.blue)
+        }
+        .alert("Delete Reminder?", isPresented: $showingDeleteConfirmation) {
+            Button("Delete", role: .destructive) {
+                onDelete(reminder)
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("This will permanently remove the \(reminder.time) reminder. This action cannot be undone.")
+        }
+    }
+}
+
+struct EditReminderView: View {
+    let reminder: Reminder
+    let onSave: (Reminder) -> Void
+    let onCancel: () -> Void
+    
+    @State private var editedTime: Date
+    @State private var editedMessage: String
+    @State private var editedIsEnabled: Bool
+    
+    let presetMessages = [
+        "You are stronger than you know",
+        "It's okay to take things one moment at a time",
+        "Your feelings are valid",
+        "Remember to be gentle with yourself",
+        "You don't have to face this alone",
+        "Each day is a step forward in your healing journey",
+        "Your loved one's memory lives on through your love",
+        "It's okay to feel whatever you're feeling today"
+    ]
+    
+    init(reminder: Reminder, onSave: @escaping (Reminder) -> Void, onCancel: @escaping () -> Void) {
+        self.reminder = reminder
+        self.onSave = onSave
+        self.onCancel = onCancel
+        
+        _editedMessage = State(initialValue: reminder.message)
+        _editedIsEnabled = State(initialValue: reminder.isEnabled)
+        
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        if let time = formatter.date(from: reminder.time) {
+            _editedTime = State(initialValue: time)
+        } else {
+            _editedTime = State(initialValue: Date())
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    CardView {
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text("Edit Reminder")
+                                .font(.system(size: 20, weight: .semibold))
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Time")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                DatePicker("Reminder Time", selection: $editedTime, displayedComponents: .hourAndMinute)
+                                    .datePickerStyle(CompactDatePickerStyle())
+                                    .labelsHidden()
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Message")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                TextEditor(text: $editedMessage)
+                                    .frame(height: 80)
+                                    .padding(8)
+                                    .background(Color(UIColor.secondarySystemBackground))
+                                    .cornerRadius(8)
+                            }
+                            
+                            HStack {
+                                Text("Reminder Enabled")
+                                    .font(.system(size: 14, weight: .medium))
+                                Spacer()
+                                CustomToggle(isOn: $editedIsEnabled)
+                            }
+                        }
+                    }
+                    
+                    CardView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Quick Message Options")
+                                .font(.system(size: 16, weight: .semibold))
+                            
+                            LazyVGrid(columns: [GridItem(.flexible())], spacing: 8) {
+                                ForEach(presetMessages, id: \.self) { message in
+                                    Button(action: {
+                                        editedMessage = message
+                                    }) {
+                                        HStack {
+                                            Text(message)
+                                                .font(.system(size: 14))
+                                                .foregroundColor(.primary)
+                                                .multilineTextAlignment(.leading)
+                                            
+                                            Spacer()
+                                            
+                                            if editedMessage == message {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .foregroundColor(ThemeColors.adaptivePrimary)
+                                            }
+                                        }
+                                        .padding(.vertical, 8)
+                                        .padding(.horizontal, 12)
+                                        .background(editedMessage == message ? ThemeColors.adaptivePrimary.opacity(0.1) : Color(UIColor.tertiarySystemBackground))
+                                        .cornerRadius(8)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding()
+            }
+            .background(Color(UIColor.systemBackground))
+            .navigationTitle("Edit Reminder")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        onCancel()
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        saveChanges()
+                    }
+                    .disabled(editedMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
+        }
+    }
+    
+    private func saveChanges() {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        
+        var updatedReminder = reminder
+        updatedReminder.time = formatter.string(from: editedTime)
+        updatedReminder.message = editedMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        updatedReminder.isEnabled = editedIsEnabled
+        
+        onSave(updatedReminder)
     }
 }
 

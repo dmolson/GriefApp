@@ -135,6 +135,22 @@ struct SettingsView: View {
                     .padding()
                 }
                 .buttonStyle(PlainButtonStyle())
+                
+                // Footer
+                VStack(spacing: 8) {
+                    Text("⚠️ This app is in Beta (please use Claude to revise)")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.orange)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    
+                    Text("made with heart, soul, and claude")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(ThemeColors.adaptiveAccent)
+                        .multilineTextAlignment(.center)
+                        .padding(.vertical, 8)
+                }
+                .background(Color(UIColor.systemBackground))
             }
             .background(Color(UIColor.systemBackground))
         }
@@ -153,9 +169,9 @@ struct SettingsNavigationItem: View {
             HStack(spacing: 15) {
                 Image(systemName: icon)
                     .font(.system(size: 20))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(hex: "555879"))
                     .frame(width: 40, height: 40)
-                    .background(ThemeColors.adaptivePrimaryBackground)
+                    .background(Color(UIColor.secondarySystemBackground))
                     .clipShape(Circle())
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -218,7 +234,7 @@ struct LovedOnesSettingsView: View {
                 // Add new loved one
                 CardView {
                     VStack(alignment: .leading, spacing: 15) {
-                        Text("Add Someone Special")
+                        Text("Add to My Loved Ones")
                             .font(.system(size: 16, weight: .semibold))
                         
                         TextField("Name (e.g., Matthew, Mom, Smudge)", text: $newName)
@@ -768,17 +784,16 @@ struct ResetSettingsView: View {
     }
     
     private func resetReminders() {
-        // Reset reminder settings to defaults
+        // Clear the actual reminders data that the RemindersView uses
         UserDefaults.standard.removeObject(forKey: "savedReminders")
         UserDefaults.standard.removeObject(forKey: "reminderTimes")
         UserDefaults.standard.removeObject(forKey: "reminderMessages")
         
-        // Reset any other reminder-related UserDefaults keys
         UserDefaults.standard.synchronize()
     }
     
     private func resetRituals() {
-        // Reset saved rituals
+        // Clear the actual rituals data that the RitualsView uses
         UserDefaults.standard.removeObject(forKey: "savedRituals")
         UserDefaults.standard.removeObject(forKey: "ritualPhotos")
         UserDefaults.standard.removeObject(forKey: "ritualMusic")
@@ -1169,34 +1184,95 @@ struct BugReportView: View {
     @State private var description = ""
     @State private var showingSubmitAlert = false
     
-    let issueTypes = ["Bug", "Feature Request", "Performance Issue", "UI/UX Issue", "Other"]
+    let issueTypes = [
+        ("Bug", "🐛", "Something isn't working as expected"),
+        ("Feature Request", "💡", "Suggest a new feature or improvement"),
+        ("Performance Issue", "⚡", "App is slow or unresponsive"),
+        ("UI/UX Issue", "🎨", "Design or usability concern"),
+        ("Other", "📝", "Something else")
+    ]
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Issue Type")) {
-                    Picker("Type", selection: $issueType) {
-                        ForEach(issueTypes, id: \.self) { type in
-                            Text(type).tag(type)
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                
-                Section(header: Text("Description (max 300 characters)")) {
-                    TextEditor(text: $description)
-                        .frame(height: 120)
-                        .onChange(of: description) { _, newValue in
-                            if newValue.count > 300 {
-                                description = String(newValue.prefix(300))
+            VStack(spacing: 0) {
+                Form {
+                    Section(header: Text("What type of issue are you reporting?")) {
+                        Picker("Issue Type", selection: $issueType) {
+                            ForEach(issueTypes, id: \.0) { type in
+                                Label {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(type.0)
+                                            .font(.system(size: 16, weight: .medium))
+                                        Text(type.2)
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.secondary)
+                                    }
+                                } icon: {
+                                    Text(type.1)
+                                        .font(.system(size: 18))
+                                }
+                                .tag(type.0)
                             }
                         }
+                        .pickerStyle(MenuPickerStyle())
+                    }
                     
-                    Text("\(description.count)/300")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    Section(header: Text("Tell us more about the issue")) {
+                        TextEditor(text: $description)
+                            .frame(height: 120)
+                            .onChange(of: description) { _, newValue in
+                                if newValue.count > 300 {
+                                    description = String(newValue.prefix(300))
+                                }
+                            }
+                        
+                        HStack {
+                            Text("\(description.count)/300 characters")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            
+                            Spacer()
+                            
+                            if description.count >= 280 {
+                                Text("Almost at limit")
+                                    .font(.caption)
+                                    .foregroundColor(.orange)
+                            }
+                        }
+                    }
+                    
+                    Section {
+                        Text("Your feedback helps us improve the app for everyone. We'll review your report and may follow up if we need more information.")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                            .padding(.vertical, 8)
+                    }
                 }
+                
+                // Submit button at bottom
+                VStack(spacing: 16) {
+                    Divider()
+                    
+                    Button(action: {
+                        // TODO: Implement email sending to wearesoulfulai@gmail.com
+                        showingSubmitAlert = true
+                    }) {
+                        HStack {
+                            Image(systemName: "paperplane.fill")
+                            Text("Submit Report")
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : ThemeColors.adaptivePrimary)
+                        .cornerRadius(12)
+                    }
+                    .disabled(description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                }
+                .background(Color(UIColor.systemBackground))
             }
             .navigationTitle("Report Issue")
             .navigationBarTitleDisplayMode(.inline)
@@ -1205,14 +1281,6 @@ struct BugReportView: View {
                     Button("Cancel") {
                         presentationMode.wrappedValue.dismiss()
                     }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Submit") {
-                        // TODO: Implement email sending to wearesoulfulai@gmail.com
-                        showingSubmitAlert = true
-                    }
-                    .disabled(description.isEmpty)
                 }
             }
             .alert("Report Submitted", isPresented: $showingSubmitAlert) {
