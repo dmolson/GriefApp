@@ -148,16 +148,44 @@ class MusicIntegrationService: ObservableObject {
     
     // MARK: - Spotify Integration
     func searchSpotify(query: String) async -> [MusicSelection] {
-        // Note: This would require Spotify Web API implementation
-        // For now, return mock results that can deep link to Spotify
         guard preferencesService.isServiceEnabled(.spotify) else { return [] }
         
-        // Mock search results - in real implementation, this would call Spotify Web API
+        let method = preferencesService.getEffectiveSpotifyMethod()
+        
+        switch method {
+        case .app:
+            return await searchSpotifyApp(query: query)
+        case .web:
+            return await searchSpotifyWeb(query: query)
+        case .automatic:
+            if preferencesService.spotifyAppInstalled {
+                return await searchSpotifyApp(query: query)
+            } else {
+                return await searchSpotifyWeb(query: query)
+            }
+        }
+    }
+    
+    private func searchSpotifyApp(query: String) async -> [MusicSelection] {
+        // App-based search with deep linking - opens Spotify app with search
         return [
             MusicSelection(
                 service: .spotify,
-                title: "Search on Spotify",
-                artist: "Tap to open Spotify and search",
+                title: "Search '\(query)' on Spotify",
+                artist: "Opens Spotify app to search for this music",
+                spotifyID: nil,
+                isPlaylist: false
+            )
+        ]
+    }
+    
+    private func searchSpotifyWeb(query: String) async -> [MusicSelection] {
+        // Web-based search - opens Spotify web player with search
+        return [
+            MusicSelection(
+                service: .spotify,
+                title: "Search '\(query)' on Spotify Web",
+                artist: "Opens Spotify in browser to search for this music",
                 spotifyID: nil,
                 isPlaylist: false
             )
@@ -166,14 +194,31 @@ class MusicIntegrationService: ObservableObject {
     
     func openSpotifySearch(query: String) {
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-        if let url = URL(string: "spotify:search:\(encodedQuery)") {
-            UIApplication.shared.open(url)
+        
+        // Try to open in Spotify app first
+        if let appURL = URL(string: "spotify:search:\(encodedQuery)"), 
+           UIApplication.shared.canOpenURL(appURL) {
+            UIApplication.shared.open(appURL)
+        } else {
+            // Fall back to Spotify web player
+            if let webURL = URL(string: "https://open.spotify.com/search/\(encodedQuery)") {
+                UIApplication.shared.open(webURL)
+            }
         }
     }
     
     func playSpotifySelection(_ selection: MusicSelection) -> Bool {
+        // Extract the search query from the title
+        if selection.title.contains("Search '") && selection.title.contains("' on Spotify") {
+            let startIndex = selection.title.index(selection.title.startIndex, offsetBy: 8) // "Search '"
+            let endIndex = selection.title.lastIndex(of: "'") ?? selection.title.endIndex
+            let query = String(selection.title[startIndex..<endIndex])
+            openSpotifySearch(query: query)
+            return true
+        }
+        
         guard let spotifyID = selection.spotifyID else {
-            // If no specific ID, open Spotify search
+            // Fallback: open Spotify search with title
             openSpotifySearch(query: selection.title)
             return true
         }

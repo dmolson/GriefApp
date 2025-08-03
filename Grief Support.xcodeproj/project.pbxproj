@@ -210,7 +210,6 @@
 			mainGroup = 773250E32E3CA49400777DBD;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				77FD66702E3EA6890045B898 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 773250ED2E3CA49500777DBD /* Products */;
@@ -409,14 +408,26 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Grief Support/Grief_Support.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 26MF5N95Z6;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_PREVIEWS = YES;
+				ENABLE_PREVIEWS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = AfterLight;
-				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app uses Apple Music to help you add meaningful songs to your memorial rituals, providing comfort through music that honors your loved ones.";
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app needs access to your calendar to add awareness event reminders for grief support.";
+				INFOPLIST_KEY_CFBundleDisplayName = "Light After Loss";
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Light After Loss uses Apple Music to help you search for and add meaningful songs to your personal memorial rituals. This allows you to create comforting musical experiences that honor your loved ones during your grief journey. Your music choices remain private and are only used within the app for your personal rituals.";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Light After Loss can optionally add grief awareness and memorial event reminders to your calendar. This helps you prepare for and acknowledge meaningful dates like anniversaries, birthdays, and awareness events. Calendar access is entirely optional and you maintain full control over which events are added.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "Light After Loss can access your contacts to help you quickly share support messages with friends and family when you need help. This feature is completely optional and only used when you explicitly choose to share a message template.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Light After Loss can use Face ID or Touch ID to secure your personal grief information and memorial content. This biometric security is optional and helps protect your private memories and personal data stored within the app.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Light After Loss allows you to add meaningful photos to your personal memorial rituals. Photos are stored locally on your device and used only within the app to create personalized remembrance experiences. Photo access is optional and only requested when you choose to add images to rituals.";
+				INFOPLIST_KEY_NSPrivacyAccessedAPITypes = "";
+				INFOPLIST_KEY_NSPrivacyCollectedDataTypeForBugReports = "Optional email address only when submitting support requests";
+				INFOPLIST_KEY_NSPrivacyCollectedDataTypes = "";
+				INFOPLIST_KEY_NSPrivacyTrackingDomains = "";
+				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "Light After Loss can send you gentle, supportive reminder notifications to help you through your grief journey. These optional notifications include daily check-ins, memorial date reminders, and supportive quotes. You have complete control over notification timing and can disable them anytime in Settings.";
 				INFOPLIST_KEY_UIAppFonts = "Chubbo-Regular.otf Chubbo-Bold.otf Chubbo-Medium.otf Chubbo-Light.otf Comico-Regular.otf Satoshi-Regular.otf Satoshi-Medium.otf Satoshi-Bold.otf Satoshi-Light.otf Satoshi-Black.otf Satoshi-Italic.otf Satoshi-MediumItalic.otf Satoshi-BoldItalic.otf Satoshi-LightItalic.otf Satoshi-BlackItalic.otf";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -432,7 +443,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-Support";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -452,14 +463,26 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Grief Support/Grief_Support.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 26MF5N95Z6;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_PREVIEWS = YES;
+				ENABLE_PREVIEWS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = AfterLight;
-				INFOPLIST_KEY_NSAppleMusicUsageDescription = "This app uses Apple Music to help you add meaningful songs to your memorial rituals, providing comfort through music that honors your loved ones.";
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app needs access to your calendar to add awareness event reminders for grief support.";
+				INFOPLIST_KEY_CFBundleDisplayName = "Light After Loss";
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Light After Loss uses Apple Music to help you search for and add meaningful songs to your personal memorial rituals. This allows you to create comforting musical experiences that honor your loved ones during your grief journey. Your music choices remain private and are only used within the app for your personal rituals.";
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "Light After Loss can optionally add grief awareness and memorial event reminders to your calendar. This helps you prepare for and acknowledge meaningful dates like anniversaries, birthdays, and awareness events. Calendar access is entirely optional and you maintain full control over which events are added.";
+				INFOPLIST_KEY_NSContactsUsageDescription = "Light After Loss can access your contacts to help you quickly share support messages with friends and family when you need help. This feature is completely optional and only used when you explicitly choose to share a message template.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Light After Loss can use Face ID or Touch ID to secure your personal grief information and memorial content. This biometric security is optional and helps protect your private memories and personal data stored within the app.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Light After Loss allows you to add meaningful photos to your personal memorial rituals. Photos are stored locally on your device and used only within the app to create personalized remembrance experiences. Photo access is optional and only requested when you choose to add images to rituals.";
+				INFOPLIST_KEY_NSPrivacyAccessedAPITypes = "";
+				INFOPLIST_KEY_NSPrivacyCollectedDataTypeForBugReports = "Optional email address only when submitting support requests";
+				INFOPLIST_KEY_NSPrivacyCollectedDataTypes = "";
+				INFOPLIST_KEY_NSPrivacyTrackingDomains = "";
+				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "Light After Loss can send you gentle, supportive reminder notifications to help you through your grief journey. These optional notifications include daily check-ins, memorial date reminders, and supportive quotes. You have complete control over notification timing and can disable them anytime in Settings.";
 				INFOPLIST_KEY_UIAppFonts = "Chubbo-Regular.otf Chubbo-Bold.otf Chubbo-Medium.otf Chubbo-Light.otf Comico-Regular.otf Satoshi-Regular.otf Satoshi-Medium.otf Satoshi-Bold.otf Satoshi-Light.otf Satoshi-Black.otf Satoshi-Italic.otf Satoshi-MediumItalic.otf Satoshi-BoldItalic.otf Satoshi-LightItalic.otf Satoshi-BlackItalic.otf";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -475,7 +498,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-Support";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -493,12 +516,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 26MF5N95Z6;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-SupportTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -516,12 +539,12 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 26MF5N95Z6;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-SupportTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -538,12 +561,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 26MF5N95Z6;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-SupportUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -560,12 +583,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 26MF5N95Z6;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-SupportUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
@@ -618,17 +641,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		77FD66702E3EA6890045B898 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-algorithms.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.2.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 773250E42E3CA49500777DBD /* Project object */;
 }

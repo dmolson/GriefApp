@@ -134,8 +134,20 @@ struct AskForHelpView: View {
     }
     
     private func sendMessage(_ message: String) {
+        // Ensure state is cleared first
+        showingShareSheet = false
+        messageToShare = ""
+        
+        // Set the new message
         messageToShare = message
-        showingShareSheet = true
+        
+        // Add small delay to ensure state is properly set before sheet presentation
+        Task {
+            try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+            await MainActor.run {
+                showingShareSheet = true
+            }
+        }
     }
 }
 
@@ -197,13 +209,22 @@ struct ShareSheet: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIActivityViewController {
         // Ensure we have valid string content
         let validItems = activityItems.compactMap { item -> String? in
-            if let string = item as? String, !string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            if let string = item as? String, 
+               !string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+               string != "Message template" { // Exclude the fallback text itself
                 return string
             }
             return nil
         }
         
-        let finalItems = validItems.isEmpty ? ["Message template"] : validItems
+        // If no valid items and we only have the fallback, wait a moment for state to update
+        let finalItems: [String]
+        if validItems.isEmpty {
+            // Last resort fallback - this should rarely be hit now
+            finalItems = ["I'm reaching out because I need some support right now."]
+        } else {
+            finalItems = validItems
+        }
         
         let controller = UIActivityViewController(
             activityItems: finalItems,

@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import MessageUI
+import UserNotifications
 
 // Helper extension for date parsing
 extension DateFormatter {
@@ -224,6 +226,8 @@ struct LovedOnesSettingsView: View {
     @State private var editingPerson: LovedOne? = nil
     @State private var showingEditSheet = false
     
+    private let notificationService = NotificationService.shared
+    
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 20) {
@@ -314,6 +318,12 @@ struct LovedOnesSettingsView: View {
         
         lovedOnesService.addLovedOne(newPerson)
         
+        // Schedule notifications for the new person (both are enabled by default)
+        Task {
+            await notificationService.scheduleMemorialReminder(for: newPerson, type: .birthday)
+            await notificationService.scheduleMemorialReminder(for: newPerson, type: .memorial)
+        }
+        
         // Reset form
         newName = ""
         newBirthDate = Date()
@@ -322,9 +332,29 @@ struct LovedOnesSettingsView: View {
     
     private func updatePerson(_ updatedPerson: LovedOne) {
         lovedOnesService.updateLovedOne(updatedPerson)
+        
+        // Handle memorial notifications
+        Task {
+            // Cancel existing notifications for this person
+            notificationService.cancelMemorialReminder(for: updatedPerson, type: .birthday)
+            notificationService.cancelMemorialReminder(for: updatedPerson, type: .memorial)
+            
+            // Schedule new notifications if enabled
+            if updatedPerson.birthdayReminders {
+                await notificationService.scheduleMemorialReminder(for: updatedPerson, type: .birthday)
+            }
+            
+            if updatedPerson.memorialReminders {
+                await notificationService.scheduleMemorialReminder(for: updatedPerson, type: .memorial)
+            }
+        }
     }
     
     private func deletePerson(_ person: LovedOne) {
+        // Cancel all notifications for this person
+        notificationService.cancelMemorialReminder(for: person, type: .birthday)
+        notificationService.cancelMemorialReminder(for: person, type: .memorial)
+        
         lovedOnesService.deleteLovedOne(person)
     }
 }
@@ -896,15 +926,32 @@ struct IntegrationsSettingsView: View {
     @State private var showingAlert = false
     @State private var alertMessage = ""
     
+    private func getSpotifySubtitle() -> String {
+        if musicPreferences.spotifyEnabled {
+            let method = musicPreferences.getEffectiveSpotifyMethod()
+            return "Connected via \(method.rawValue.lowercased())"
+        } else {
+            let method = musicPreferences.getEffectiveSpotifyMethod()
+            switch method {
+            case .app:
+                return musicPreferences.spotifyAppInstalled ? "Play music in your rituals" : "Requires Spotify app installation"
+            case .web:
+                return "Play music via web browser"
+            case .automatic:
+                return musicPreferences.spotifyAppInstalled ? "Play music in your rituals" : "Play music via web browser"
+            }
+        }
+    }
+    
     var body: some View {
         LazyVStack(spacing: 20) {
             IntegrationItem(
                 icon: "🎵", // Spotify green circle with music note
                 iconColor: Color.green,
                 title: "Spotify",
-                subtitle: musicPreferences.spotifyAvailable ? "Play music in your rituals" : "Install Spotify app to enable",
+                subtitle: getSpotifySubtitle(),
                 isConnected: .constant(musicPreferences.spotifyEnabled),
-                isAvailable: musicPreferences.spotifyAvailable,
+                isAvailable: musicPreferences.spotifyAvailable, // Always true now
                 connectAction: {
                     connectToSpotify()
                 }
@@ -1052,12 +1099,19 @@ struct IntegrationItem: View {
     }
     
     private var buttonText: String {
-        if !isAvailable {
-            return "Unavailable"
-        } else if isConnected {
-            return "Connected"
+        if title == "Spotify" {
+            // Use the new hybrid Spotify status
+            let musicPreferences = MusicPreferencesService.shared
+            return musicPreferences.getSpotifyConnectionStatus()
         } else {
-            return "Connect"
+            // Standard logic for other services
+            if !isAvailable {
+                return "Unavailable"
+            } else if isConnected {
+                return "Connected"
+            } else {
+                return "Connect"
+            }
         }
     }
     
@@ -1078,6 +1132,22 @@ struct SpotifyAuthView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isConnecting = false
     
+    private func getSpotifyAuthDescription() -> String {
+        let method = musicPreferences.getEffectiveSpotifyMethod()
+        switch method {
+        case .app:
+            return "We'll use the Spotify app to control playback during your rituals. We only request permission to control playback - we never access your personal data or playlists."
+        case .web:
+            return "We'll redirect you to Spotify's website to authorize access. We only request permission to control playback - we never access your personal data or playlists."
+        case .automatic:
+            if musicPreferences.spotifyAppInstalled {
+                return "We'll use the Spotify app to control playback during your rituals. We only request permission to control playback - we never access your personal data or playlists."
+            } else {
+                return "We'll redirect you to Spotify's website to authorize access. We only request permission to control playback - we never access your personal data or playlists."
+            }
+        }
+    }
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 30) {
@@ -1095,7 +1165,7 @@ struct SpotifyAuthView: View {
                     Text("Connect to Spotify")
                         .font(.system(size: 20, weight: .semibold))
                     
-                    Text("We'll redirect you to Spotify to authorize access. We only request permission to control playback - we never access your personal data or playlists.")
+                    Text(getSpotifyAuthDescription())
                         .font(.body)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
@@ -1219,6 +1289,8 @@ struct BugReportView: View {
     @State private var issueType = "Bug"
     @State private var description = ""
     @State private var showingSubmitAlert = false
+    @State private var showingMailComposer = false
+    @State private var showingMailError = false
     
     let issueTypes = [
         ("Bug", "🐛", "Something isn't working as expected"),
@@ -1292,8 +1364,7 @@ struct BugReportView: View {
                     Divider()
                     
                     Button(action: {
-                        // TODO: Implement email sending to wearesoulfulai@gmail.com
-                        showingSubmitAlert = true
+                        submitBugReport()
                     }) {
                         HStack {
                             Image(systemName: "paperplane.fill")
@@ -1328,6 +1399,82 @@ struct BugReportView: View {
             } message: {
                 Text("Thank you for your feedback! We'll review it and get back to you if needed.")
             }
+            .alert("Email Not Available", isPresented: $showingMailError) {
+                Button("OK") { }
+            } message: {
+                Text("Email is not configured on this device. Please contact support at wearesoulfulai@gmail.com")
+            }
+            .sheet(isPresented: $showingMailComposer) {
+                MailComposerView(
+                    recipients: ["wearesoulfulai@gmail.com"],
+                    subject: "Light After Loss - \(issueType) Report",
+                    messageBody: createEmailBody(),
+                    onResult: { result in
+                        showingMailComposer = false
+                        if result == .sent {
+                            showingSubmitAlert = true
+                        }
+                    }
+                )
+            }
+        }
+    }
+    
+    private func submitBugReport() {
+        if MFMailComposeViewController.canSendMail() {
+            showingMailComposer = true
+        } else {
+            showingMailError = true
+        }
+    }
+    
+    private func createEmailBody() -> String {
+        let deviceInfo = """
+        
+        ---
+        Device Information:
+        App Version: 1.0
+        iOS Version: \(UIDevice.current.systemVersion)
+        Device Model: \(UIDevice.current.model)
+        
+        Issue Type: \(issueType)
+        Description: \(description)
+        """
+        return deviceInfo
+    }
+}
+
+// MARK: - Mail Composer
+struct MailComposerView: UIViewControllerRepresentable {
+    let recipients: [String]
+    let subject: String
+    let messageBody: String
+    let onResult: (MFMailComposeResult) -> Void
+    
+    func makeUIViewController(context: Context) -> MFMailComposeViewController {
+        let composer = MFMailComposeViewController()
+        composer.mailComposeDelegate = context.coordinator
+        composer.setToRecipients(recipients)
+        composer.setSubject(subject)
+        composer.setMessageBody(messageBody, isHTML: false)
+        return composer
+    }
+    
+    func updateUIViewController(_ uiViewController: MFMailComposeViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onResult: onResult)
+    }
+    
+    class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
+        let onResult: (MFMailComposeResult) -> Void
+        
+        init(onResult: @escaping (MFMailComposeResult) -> Void) {
+            self.onResult = onResult
+        }
+        
+        func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+            onResult(result)
         }
     }
 }

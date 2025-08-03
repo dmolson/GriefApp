@@ -8,6 +8,20 @@
 import SwiftUI
 import MusicKit
 
+enum SpotifyIntegrationMethod: String, CaseIterable, Codable {
+    case app = "Spotify App"
+    case web = "Web Browser"
+    case automatic = "Automatic"
+    
+    var description: String {
+        switch self {
+        case .app: return "Use Spotify app for playback"
+        case .web: return "Use web browser for authentication and playback"
+        case .automatic: return "Automatically choose best available method"
+        }
+    }
+}
+
 @MainActor
 class MusicPreferencesService: ObservableObject {
     @Published var spotifyEnabled = false
@@ -16,8 +30,12 @@ class MusicPreferencesService: ObservableObject {
     @Published var appleMusicAuthenticated = false
     
     // Technical availability (device/app capabilities)
-    @Published var spotifyAvailable = false
+    @Published var spotifyAppInstalled = false
+    @Published var spotifyAvailable = true // Always available via web or app
     @Published var appleMusicAvailable = false
+    
+    // Integration method preferences
+    @Published var spotifyIntegrationMethod: SpotifyIntegrationMethod = .automatic
     
     private let userDefaults = UserDefaults.standard
     
@@ -53,15 +71,17 @@ class MusicPreferencesService: ObservableObject {
         
         // Check if Spotify app is installed
         if let url = URL(string: "spotify:"), UIApplication.shared.canOpenURL(url) {
-            spotifyAvailable = true
+            spotifyAppInstalled = true
         } else {
-            spotifyAvailable = false
-            // If Spotify becomes unavailable, disable it
-            if spotifyEnabled && !spotifyAvailable {
-                spotifyEnabled = false
-                spotifyAuthenticated = false
-                savePreferences()
-            }
+            spotifyAppInstalled = false
+        }
+        
+        // Spotify is always available via web or app
+        spotifyAvailable = true
+        
+        // Update integration method based on app availability
+        if spotifyIntegrationMethod == .automatic {
+            // Don't override user's explicit choice, just update automatic detection
         }
     }
     
@@ -70,12 +90,51 @@ class MusicPreferencesService: ObservableObject {
     func enableSpotify() async -> Bool {
         guard spotifyAvailable else { return false }
         
-        // In a real implementation, this would handle Spotify OAuth
-        // For now, simulate authentication
+        // Determine which integration method to use
+        let methodToUse = getEffectiveSpotifyMethod()
+        
+        switch methodToUse {
+        case .app:
+            return await enableSpotifyApp()
+        case .web:
+            return await enableSpotifyWeb()
+        case .automatic:
+            // Try app first, fall back to web
+            if spotifyAppInstalled {
+                return await enableSpotifyApp()
+            } else {
+                return await enableSpotifyWeb()
+            }
+        }
+    }
+    
+    private func enableSpotifyApp() async -> Bool {
+        guard spotifyAppInstalled else { return false }
+        
+        // For app-based integration, simulate authentication
+        // In real implementation, this would use Spotify SDK
         spotifyAuthenticated = true
         spotifyEnabled = true
         savePreferences()
         return true
+    }
+    
+    private func enableSpotifyWeb() async -> Bool {
+        // For web-based integration, simulate authentication
+        // In real implementation, this would open OAuth web flow
+        spotifyAuthenticated = true
+        spotifyEnabled = true
+        savePreferences()
+        return true
+    }
+    
+    func getEffectiveSpotifyMethod() -> SpotifyIntegrationMethod {
+        switch spotifyIntegrationMethod {
+        case .automatic:
+            return spotifyAppInstalled ? .app : .web
+        case .app, .web:
+            return spotifyIntegrationMethod
+        }
     }
     
     func enableAppleMusic() async -> Bool {
@@ -126,9 +185,26 @@ class MusicPreferencesService: ObservableObject {
     func isServiceEnabled(_ service: MusicService) -> Bool {
         switch service {
         case .spotify:
-            return spotifyEnabled && spotifyAvailable
+            return spotifyEnabled && spotifyAvailable // spotifyAvailable is always true now
         case .appleMusic:
             return appleMusicEnabled && appleMusicAvailable
+        }
+    }
+    
+    func getSpotifyConnectionStatus() -> String {
+        if !spotifyEnabled {
+            let method = getEffectiveSpotifyMethod()
+            switch method {
+            case .app:
+                return spotifyAppInstalled ? "Connect" : "Install Spotify App"
+            case .web:
+                return "Connect via Web"
+            case .automatic:
+                return spotifyAppInstalled ? "Connect" : "Connect via Web"
+            }
+        } else {
+            let method = getEffectiveSpotifyMethod()
+            return "Connected (\(method.rawValue))"
         }
     }
     

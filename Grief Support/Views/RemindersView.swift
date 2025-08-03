@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Foundation
+import UserNotifications
 
 struct RemindersView: View {
     @State private var reminders: [Reminder] = []
@@ -14,6 +15,9 @@ struct RemindersView: View {
     @State private var showingCustomizeTimes = false
     @State private var editingReminder: Reminder? = nil
     @State private var showingEditSheet = false
+    @State private var hasNotificationPermission = false
+    
+    private let notificationService = NotificationService.shared
     
     var body: some View {
         NavigationView {
@@ -48,7 +52,7 @@ struct RemindersView: View {
                     }
                     
                     if !reminders.isEmpty {
-                        LazyVStack(spacing: 0) {
+                        List {
                             ForEach(reminders.indices, id: \.self) { index in
                                 ReminderRow(
                                     reminder: $reminders[index],
@@ -58,20 +62,21 @@ struct RemindersView: View {
                                     },
                                     onDelete: { reminder in
                                         deleteReminder(reminder)
+                                    },
+                                    onToggle: { reminder in
+                                        handleReminderToggle(reminder)
                                     }
                                 )
-                                .padding(.horizontal)
-                                .padding(.vertical, 8)
-                                
-                                if index < reminders.count - 1 {
-                                    Divider()
-                                        .padding(.horizontal)
-                                }
+                                .listRowBackground(ThemeColors.adaptiveCardBackground)
+                                .listRowSeparator(.hidden)
                             }
                         }
+                        .listStyle(PlainListStyle())
+                        .scrollContentBackground(.hidden)
                         .background(ThemeColors.adaptiveCardBackground)
                         .cornerRadius(12)
                         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                        .frame(height: CGFloat(reminders.count * 80)) // Dynamic height based on content
                     }
                     
                     PrimaryButton(title: "+ Add New Reminder") {
@@ -83,16 +88,19 @@ struct RemindersView: View {
                     }
                 }
                 .padding()
-                .padding(.top, 100)
+                .padding(.top, 144)
             }
             .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingAddReminder) {
             AddReminderView(onReminderAdded: { newReminder in
-                reminders.append(newReminder)
-                saveReminders() // Save immediately
-                showingAddReminder = false
+                DispatchQueue.main.async {
+                    reminders.append(newReminder)
+                    saveReminders() // Save immediately
+                    scheduleReminderNotification(newReminder) // Schedule notification
+                    showingAddReminder = false // Ensure sheet closes
+                }
             })
         }
         .sheet(isPresented: $showingCustomizeTimes) {
@@ -116,6 +124,7 @@ struct RemindersView: View {
         }
         .onAppear {
             loadReminders()
+            checkNotificationPermission()
         }
     }
     
@@ -136,15 +145,75 @@ struct RemindersView: View {
     }
     
     private func updateReminder(_ updatedReminder: Reminder) {
-        if let index = reminders.firstIndex(where: { $0.id == updatedReminder.id }) {
-            reminders[index] = updatedReminder
-            saveReminders()
+        DispatchQueue.main.async {
+            if let index = reminders.firstIndex(where: { $0.id == updatedReminder.id }) {
+                let oldReminder = reminders[index]
+                
+                // Cancel old notification
+                notificationService.cancelReminder(oldReminder)
+                
+                // Update reminder
+                reminders[index] = updatedReminder
+                saveReminders()
+                
+                // Schedule new notification if enabled
+                if updatedReminder.isEnabled {
+                    scheduleReminderNotification(updatedReminder)
+                }
+            }
         }
     }
     
     private func deleteReminder(_ reminder: Reminder) {
-        reminders.removeAll { $0.id == reminder.id }
+        // Cancel the notification first
+        notificationService.cancelReminder(reminder)
+        
+        DispatchQueue.main.async {
+            reminders.removeAll { $0.id == reminder.id }
+            saveReminders()
+        }
+    }
+    
+    private func checkNotificationPermission() {
+        Task {
+            let status = await notificationService.checkNotificationPermission()
+            await MainActor.run {
+                hasNotificationPermission = (status == .authorized)
+            }
+            
+            // If we don't have permission, request it
+            if status == .notDetermined {
+                let granted = await notificationService.requestNotificationPermission()
+                await MainActor.run {
+                    hasNotificationPermission = granted
+                }
+            }
+            
+            // Schedule all enabled reminders if we have permission
+            if hasNotificationPermission {
+                await notificationService.rescheduleAllReminders(reminders)
+            }
+        }
+    }
+    
+    private func scheduleReminderNotification(_ reminder: Reminder) {
+        guard hasNotificationPermission else { return }
+        
+        Task {
+            await notificationService.scheduleReminder(reminder)
+        }
+    }
+    
+    private func handleReminderToggle(_ reminder: Reminder) {
+        // Save the updated state
         saveReminders()
+        
+        // Handle notification scheduling
+        if reminder.isEnabled {
+            scheduleReminderNotification(reminder)
+        } else {
+            notificationService.cancelReminder(reminder)
+        }
     }
 }
 
@@ -170,31 +239,46 @@ struct ReminderRow: View {
     @Binding var reminder: Reminder
     let onEdit: (Reminder) -> Void
     let onDelete: (Reminder) -> Void
+    let onToggle: (Reminder) -> Void
     
     @State private var showingDeleteConfirmation = false
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 5) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(reminder.time)
-                    .font(.system(size: 18, weight: .medium))
+                    .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(ThemeColors.adaptivePrimary)
                 
                 Text(reminder.message)
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
             }
             
             Spacer()
             
-            CustomToggle(isOn: $reminder.isEnabled)
+            VStack(spacing: 8) {
+                CustomToggle(isOn: $reminder.isEnabled)
+                    .onChange(of: reminder.isEnabled) { _, newValue in
+                        onToggle(reminder)
+                    }
+                
+                if !reminder.isEnabled {
+                    Text("Paused")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+            }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 4)
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(action: {
                 showingDeleteConfirmation = true
             }) {
-                Label("Delete", systemImage: "trash")
+                Label("Delete", systemImage: "trash.fill")
             }
             .tint(.red)
             
@@ -203,7 +287,7 @@ struct ReminderRow: View {
             }) {
                 Label("Edit", systemImage: "pencil")
             }
-            .tint(.blue)
+            .tint(ThemeColors.adaptivePrimary)
         }
         .alert("Delete Reminder?", isPresented: $showingDeleteConfirmation) {
             Button("Delete", role: .destructive) {
@@ -362,50 +446,155 @@ struct EditReminderView: View {
 
 struct AddReminderView: View {
     let onReminderAdded: (Reminder) -> Void
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     @State private var selectedTime = Date()
     @State private var customMessage = ""
+    @State private var selectedPresetMessage = ""
     
     let presetMessages = [
         "You are stronger than you know",
         "It's okay to take things one moment at a time",
         "Your feelings are valid",
         "Remember to be gentle with yourself",
-        "You don't have to face this alone"
+        "You don't have to face this alone",
+        "Each day is a step forward in your healing journey",
+        "Your loved one's memory lives on through your love",
+        "It's okay to feel whatever you're feeling today"
     ]
+    
+    var finalMessage: String {
+        if !customMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return customMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else if !selectedPresetMessage.isEmpty {
+            return selectedPresetMessage
+        } else {
+            return presetMessages[0]
+        }
+    }
     
     var body: some View {
         NavigationView {
             ScrollView {
-                LazyVStack(spacing: 20) {
-                    VStack(spacing: 0) {
-                Section(header: Text("Time")) {
-                    DatePicker("Reminder Time", selection: $selectedTime, displayedComponents: .hourAndMinute)
-                        .datePickerStyle(WheelDatePickerStyle())
-                        .labelsHidden()
-                }
-                
-                Section(header: Text("Message")) {
-                    TextField("Custom message", text: $customMessage)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
-                
-                Section(header: Text("Or choose a preset message")) {
-                    ForEach(presetMessages, id: \.self) { message in
-                        Button(action: {
-                            customMessage = message
-                        }) {
-                            Text(message)
+                LazyVStack(spacing: 24) {
+                    // Time Selection Card
+                    CardView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Reminder Time")
+                                .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.primary)
-                                .padding(.vertical, 4)
+                            
+                            DatePicker("Select Time", selection: $selectedTime, displayedComponents: .hourAndMinute)
+                                .datePickerStyle(WheelDatePickerStyle())
+                                .labelsHidden()
                         }
                     }
-                }
+                    
+                    // Custom Message Card
+                    CardView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Custom Message")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            Text("Write your own personal reminder message")
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                            
+                            TextEditor(text: $customMessage)
+                                .frame(height: 80)
+                                .padding(12)
+                                .background(ThemeColors.adaptiveSecondaryBackground)
+                                .cornerRadius(8)
+                                .onChange(of: customMessage) { _, _ in
+                                    if !customMessage.isEmpty {
+                                        selectedPresetMessage = ""
+                                    }
+                                }
+                            
+                            if !customMessage.isEmpty {
+                                HStack {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                    Text("Using custom message")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary)
+                                    Spacer()
+                                }
+                            }
+                        }
                     }
-                    .padding()
-                    .background(ThemeColors.adaptiveCardBackground)
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                    
+                    // Preset Messages Card
+                    CardView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Quick Message Options")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            Text("Tap any message below to use it as your reminder")
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                            
+                            LazyVStack(spacing: 8) {
+                                ForEach(presetMessages, id: \.self) { message in
+                                    Button(action: {
+                                        selectedPresetMessage = message
+                                        customMessage = ""
+                                    }) {
+                                        HStack {
+                                            Text(message)
+                                                .font(.system(size: 14))
+                                                .foregroundColor(.primary)
+                                                .multilineTextAlignment(.leading)
+                                            
+                                            Spacer()
+                                            
+                                            if selectedPresetMessage == message {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .foregroundColor(ThemeColors.adaptivePrimary)
+                                            }
+                                        }
+                                        .padding(.vertical, 12)
+                                        .padding(.horizontal, 16)
+                                        .background(selectedPresetMessage == message ? ThemeColors.adaptivePrimary.opacity(0.1) : ThemeColors.adaptiveSecondaryBackground)
+                                        .cornerRadius(8)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Preview Card
+                    if !finalMessage.isEmpty {
+                        CardView {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Preview")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(timeString(from: selectedTime))
+                                            .font(.system(size: 16, weight: .medium))
+                                            .foregroundColor(ThemeColors.adaptivePrimary)
+                                        
+                                        Text(finalMessage)
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "bell.fill")
+                                        .foregroundColor(ThemeColors.adaptivePrimary)
+                                }
+                                .padding()
+                                .background(ThemeColors.adaptiveSecondaryBackground.opacity(0.5))
+                                .cornerRadius(8)
+                            }
+                        }
+                    }
                 }
                 .padding()
             }
@@ -415,27 +604,34 @@ struct AddReminderView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
+                        dismiss()
                     }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
-                        let formatter = DateFormatter()
-                        formatter.timeStyle = .short
-                        let timeString = formatter.string(from: selectedTime)
-                        
-                        let newReminder = Reminder(
-                            time: timeString,
-                            message: customMessage.isEmpty ? presetMessages[0] : customMessage,
-                            isEnabled: true
-                        )
-                        onReminderAdded(newReminder)
-                        presentationMode.wrappedValue.dismiss()
+                        saveReminder()
                     }
+                    .disabled(finalMessage.isEmpty)
                 }
             }
         }
+    }
+    
+    private func timeString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+    
+    private func saveReminder() {
+        let newReminder = Reminder(
+            time: timeString(from: selectedTime),
+            message: finalMessage,
+            isEnabled: true
+        )
+        onReminderAdded(newReminder)
+        dismiss()
     }
 }
 

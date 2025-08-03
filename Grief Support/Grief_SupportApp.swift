@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreText
+import UserNotifications
 
 @main
 struct Grief_SupportApp: App {
@@ -16,6 +17,9 @@ struct Grief_SupportApp: App {
     init() {
         // Load custom fonts
         loadCustomFonts()
+        
+        // Setup notification categories
+        setupNotificationCategories()
     }
     
     private func loadCustomFonts() {
@@ -45,6 +49,29 @@ struct Grief_SupportApp: App {
                 }
             }
         }
+    }
+    
+    private func setupNotificationCategories() {
+        // Define notification categories
+        let reminderCategory = UNNotificationCategory(
+            identifier: "REMINDER_CATEGORY",
+            actions: [],
+            intentIdentifiers: [],
+            options: [.customDismissAction]
+        )
+        
+        let memorialCategory = UNNotificationCategory(
+            identifier: "MEMORIAL_CATEGORY", 
+            actions: [],
+            intentIdentifiers: [],
+            options: [.customDismissAction]
+        )
+        
+        // Register categories
+        UNUserNotificationCenter.current().setNotificationCategories([
+            reminderCategory,
+            memorialCategory
+        ])
     }
     
     var body: some Scene {

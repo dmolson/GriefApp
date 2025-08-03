@@ -18,19 +18,22 @@ This is a compassionate iOS application designed to support individuals navigati
 - **Framework**: SwiftUI
 - **Architecture**: MVVM pattern
 - **Deployment**: Xcode 16.4+
-- **Dependencies**: Swift Algorithms package
+- **Dependencies**: No external dependencies (formerly used Swift Algorithms, removed during PIF corruption fix)
 - **Fonts**: Melodrama-Medium (headers), Satoshi (body text with easy toggle)
+- **Notifications**: Native iOS UserNotifications framework for push notifications
 
 ## Key Features Implemented
 1. **Ask for Help** - Message templates and support suggestions with share sheet
 2. **Daily Reminders** - Customizable notifications with supportive quotes and custom times
-3. **Rituals** - Create meaningful remembrance activities with photo management and music integration
-4. **Resources** - Crisis support, grief groups, and awareness information
-5. **Settings** - Complete loved ones management with edit/delete/add functionality, appearance controls, data management, and music integrations
-6. **Theme System** - Responsive dark/light mode with adaptive colors
-7. **Font System** - Custom fonts (Melodrama-Medium for headers) with easy revert capability
-8. **Bug Reporting** - In-app feedback system for user issues
-9. **Loved Ones Management** - Full CRUD operations with elegant UX, confirmation dialogs, and real-time updates
+3. **Push Notifications** - Complete notification system for daily reminders and memorial dates
+4. **Rituals** - Create meaningful remembrance activities with photo management and music integration
+5. **Resources** - Crisis support, grief groups, and awareness information
+6. **Settings** - Complete loved ones management with edit/delete/add functionality, appearance controls, data management, and music integrations
+7. **Theme System** - Responsive dark/light mode with adaptive colors
+8. **Font System** - Custom fonts (Melodrama-Medium for headers) with easy revert capability
+9. **Bug Reporting** - In-app feedback system for user issues
+10. **Loved Ones Management** - Full CRUD operations with elegant UX, confirmation dialogs, and real-time updates
+11. **Memorial Notifications** - Automatic birthday and memorial date reminders for loved ones
 
 ## File Structure
 ```
@@ -44,6 +47,11 @@ Grief Support/
 │   ├── ResourcesView.swift    # Support resources
 │   ├── SettingsView.swift     # Complete settings with bug reporting
 │   └── CommonComponents.swift # Adaptive theme colors
+├── Services/                  # Business logic and data management
+│   ├── NotificationService.swift # Push notification management
+│   ├── LovedOnesDataService.swift # Loved ones data persistence
+│   ├── MusicIntegrationService.swift # Music service integration
+│   └── MusicPreferencesService.swift # Music preferences management
 ├── Fonts/                     # Font system
 │   ├── FontExtensions.swift   # Custom font management
 │   └── Melodrama-Medium.otf   # Header font
@@ -387,6 +395,42 @@ This fix resolves fundamental usability issues that were breaking core app funct
 - **After**: "✨ This app is in early development. Your feedback helps us create better support tools."
 - **Impact**: More supportive, professional messaging appropriate for grief support context
 
+## Critical Privacy Compliance Implementation
+**Problem**: App needed comprehensive privacy policy and detailed permission descriptions for App Store review approval.
+
+**Privacy Policy Solution**:
+- **Comprehensive PRIVACY_POLICY.md**: Created detailed privacy policy explaining data collection, usage, and user rights
+- **Grief-Appropriate Language**: Used sensitive, supportive language appropriate for the target audience
+- **Transparency**: Clear explanation that all data stays on device with no third-party sharing
+- **User Control**: Detailed explanation of user rights and data control options
+
+**Enhanced Permission Descriptions**:
+- **Apple Music**: Expanded description emphasizing memorial ritual context and privacy protection
+- **Calendar**: Detailed explanation of optional grief awareness event reminders with user control
+- **Contacts**: Added description for message sharing functionality with explicit user choice
+- **Photo Library**: Comprehensive explanation of local storage and ritual personalization
+- **Notifications**: Added description for grief support reminders with full user control
+- **Face ID**: Added biometric security option for protecting personal grief information
+
+**Privacy Manifest (PrivacyInfo.xcprivacy)**:
+- **No Tracking**: Explicitly declares no user tracking or data collection
+- **API Usage**: Documents legitimate use of UserDefaults, file timestamps, and disk space APIs
+- **App Store Compliance**: Meets Apple's latest privacy manifest requirements
+- **Reason Codes**: Includes proper Apple reason codes for all accessed APIs
+
+**App Store Compliance Keys**:
+- **NSPrivacyCollectedDataTypes**: Empty array confirming no data collection
+- **NSPrivacyTrackingDomains**: Empty array confirming no tracking
+- **NSPrivacyAccessedAPITypes**: Documents only essential iOS APIs used
+- **Encryption Declaration**: Maintains NO encryption declaration for streamlined review
+
+**Files Created/Modified**:
+- `PRIVACY_POLICY.md` - Comprehensive privacy policy document
+- `PrivacyInfo.xcprivacy` - Apple-required privacy manifest
+- `project.pbxproj` - Enhanced all permission descriptions with detailed, grief-appropriate explanations
+
+This implementation transforms the app from having basic permission descriptions to having comprehensive, App Store-compliant privacy documentation that meets Apple's strictest review standards while maintaining the app's compassionate, supportive tone.
+
 ## Next Steps Considerations
 - Complete music integration with actual Spotify/Apple Music APIs
 - Implement data persistence (Core Data or SwiftData)
@@ -446,5 +490,54 @@ This fix resolves fundamental usability issues that were breaking core app funct
 
 This major performance update transforms the user experience from sluggish and inconsistent to smooth and professional, addressing critical usability issues that were impacting daily app interactions.
 
+## Push Notification System Implementation
+**Problem**: The app had no notification implementation at all - reminders were saved to UserDefaults but never scheduled as actual iOS notifications.
+
+**Comprehensive Solution Implemented**:
+
+### **🔔 NotificationService.swift** - Complete Notification Management
+- **Permission handling** - Requests and checks notification authorization
+- **Daily reminder scheduling** - Time-based recurring notifications for user reminders  
+- **Memorial notifications** - Annual birthday and memorial date notifications for loved ones
+- **Robust date parsing** - Supports multiple date formats (MMMM d, yyyy; MMM d, yyyy; M/d/yyyy; ISO)
+- **Debug utilities** - Methods to list and manage pending notifications
+
+### **📱 RemindersView Integration** 
+- **Auto-permission request** - Requests notification permission when reminders view loads
+- **Real-time scheduling** - Schedules notifications when reminders are created/updated
+- **Toggle management** - Schedules/cancels notifications when reminder toggles are changed
+- **Sheet dismissal fix** - Prevents duplicate reminders from multiple "Save" taps
+
+### **👥 Memorial Notifications in Settings**
+- **Loved ones integration** - Schedules birthday and memorial date notifications
+- **Toggle-based control** - Memorial reminders automatically managed when toggles change
+- **Cleanup on deletion** - Cancels all notifications when loved ones are removed
+
+### **⚙️ App-Level Configuration**
+- **Notification categories** - Proper iOS notification categories for reminders and memorials
+- **Privacy compliance** - Updated Info.plist with detailed notification usage descriptions
+- **Modern SwiftUI** - Uses current `@Environment(\.dismiss)` instead of deprecated presentationMode
+
+### **🎯 Key Features**
+- **Daily recurring reminders** - "You are stronger than you know" at user-selected times
+- **Memorial date notifications** - "Today marks a special day to remember [Name]" on anniversaries
+- **Birthday reminders** - "Today would have been [Name]'s birthday" annually
+- **Contextual messaging** - Grief-appropriate notification content
+- **Complete lifecycle management** - Automatic scheduling, updating, and cleanup
+
+### **📋 UI Fixes Included**
+- **Header Overlap Fix** - Updated RemindersView top padding from 100px to 144px
+- **Message Template Bug Fix** - Fixed first-tap issue showing default text instead of selected template
+- **Sheet Dismissal Fix** - Prevents duplicate reminder creation from multiple "Save" taps
+
+**Files Added/Modified**:
+- `NotificationService.swift` - New comprehensive notification management service
+- `RemindersView.swift` - Integrated notification scheduling and permission handling
+- `SettingsView.swift` - Added memorial notification management for loved ones
+- `Grief_SupportApp.swift` - Added notification categories setup
+- `AskForHelpView.swift` - Fixed message template state management issue
+- `PrivacyInfo.xcprivacy` - Added privacy manifest for App Store compliance
+- `PRIVACY_POLICY.md` - Comprehensive privacy policy documentation
+
 ---
-*Last updated: August 3, 2025 - Major scrolling performance improvements and Appearance settings UI fixes*
+*Last updated: August 3, 2025 - Complete push notification system implementation and UI fixes*
