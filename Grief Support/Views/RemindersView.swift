@@ -87,8 +87,8 @@ struct RemindersView: View {
         .sheet(isPresented: $showingAddReminder) {
             AddReminderView(onReminderAdded: { newReminder in
                 reminders.append(newReminder)
+                saveReminders() // Save immediately
                 showingAddReminder = false
-                loadReminders() // Force refresh
             })
         }
         .sheet(isPresented: $showingCustomizeTimes) {

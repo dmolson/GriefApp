@@ -42,11 +42,8 @@ class LovedOnesDataService: ObservableObject {
            let decoded = try? JSONDecoder().decode([LovedOne].self, from: data) {
             lovedOnes = decoded
         } else {
-            // Initialize with default data if no saved data exists
-            lovedOnes = [
-                LovedOne(name: "Matthew", birthDate: "March 15, 1985", passDate: "August 12, 2024", birthdayReminders: true, memorialReminders: true)
-            ]
-            saveLovedOnes()
+            // Initialize with empty array - users start fresh
+            lovedOnes = []
         }
     }
     
@@ -99,9 +96,7 @@ class LovedOnesDataService: ObservableObject {
     
     // MARK: - Reset Functionality
     func resetToDefaults() {
-        lovedOnes = [
-            LovedOne(name: "Matthew", birthDate: "March 15, 1985", passDate: "August 12, 2024", birthdayReminders: true, memorialReminders: true)
-        ]
+        lovedOnes = []
         saveLovedOnes()
     }
     

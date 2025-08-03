@@ -100,6 +100,7 @@ https://github.com/dmolson/GriefApp
 - ✅ **Enhanced Date Handling** - Multiple format support (MMMM d, yyyy; MMM d, yyyy; M/d/yyyy; ISO)
 - ✅ **Navigation Improvements** - Better NavigationStack usage for iOS compatibility
 - ✅ **CRITICAL BUG FIXES** - Fixed reminder list refresh and ritual container width issues
+- ✅ **APPLE MUSIC CRASH FIX** - Added required privacy permissions to prevent TCC crash when accessing music
 - ✅ All build errors resolved and app compiling successfully with zero warnings
 
 ## Critical Issue Resolved: Disappearing Rituals Page
@@ -271,6 +272,45 @@ This fix transforms a completely broken feature into a fully functional, user-fr
 
 This fix resolves critical usability issues that were impacting core app functionality, ensuring users can reliably add reminders and experience consistent visual design throughout the interface.
 
+## Critical Crash Fix: Apple Music Privacy Permissions
+**Problem**: The app was crashing immediately when users tried to add music to rituals, with a TCC (Transparency, Consent, and Control) privacy violation error.
+
+**Root Cause Analysis**:
+- **Missing Privacy Description**: The app was attempting to access Apple Music through MusicKit without the required `NSAppleMusicUsageDescription` key
+- **iOS Privacy Enforcement**: iOS automatically crashes apps that access sensitive data without proper permission descriptions
+- **Immediate Termination**: The crash occurred before any user interaction, making music functionality completely unusable
+
+**Comprehensive Solution Implemented**:
+
+### **🔧 Privacy Compliance Fix**
+- **Added NSAppleMusicUsageDescription**: Implemented proper privacy description using modern `INFOPLIST_KEY` approach
+- **Grief-Appropriate Messaging**: Used contextually appropriate description: "This app uses Apple Music to help you add meaningful songs to your memorial rituals, providing comfort through music that honors your loved ones."
+- **Build Settings Integration**: Added privacy key directly to build configurations for both Debug and Release
+
+### **📱 Technical Implementation Details**
+- **Modern Approach**: Used `INFOPLIST_KEY_NSAppleMusicUsageDescription` in build settings instead of custom Info.plist file
+- **Xcode Compatibility**: Avoided file synchronization conflicts with Xcode's auto-generation system
+- **Build Configuration**: Applied to both Debug and Release configurations for comprehensive coverage
+
+### **🎯 User Experience Impact**  
+- **Before**: App crashed immediately when tapping "Add Song or Playlist" in ritual creation
+- **After**: App requests Apple Music permission and allows users to search and select music
+- **Privacy Dialog**: Users now see appropriate permission request with context about memorial ritual usage
+
+### **🔍 Testing & Validation**
+- ✅ **Build Success**: App compiles successfully with proper privacy permissions
+- ✅ **No More Crashes**: Music functionality requests permission instead of terminating app
+- ✅ **Privacy Compliance**: Meets iOS requirements for accessing sensitive user data
+- ✅ **User Flow**: Complete ritual creation with music selection now functional
+
+**Error Message Resolved**:
+```
+This app has crashed because it attempted to access privacy-sensitive data without a usage description. 
+The app's Info.plist must contain an NSAppleMusicUsageDescription key with a string value explaining to the user how the app uses this data.
+```
+
+This fix transforms a completely broken music feature into a fully functional, privacy-compliant interface that enhances the app's core ritual creation functionality.
+
 ## UI Consistency Improvements
 **Problem**: Spotify and Apple Music authorization dialogs were using inconsistent fonts that didn't match the rest of the app.
 
@@ -300,4 +340,4 @@ This fix resolves critical usability issues that were impacting core app functio
 - `DEMO_GUIDE.md` - App demonstration walkthrough
 
 ---
-*Last updated: August 3, 2025 - Critical bug fixes for reminder list refresh and UI consistency improvements*
+*Last updated: August 3, 2025 - Critical Apple Music crash fix and comprehensive bug resolutions*
