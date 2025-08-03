@@ -6,8 +6,12 @@
 //
 
 import SwiftUI
+import EventKit
 
 struct ResourcesView: View {
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -23,19 +27,31 @@ struct ResourcesView: View {
                                 icon: "person.2.fill",
                                 title: "Grief Share Groups",
                                 subtitle: "Find local support groups",
-                                action: { /* TODO: Open link */ }
+                                action: { 
+                                    if let url = URL(string: "https://www.griefshare.org/findagroup") {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }
                             ),
                             Resource(
                                 icon: "phone.fill",
                                 title: "24/7 Grief Helpline",
                                 subtitle: "1-800-GRIEF-00",
-                                action: { /* TODO: Call number */ }
+                                action: { 
+                                    if let url = URL(string: "tel://988") {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }
                             ),
                             Resource(
                                 icon: "stethoscope",
                                 title: "Therapist Directory",
                                 subtitle: "Grief counseling specialists",
-                                action: { /* TODO: Open directory */ }
+                                action: { 
+                                    if let url = URL(string: "https://www.psychologytoday.com") {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }
                             )
                         ]
                     )
@@ -48,13 +64,21 @@ struct ResourcesView: View {
                                 icon: "heart.fill",
                                 title: "Families Anonymous",
                                 subtitle: "Support for families affected by addiction",
-                                action: { /* TODO: Open link */ }
+                                action: { 
+                                    if let url = URL(string: "https://www.familiesanonymous.org") {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }
                             ),
                             Resource(
                                 icon: "house.fill",
-                                title: "Local Narcotics Anonymous",
-                                subtitle: "Find meetings near you",
-                                action: { /* TODO: Open map */ }
+                                title: "Al-Anon",
+                                subtitle: "Support for families and friends of alcoholics",
+                                action: { 
+                                    if let url = URL(string: "https://al-anon.org/al-anon-meetings/find-an-al-anon-meeting/") {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }
                             )
                         ]
                     )
@@ -85,19 +109,99 @@ struct ResourcesView: View {
                     }
                     
                     PrimaryButton(title: "Add Events to Calendar") {
-                        // TODO: Add to calendar
+                        addEventsToCalendar()
                     }
                     
                     SecondaryButton(title: "Find Local Events") {
-                        // TODO: Open local events
+                        // Open Eventbrite to search for grief support events
+                        if let url = URL(string: "https://www.eventbrite.com/d/online/grief-support/") {
+                            UIApplication.shared.open(url)
+                        }
                     }
                 }
                 .padding()
-                .padding(.top, 124) // Account for header height
+                .padding(.top, 144) // Account for header height
             }
             .background(Color(UIColor.systemBackground))
             .navigationBarHidden(true)
         }
+        .alert("Calendar Events", isPresented: $showingAlert) {
+            Button("OK") { }
+        } message: {
+            Text(alertMessage)
+        }
+    }
+    
+    private func addEventsToCalendar() {
+        let eventStore = EKEventStore()
+        
+        eventStore.requestFullAccessToEvents { granted, error in
+            DispatchQueue.main.async {
+                if granted {
+                    createAwarenessEvents(eventStore: eventStore)
+                } else {
+                    alertMessage = "Calendar access denied. Please enable calendar access in Settings to add awareness events."
+                    showingAlert = true
+                }
+            }
+        }
+    }
+    
+    private func createAwarenessEvents(eventStore: EKEventStore) {
+        let events = [
+            (
+                title: "International Overdose Awareness Day",
+                date: DateComponents(year: 2025, month: 8, day: 31),
+                description: "A day to remember those who have died from overdose and acknowledge the grief felt by families and friends."
+            ),
+            (
+                title: "National Mental Health Awareness Week",
+                date: DateComponents(year: 2025, month: 10, day: 6),
+                description: "Events focusing on mental health support and addiction awareness. (Runs through October 12)"
+            ),
+            (
+                title: "National Survivors of Suicide Loss Day",
+                date: DateComponents(year: 2025, month: 11, day: 20),
+                description: "Support and healing for those who have lost someone to suicide."
+            )
+        ]
+        
+        var addedCount = 0
+        var errorCount = 0
+        
+        for eventInfo in events {
+            let event = EKEvent(eventStore: eventStore)
+            event.title = eventInfo.title
+            event.notes = eventInfo.description
+            event.calendar = eventStore.defaultCalendarForNewEvents
+            
+            // Set as all-day event
+            if let startDate = Calendar.current.date(from: eventInfo.date) {
+                event.startDate = startDate
+                event.endDate = startDate
+                event.isAllDay = true
+                
+                // Add reminder 1 week before
+                let alarm = EKAlarm(relativeOffset: -7 * 24 * 60 * 60) // 1 week in seconds
+                event.addAlarm(alarm)
+                
+                do {
+                    try eventStore.save(event, span: .thisEvent)
+                    addedCount += 1
+                } catch {
+                    errorCount += 1
+                }
+            } else {
+                errorCount += 1
+            }
+        }
+        
+        if addedCount > 0 {
+            alertMessage = "Successfully added \(addedCount) awareness event(s) to your calendar with 1-week reminders."
+        } else {
+            alertMessage = "Failed to add events to calendar. Please try again."
+        }
+        showingAlert = true
     }
 }
 
@@ -208,17 +312,21 @@ struct EventItem: View {
                 Text(date)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(Color(hex: "555879"))
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Text(title)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Text(description)
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.leading, 15)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

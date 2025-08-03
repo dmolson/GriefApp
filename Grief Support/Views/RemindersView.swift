@@ -43,7 +43,7 @@ struct RemindersView: View {
                     }
                 }
                 .padding()
-                .padding(.top, 124) // Account for header height
+                .padding(.top, 144) // Account for header height
             }
             .background(Color(UIColor.systemBackground))
             .navigationBarHidden(true)

@@ -29,24 +29,13 @@
 		773251042E3CA49600777DBD /* Grief SupportUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Grief SupportUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		773251292E3CA68500777DBD /* Exceptions for "Grief Support" folder in "Grief Support" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Design-Docs",
-				"Prototypes",
-			);
-			target = 773250EB2E3CA49500777DBD /* Grief Support */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 		7732512A2E3CA68500777DBD /* Exceptions for "Grief Support" folder in "Compile Sources" phase from "Grief Support" target */ = {
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
 			buildPhase = 773250E82E3CA49500777DBD /* Sources */;
 			membershipExceptions = (
 				"Design-Docs",
-				"Prototypes",
+				Prototypes,
 			);
 		};
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
@@ -55,7 +44,6 @@
 		773250EE2E3CA49500777DBD /* Grief Support */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				773251292E3CA68500777DBD /* Exceptions for "Grief Support" folder in "Grief Support" target */,
 				7732512A2E3CA68500777DBD /* Exceptions for "Grief Support" folder in "Compile Sources" phase from "Grief Support" target */,
 			);
 			path = "Grief Support";
@@ -426,6 +414,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AfterLight;
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app needs access to your calendar to add awareness event reminders for grief support.";
+				INFOPLIST_KEY_UIAppFonts = "Chubbo-Regular.otf Chubbo-Bold.otf Chubbo-Medium.otf Chubbo-Light.otf";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -465,6 +456,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AfterLight;
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app needs access to your calendar to add awareness event reminders for grief support.";
+				INFOPLIST_KEY_UIAppFonts = "Chubbo-Regular.otf Chubbo-Bold.otf Chubbo-Medium.otf Chubbo-Light.otf";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

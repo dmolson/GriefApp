@@ -39,7 +39,7 @@ struct ContentView: View {
                 }
                 .tag(3)
         }
-        .accentColor(Color(hex: "555879"))
+        .accentColor(Color(hex: "3F2E63"))
         .overlay(alignment: .top) {
             HeaderView(showSettings: $showSettings)
         }
@@ -71,18 +71,14 @@ struct HeaderView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Top safe area padding
-            Color.clear
-                .frame(height: 44) // Standard status bar height
-            
             HStack {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Light After Loss")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.appHeaderTitle)
                         .foregroundColor(.white)
                     
                     Text(quotes[currentQuoteIndex])
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.quoteText)
                         .foregroundColor(.white.opacity(0.9))
                         .opacity(quoteOpacity)
                         .animation(.easeInOut(duration: 0.5), value: quoteOpacity)
@@ -103,8 +99,10 @@ struct HeaderView: View {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 20)
-            .background(Color(hex: "555879"))
+            .padding(.top, 40) // Add extra padding from status bar
         }
+        .background(Color(hex: "3F2E63")) // Make entire header background opaque
+        .ignoresSafeArea(.all, edges: .top) // Extend to cover status bar area
         .onReceive(timer) { _ in
             withAnimation(.easeOut(duration: 0.25)) {
                 quoteOpacity = 0.3

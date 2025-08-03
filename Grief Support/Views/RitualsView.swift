@@ -19,7 +19,7 @@ struct RitualsView: View {
     @State private var selectedPresetImages: Set<String> = ["flower"]
     @State private var showingImagePicker = false
     @State private var showingLovedOnesSettings = false
-    @State private var selectedPersonFilter = "all"
+    @State private var selectedPersonFilter = "All"
     
     let lovedOnes = ["All", "Matthew", "Mom", "Smudge"] // This would come from data persistence
     
@@ -44,44 +44,44 @@ struct RitualsView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     // Top buttons row
-                    HStack(spacing: 12) {
-                        PrimaryButton(title: "Create") {
-                            // TODO: Create new ritual
-                        }
-                        .frame(maxWidth: .infinity)
-                        
-                        ForEach(lovedOnes.dropFirst(), id: \.self) { person in
-                            Button(action: {
-                                selectedPersonFilter = person.lowercased()
-                            }) {
-                                Text(person)
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(selectedPersonFilter == person.lowercased() ? .white : Color(hex: "555879"))
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 10)
-                                    .background(selectedPersonFilter == person.lowercased() ? Color(hex: "555879") : Color.clear)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color(hex: "555879"), lineWidth: 2)
-                                    )
-                                    .cornerRadius(8)
+                    VStack(alignment: .leading, spacing: 12) {
+                        // Loved ones filter buttons - flexible wrapping layout
+                        LazyVGrid(columns: [
+                            GridItem(.adaptive(minimum: 80), spacing: 8)
+                        ], spacing: 8) {
+                            ForEach(lovedOnes.dropFirst(), id: \.self) { person in
+                                Button(action: {
+                                    selectedPersonFilter = person.lowercased()
+                                }) {
+                                    Text(person)
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(selectedPersonFilter == person.lowercased() ? .white : Color(hex: "555879"))
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(selectedPersonFilter == person.lowercased() ? Color(hex: "555879") : Color.clear)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(Color(hex: "555879"), lineWidth: 1.5)
+                                        )
+                                        .cornerRadius(12)
+                                }
                             }
-                        }
-                        
-                        Button(action: {
-                            selectedPersonFilter = "all"
-                        }) {
-                            Text("All")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(selectedPersonFilter == "all" ? .white : Color(hex: "555879"))
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 10)
-                                .background(selectedPersonFilter == "all" ? Color(hex: "555879") : Color.clear)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color(hex: "555879"), lineWidth: 2)
-                                )
-                                .cornerRadius(8)
+                            
+                            Button(action: {
+                                selectedPersonFilter = "All"
+                            }) {
+                                Text("All")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(selectedPersonFilter == "All" ? .white : Color(hex: "555879"))
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(selectedPersonFilter == "All" ? Color(hex: "555879") : Color.clear)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color(hex: "555879"), lineWidth: 1.5)
+                                    )
+                                    .cornerRadius(12)
+                            }
                         }
                     }
                     
@@ -180,7 +180,7 @@ struct RitualsView: View {
                         // Preset Images
                         SectionHeaderView(title: "Preset Images")
                         
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 10) {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 12) {
                             PresetImageView(icon: "flame.fill", name: "candle", isSelected: selectedPresetImages.contains("candle")) {
                                 togglePresetImage("candle")
                             }
@@ -234,7 +234,7 @@ struct RitualsView: View {
                     }
                 }
                 .padding()
-                .padding(.top, 124) // Account for header height
+                .padding(.top, 144) // Account for header height
             }
             .background(Color(UIColor.systemBackground))
             .navigationBarHidden(true)
@@ -571,8 +571,7 @@ struct PresetImageView: View {
             Image(systemName: icon)
                 .font(.system(size: 24))
                 .foregroundColor(isSelected ? Color(hex: "555879") : .gray)
-                .frame(maxWidth: .infinity)
-                .aspectRatio(1, contentMode: .fit)
+                .frame(width: 60, height: 60)
                 .background(Color(hex: "F0EBE2"))
                 .cornerRadius(8)
                 .overlay(
