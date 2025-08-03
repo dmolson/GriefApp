@@ -48,27 +48,26 @@ struct RemindersView: View {
                     }
                     
                     if !reminders.isEmpty {
-                        CardView {
-                            VStack(spacing: 0) {
-                                ForEach(reminders.indices, id: \.self) { index in
-                                    ReminderRow(
-                                        reminder: $reminders[index],
-                                        onEdit: { reminder in
-                                            editingReminder = reminder
-                                            showingEditSheet = true
-                                        },
-                                        onDelete: { reminder in
-                                            deleteReminder(reminder)
-                                        }
-                                    )
-                                    
-                                    if index < reminders.count - 1 {
-                                        Divider()
-                                            .padding(.vertical, 8)
+                        List {
+                            ForEach(reminders.indices, id: \.self) { index in
+                                ReminderRow(
+                                    reminder: $reminders[index],
+                                    onEdit: { reminder in
+                                        editingReminder = reminder
+                                        showingEditSheet = true
+                                    },
+                                    onDelete: { reminder in
+                                        deleteReminder(reminder)
                                     }
-                                }
+                                )
+                                .listRowBackground(Color(red: 0.95, green: 0.95, blue: 0.97))
+                                .listRowSeparator(.hidden)
                             }
                         }
+                        .listStyle(PlainListStyle())
+                        .frame(height: CGFloat(reminders.count * 80))
+                        .cornerRadius(12)
+                        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                     }
                     
                     PrimaryButton(title: "+ Add New Reminder") {

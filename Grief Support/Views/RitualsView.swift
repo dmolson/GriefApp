@@ -34,9 +34,11 @@ struct RitualsView: View {
     @State private var ritualItems = ""
     @State private var ritualLocation = ""
     @State private var ritualMusicSelection = ""
+    @State private var selectedMusic: MusicSelection?
     @State private var notificationEnabled = true
     @State private var notificationTime = Date()
     @State private var showingSaveConfirmation = false
+    @StateObject private var musicService = MusicIntegrationService()
     
     // Sample loved ones data - in real app this would come from SettingsView
     let lovedOnes = [
@@ -102,6 +104,7 @@ struct RitualsView: View {
                                 }
                                 .padding(.vertical, 20)
                             }
+                            .padding(.horizontal)
                         } else {
                             ForEach(filteredRituals) { ritual in
                                 SavedRitualCard(
@@ -159,9 +162,11 @@ struct RitualsView: View {
                                 ritualItems: $ritualItems,
                                 ritualLocation: $ritualLocation,
                                 ritualMusicSelection: $ritualMusicSelection,
+                                selectedMusic: $selectedMusic,
                                 notificationEnabled: $notificationEnabled,
                                 notificationTime: $notificationTime,
                                 lovedOnes: lovedOnes,
+                                musicService: musicService,
                                 onSave: saveRitual
                             )
                         }
@@ -194,6 +199,7 @@ struct RitualsView: View {
         ritualItems = ""
         ritualLocation = ""
         ritualMusicSelection = ""
+        selectedMusic = nil
         notificationEnabled = true
         notificationTime = Date()
     }
@@ -208,6 +214,7 @@ struct RitualsView: View {
             items: ritualItems.isEmpty ? nil : ritualItems,
             location: ritualLocation.isEmpty ? nil : ritualLocation,
             musicSelection: ritualMusicSelection.isEmpty ? nil : ritualMusicSelection,
+            selectedMusic: selectedMusic,
             notificationEnabled: notificationEnabled,
             notificationTime: notificationTime
         )
@@ -250,10 +257,15 @@ struct RitualCreationForm: View {
     @Binding var ritualItems: String
     @Binding var ritualLocation: String
     @Binding var ritualMusicSelection: String
+    @Binding var selectedMusic: MusicSelection?
     @Binding var notificationEnabled: Bool
     @Binding var notificationTime: Date
     let lovedOnes: [(String, String)]
+    @ObservedObject var musicService: MusicIntegrationService
     let onSave: () -> Void
+    
+    @State private var showingMusicSearch = false
+    @State private var musicSearchQuery = ""
     
     var ritualGuidance: String {
         switch ritualType {
@@ -355,8 +367,62 @@ struct RitualCreationForm: View {
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.secondary)
                         
-                        TextField("e.g., their favorite song", text: $ritualMusicSelection)
+                        if let selectedMusic = selectedMusic {
+                            // Selected music display
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Image(systemName: selectedMusic.service.icon)
+                                            .foregroundColor(selectedMusic.service.color)
+                                        Text(selectedMusic.title)
+                                            .font(.system(size: 14, weight: .medium))
+                                    }
+                                    
+                                    if !selectedMusic.artist.isEmpty {
+                                        Text(selectedMusic.artist)
+                                            .font(.system(size: 12))
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                Button(action: {
+                                    self.selectedMusic = nil
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding()
+                            .background(Color(UIColor.tertiarySystemBackground))
+                            .cornerRadius(8)
+                        } else {
+                            // Music search button
+                            Button(action: {
+                                showingMusicSearch = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "music.note.list")
+                                        .foregroundColor(ThemeColors.adaptivePrimary)
+                                    Text("Add Song or Playlist")
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.secondary)
+                                        .font(.system(size: 12))
+                                }
+                                .padding()
+                                .background(Color(UIColor.secondarySystemBackground))
+                                .cornerRadius(8)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                        
+                        // Fallback text field for manual entry
+                        TextField("Or enter song/artist name", text: $ritualMusicSelection)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .font(.system(size: 14))
                     }
                 }
                 
@@ -393,6 +459,15 @@ struct RitualCreationForm: View {
                 .disabled(selectedPerson.isEmpty)
             }
         }
+        .sheet(isPresented: $showingMusicSearch) {
+            MusicSearchView(
+                musicService: musicService,
+                onMusicSelected: { music in
+                    selectedMusic = music
+                    showingMusicSearch = false
+                }
+            )
+        }
     }
 }
 
@@ -402,6 +477,7 @@ struct SavedRitualCard: View {
     let onDelete: (SavedRitual) -> Void
     let onToggleNotification: (SavedRitual, Bool) -> Void
     @State private var showingDeleteConfirmation = false
+    @StateObject private var musicService = MusicIntegrationService()
     
     var body: some View {
         CardView {
@@ -434,6 +510,52 @@ struct SavedRitualCard: View {
                             .lineLimit(2)
                     }
                     
+                    // Music info if available
+                    if let selectedMusic = ritual.selectedMusic {
+                        HStack(spacing: 8) {
+                            Image(systemName: selectedMusic.service.icon)
+                                .foregroundColor(selectedMusic.service.color)
+                                .font(.system(size: 12))
+                            
+                            Text(selectedMusic.title)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+                            
+                            if !selectedMusic.artist.isEmpty {
+                                Text("• \(selectedMusic.artist)")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
+                            }
+                            
+                            Spacer()
+                            
+                            Button {
+                                Task {
+                                    await playMusic()
+                                }
+                            } label: {
+                                Image(systemName: "play.circle.fill")
+                                    .foregroundColor(selectedMusic.service.color)
+                                    .font(.system(size: 18))
+                            }
+                        }
+                        .padding(.top, 4)
+                    } else if let musicText = ritual.musicSelection, !musicText.isEmpty {
+                        HStack {
+                            Image(systemName: "music.note")
+                                .foregroundColor(.secondary)
+                                .font(.system(size: 12))
+                            
+                            Text(musicText)
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                        }
+                        .padding(.top, 4)
+                    }
+                    
                     Text("Created \(ritual.dateCreated.formatted(date: .abbreviated, time: .omitted))")
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
@@ -447,6 +569,15 @@ struct SavedRitualCard: View {
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("This will permanently delete '\(ritual.name)'. This action cannot be undone.")
+        }
+    }
+    
+    private func playMusic() async {
+        guard let selectedMusic = ritual.selectedMusic else { return }
+        
+        let success = await musicService.playMusicSelection(selectedMusic)
+        if !success {
+            print("Failed to play music: \(selectedMusic.title)")
         }
     }
 }
@@ -659,11 +790,12 @@ struct SavedRitual: Identifiable, Codable, Equatable {
     var items: String?
     var location: String?
     var musicSelection: String?
+    var selectedMusic: MusicSelection?
     var notificationEnabled: Bool
     var notificationTime: Date
     var dateCreated: Date
     
-    init(type: RitualType, personName: String, description: String = "", items: String? = nil, location: String? = nil, musicSelection: String? = nil, notificationEnabled: Bool = true, notificationTime: Date = Date()) {
+    init(type: RitualType, personName: String, description: String = "", items: String? = nil, location: String? = nil, musicSelection: String? = nil, selectedMusic: MusicSelection? = nil, notificationEnabled: Bool = true, notificationTime: Date = Date()) {
         self.id = UUID()
         self.type = type
         self.name = "\(personName)'s \(type.rawValue)"
@@ -672,6 +804,7 @@ struct SavedRitual: Identifiable, Codable, Equatable {
         self.items = items
         self.location = location
         self.musicSelection = musicSelection
+        self.selectedMusic = selectedMusic
         self.notificationEnabled = notificationEnabled
         self.notificationTime = notificationTime
         self.dateCreated = Date()

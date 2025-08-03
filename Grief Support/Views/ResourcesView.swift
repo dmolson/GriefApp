@@ -34,11 +34,11 @@ struct ResourcesView: View {
                                 }
                             ),
                             Resource(
-                                icon: "phone.fill",
-                                title: "24/7 Grief Helpline",
-                                subtitle: "1-800-GRIEF-00",
+                                icon: "location.fill",
+                                title: "Dougy Center Directory",
+                                subtitle: "Grief support in your area",
                                 action: { 
-                                    if let url = URL(string: "tel://988") {
+                                    if let url = URL(string: "https://www.dougy.org/program-finder?location=New%20York%2C%20NY") {
                                         UIApplication.shared.open(url)
                                     }
                                 }
