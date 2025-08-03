@@ -95,7 +95,7 @@ For detailed information about the app's design philosophy, user experience prin
 - Primary: Inter (clean sans-serif)
 - Secondary: Cormorant Garamond (elegant serif for quotes)
 
-## 🤝 Contributing
+## 🫱🏽‍🫲🏾 Contributing
 
 This app was created with care to support those experiencing grief. If you'd like to contribute:
 
