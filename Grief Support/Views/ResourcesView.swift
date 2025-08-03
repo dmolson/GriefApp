@@ -7,6 +7,7 @@
 
 import SwiftUI
 import EventKit
+import UIKit
 
 struct ResourcesView: View {
     @State private var showingAlert = false

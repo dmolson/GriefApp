@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct AskForHelpView: View {
     @State private var showingShareSheet = false

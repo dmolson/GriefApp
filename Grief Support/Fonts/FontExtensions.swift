@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - Font Configuration
 struct FontConfig {
@@ -19,9 +20,14 @@ extension Font {
         return Font.custom(chubboFontName(for: weight), size: size)
     }
     
-    // MARK: - Excon Font (Headers)
+    // MARK: - Melodrama Font (Headers) - Replacing unavailable Excon
+    static func melodrama(size: CGFloat) -> Font {
+        return Font.custom("Melodrama-Medium", size: size)
+    }
+    
     static func excon(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        return Font.custom(exconFontName(for: weight), size: size)
+        // Excon fonts not available, using Melodrama as fallback
+        return Font.custom(melodramaFontName(for: weight), size: size)
     }
     
     // MARK: - Satoshi Font (Body Text)
@@ -95,29 +101,34 @@ private func chubboFontName(for weight: Font.Weight) -> String {
     }
 }
 
-private func exconFontName(for weight: Font.Weight) -> String {
+private func melodramaFontName(for weight: Font.Weight) -> String {
     switch weight {
     case .ultraLight:
-        return "Excon-Thin"
+        return "Melodrama-Light"
     case .thin:
-        return "Excon-Thin"
+        return "Melodrama-Light"
     case .light:
-        return "Excon-Light"
+        return "Melodrama-Light"
     case .regular:
-        return "Excon-Regular"
+        return "Melodrama-Regular"
     case .medium:
-        return "Excon-Medium"
+        return "Melodrama-Medium"
     case .semibold:
-        return "Excon-SemiBold"
+        return "Melodrama-Semibold"
     case .bold:
-        return "Excon-Bold"
+        return "Melodrama-Bold"
     case .heavy:
-        return "Excon-ExtraBold"
+        return "Melodrama-Bold"
     case .black:
-        return "Excon-Black"
+        return "Melodrama-Bold"
     default:
-        return "Excon-Regular"
+        return "Melodrama-Medium"
     }
+}
+
+private func exconFontName(for weight: Font.Weight) -> String {
+    // Excon fonts not available, using Melodrama as fallback
+    return melodramaFontName(for: weight)
 }
 
 private func satoshiFontName(for weight: Font.Weight) -> String {
