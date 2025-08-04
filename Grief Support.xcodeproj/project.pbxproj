@@ -444,7 +444,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-Support";
+				PRODUCT_BUNDLE_IDENTIFIER = com.soulfulai.afterlight;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -499,7 +499,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-Support";
+				PRODUCT_BUNDLE_IDENTIFIER = com.soulfulai.afterlight;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -522,7 +522,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-SupportTests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.soulfulai.afterlightTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -545,7 +545,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-SupportTests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.soulfulai.afterlightTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -567,7 +567,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-SupportUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.soulfulai.afterlightUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -589,7 +589,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "dmolson.Grief-SupportUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = com.soulfulai.afterlightUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";

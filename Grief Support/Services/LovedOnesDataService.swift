@@ -10,16 +10,26 @@ import Combine
 
 // MARK: - LovedOne Data Model
 struct LovedOne: Identifiable, Codable {
-    let id = UUID()
+    let id: UUID
     var name: String
     var birthDate: String
     var passDate: String
     var birthdayReminders: Bool
     var memorialReminders: Bool
     
-    // For Codable conformance, we need to handle the UUID
+    // Include id in CodingKeys to persist it properly
     enum CodingKeys: String, CodingKey {
-        case name, birthDate, passDate, birthdayReminders, memorialReminders
+        case id, name, birthDate, passDate, birthdayReminders, memorialReminders
+    }
+    
+    // Provide initializer that creates new UUID for new loved ones
+    init(id: UUID = UUID(), name: String, birthDate: String, passDate: String, birthdayReminders: Bool, memorialReminders: Bool) {
+        self.id = id
+        self.name = name
+        self.birthDate = birthDate
+        self.passDate = passDate
+        self.birthdayReminders = birthdayReminders
+        self.memorialReminders = memorialReminders
     }
 }
 

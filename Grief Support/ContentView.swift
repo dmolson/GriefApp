@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct ContentView: View {
     @State private var selectedTab = 0
@@ -68,7 +69,8 @@ struct HeaderView: View {
         // Skipping longer quotes to maintain consistent height
     ]
     
-    let timer = Timer.publish(every: 4, on: .main, in: .common).autoconnect()
+    @State private var timer: Timer.TimerPublisher = Timer.publish(every: AppConstants.UI.quoteRotationInterval, on: .main, in: .common)
+    @State private var timerSubscription: AnyCancellable?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -104,20 +106,25 @@ struct HeaderView: View {
         }
         .background(Color(hex: "3F2E63")) // Make entire header background opaque
         .ignoresSafeArea(.all, edges: .top) // Extend to cover status bar area
-        .onReceive(timer) { _ in
-            withAnimation(.easeOut(duration: 0.25)) {
-                quoteOpacity = 0.3
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                currentQuoteIndex = (currentQuoteIndex + 1) % quotes.count
-                withAnimation(.easeIn(duration: 0.25)) {
-                    quoteOpacity = 1.0
+        .onAppear {
+            // Start the timer when view appears
+            timerSubscription = timer.autoconnect().sink { _ in
+                withAnimation(.easeOut(duration: 0.25)) {
+                    quoteOpacity = 0.3
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                    currentQuoteIndex = (currentQuoteIndex + 1) % quotes.count
+                    withAnimation(.easeIn(duration: 0.25)) {
+                        quoteOpacity = 1.0
+                    }
                 }
             }
         }
-        .onAppear {
-            // Quote rotation will start automatically with timer
+        .onDisappear {
+            // Cancel timer when view disappears to prevent memory leak
+            timerSubscription?.cancel()
+            timerSubscription = nil
         }
     }
 }

@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Font Configuration
-struct FontConfig {
-    // Set USE_SATOSHI to false to quickly revert to system fonts
-    static let USE_SATOSHI = false
-}
-
 extension Font {
     // MARK: - Chubbo Font (App Header)
     static func chubbo(size: CGFloat, weight: Font.Weight = .regular) -> Font {
@@ -31,11 +25,7 @@ extension Font {
     
     // MARK: - Satoshi Font (Body Text)
     static func satoshi(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        if FontConfig.USE_SATOSHI {
-            return Font.custom(satoshiFontName(for: weight), size: size)
-        } else {
-            return Font.system(size: size, weight: weight)
-        }
+        return Font.custom(satoshiFontName(for: weight), size: size)
     }
     
     // MARK: - Semantic Font Styles

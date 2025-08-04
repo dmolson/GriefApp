@@ -95,3 +95,8 @@ build_output*.txt
 # Backup files
 *.bak
 *~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride

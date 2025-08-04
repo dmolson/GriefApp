@@ -813,13 +813,37 @@ struct ImagePicker: UIViewControllerRepresentable {
                 if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
                     result.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
                         if let uiImage = image as? UIImage {
+                            // Resize image to limit memory usage
+                            let resizedImage = self.resizeImage(uiImage, maxSize: CGSize(width: 1024, height: 1024))
                             DispatchQueue.main.async {
-                                self.parent.selectedImages.append(uiImage)
+                                self.parent.selectedImages.append(resizedImage)
                             }
                         }
                     }
                 }
             }
+        }
+        
+        private func resizeImage(_ image: UIImage, maxSize: CGSize) -> UIImage {
+            let size = image.size
+            
+            // Don't resize if already within limits
+            if size.width <= maxSize.width && size.height <= maxSize.height {
+                return image
+            }
+            
+            let widthRatio = maxSize.width / size.width
+            let heightRatio = maxSize.height / size.height
+            let ratio = min(widthRatio, heightRatio)
+            
+            let newSize = CGSize(width: size.width * ratio, height: size.height * ratio)
+            
+            UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+            let resizedImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
+            UIGraphicsEndImageContext()
+            
+            return resizedImage
         }
     }
 }

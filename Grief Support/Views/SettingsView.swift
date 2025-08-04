@@ -1402,11 +1402,11 @@ struct BugReportView: View {
             .alert("Email Not Available", isPresented: $showingMailError) {
                 Button("OK") { }
             } message: {
-                Text("Email is not configured on this device. Please contact support at wearesoulfulai@gmail.com")
+                Text("Email is not configured on this device. Please contact support at \(AppConstants.supportEmail)")
             }
             .sheet(isPresented: $showingMailComposer) {
                 MailComposerView(
-                    recipients: ["wearesoulfulai@gmail.com"],
+                    recipients: [AppConstants.supportEmail],
                     subject: "Light After Loss - \(issueType) Report",
                     messageBody: createEmailBody(),
                     onResult: { result in

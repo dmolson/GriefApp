@@ -8,8 +8,12 @@
 import Foundation
 import UserNotifications
 
+@MainActor
 class NotificationService: ObservableObject {
     static let shared = NotificationService()
+    
+    // Lock for thread-safe notification operations
+    private let notificationLock = NSLock()
     
     private init() {}
     
