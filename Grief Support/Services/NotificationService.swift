@@ -61,36 +61,53 @@ class NotificationService: ObservableObject {
         content.sound = .default
         content.categoryIdentifier = "REMINDER_CATEGORY"
         
-        // Create date components for daily recurring notification
-        var dateComponents = DateComponents()
-        dateComponents.hour = timeComponents.hour
-        dateComponents.minute = timeComponents.minute
-        
-        // Create trigger for daily repeat
-        let trigger = UNCalendarNotificationTrigger(
-            dateMatching: dateComponents,
-            repeats: true
-        )
-        
-        // Create notification request
-        let request = UNNotificationRequest(
-            identifier: "reminder_\(reminder.id.uuidString)",
-            content: content,
-            trigger: trigger
-        )
-        
-        do {
-            try await UNUserNotificationCenter.current().add(request)
-            print("Successfully scheduled reminder: \(reminder.message) at \(reminder.time)")
-        } catch {
-            print("Failed to schedule reminder: \(error)")
+        // Schedule a notification for each selected day
+        for dayIndex in reminder.selectedDays {
+            // Convert our day index (0=Sunday) to iOS weekday (1=Sunday)
+            let iOSWeekday = dayIndex + 1
+            
+            // Create date components for specific day and time
+            var dateComponents = DateComponents()
+            dateComponents.hour = timeComponents.hour
+            dateComponents.minute = timeComponents.minute
+            dateComponents.weekday = iOSWeekday
+            
+            // Create trigger for weekly repeat on this day
+            let trigger = UNCalendarNotificationTrigger(
+                dateMatching: dateComponents,
+                repeats: true
+            )
+            
+            // Create notification request with unique identifier for this day
+            let request = UNNotificationRequest(
+                identifier: "reminder_\(reminder.id.uuidString)_\(dayIndex)",
+                content: content,
+                trigger: trigger
+            )
+            
+            do {
+                try await UNUserNotificationCenter.current().add(request)
+                print("Successfully scheduled reminder for day \(dayIndex): \(reminder.message) at \(reminder.time)")
+            } catch {
+                print("Failed to schedule reminder for day \(dayIndex): \(error)")
+            }
         }
     }
     
     func cancelReminder(_ reminder: Reminder) {
-        let identifier = "reminder_\(reminder.id.uuidString)"
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
-        print("Cancelled reminder: \(reminder.message)")
+        // Cancel all notifications for this reminder (one for each day)
+        var identifiers: [String] = []
+        
+        // Add identifiers for each possible day (0-6)
+        for dayIndex in 0...6 {
+            identifiers.append("reminder_\(reminder.id.uuidString)_\(dayIndex)")
+        }
+        
+        // Also include the old format identifier for backward compatibility
+        identifiers.append("reminder_\(reminder.id.uuidString)")
+        
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)
+        print("Cancelled reminder notifications: \(reminder.message)")
     }
     
     func rescheduleAllReminders(_ reminders: [Reminder]) async {
@@ -125,47 +142,152 @@ class NotificationService: ObservableObject {
             return
         }
         
-        // Create notification content
-        let content = UNMutableNotificationContent()
-        content.title = "\(ritual.type.rawValue) Reminder"
-        
-        var bodyText = "Time for \(ritual.personName)'s \(ritual.type.rawValue.lowercased())."
-        if !ritual.description.isEmpty {
-            bodyText += " \(ritual.description)"
+        // Handle Birthday and Anniversary rituals differently
+        if ritual.type == .birthday || ritual.type == .anniversary {
+            await scheduleAnnualRitualNotification(ritual)
+            return
         }
+        
+        // Create notification content for regular rituals
+        let content = UNMutableNotificationContent()
+        content.title = "Gentle Reminder"
+        
+        // Create appropriate body text based on ritual type
+        var bodyText: String
+        switch ritual.type {
+        case .connection:
+            bodyText = "Take time to connect with \(ritual.personName)"
+        case .reflection:
+            bodyText = "Take time to reflect"
+        default:
+            bodyText = "Time for \(ritual.personName)'s \(ritual.type.rawValue.lowercased())"
+        }
+        
         content.body = bodyText
         content.sound = .default
         content.categoryIdentifier = "RITUAL_CATEGORY"
         
-        // Create date components for daily recurring notification
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.hour, .minute], from: ritual.notificationTime)
+        // Add ritual ID to userInfo for deep linking
+        content.userInfo = ["ritualId": ritual.id.uuidString]
         
-        // Create trigger for daily repeat
+        // Get hour and minute from ritual notification time
+        let calendar = Calendar.current
+        let timeComponents = calendar.dateComponents([.hour, .minute], from: ritual.notificationTime)
+        
+        // Schedule a notification for each selected day
+        for dayIndex in ritual.selectedDays {
+            // Convert our day index (0=Sunday) to iOS weekday (1=Sunday)
+            let iOSWeekday = dayIndex + 1
+            
+            // Create date components for specific day and time
+            var dateComponents = DateComponents()
+            dateComponents.hour = timeComponents.hour
+            dateComponents.minute = timeComponents.minute
+            dateComponents.weekday = iOSWeekday
+            
+            // Create trigger for weekly repeat on this day
+            let trigger = UNCalendarNotificationTrigger(
+                dateMatching: dateComponents,
+                repeats: true
+            )
+            
+            // Create notification request with unique identifier for this day
+            let request = UNNotificationRequest(
+                identifier: "ritual_\(ritual.id.uuidString)_\(dayIndex)",
+                content: content,
+                trigger: trigger
+            )
+            
+            do {
+                try await UNUserNotificationCenter.current().add(request)
+                print("Successfully scheduled ritual notification for day \(dayIndex): \(ritual.name) at \(ritual.notificationTime)")
+            } catch {
+                print("Failed to schedule ritual notification for day \(dayIndex): \(error)")
+            }
+        }
+    }
+    
+    private func scheduleAnnualRitualNotification(_ ritual: SavedRitual) async {
+        // Get the loved one's birth or pass date
+        let lovedOnesService = LovedOnesDataService.shared
+        let dateString: String?
+        
+        if ritual.type == .birthday {
+            dateString = lovedOnesService.getBirthDate(for: ritual.personName)
+        } else if ritual.type == .anniversary {
+            dateString = lovedOnesService.getPassDate(for: ritual.personName)
+        } else {
+            return // Should not happen
+        }
+        
+        guard let dateStr = dateString,
+              let date = parseDateString(dateStr) else {
+            print("Failed to parse date for \(ritual.personName)'s \(ritual.type.rawValue) ritual")
+            return
+        }
+        
+        // Create notification content
+        let content = UNMutableNotificationContent()
+        content.title = "Gentle Reminder"
+        
+        // Use consistent messaging for birthday and anniversary
+        content.body = "Take time to remember \(ritual.personName)"
+        
+        content.sound = .default
+        content.categoryIdentifier = "RITUAL_CATEGORY"
+        
+        // Add ritual ID to userInfo for deep linking
+        content.userInfo = ["ritualId": ritual.id.uuidString]
+        
+        // Get hour and minute from ritual notification time
+        let calendar = Calendar.current
+        let timeComponents = calendar.dateComponents([.hour, .minute], from: ritual.notificationTime)
+        
+        // Schedule for the anniversary date each year
+        var dateComponents = calendar.dateComponents([.month, .day], from: date)
+        dateComponents.hour = timeComponents.hour
+        dateComponents.minute = timeComponents.minute
+        
         let trigger = UNCalendarNotificationTrigger(
-            dateMatching: components,
+            dateMatching: dateComponents,
             repeats: true
         )
         
-        // Create notification request
+        // Use a special identifier for annual rituals
+        let identifier = "ritual_annual_\(ritual.id.uuidString)"
         let request = UNNotificationRequest(
-            identifier: "ritual_\(ritual.id.uuidString)",
+            identifier: identifier,
             content: content,
             trigger: trigger
         )
         
         do {
             try await UNUserNotificationCenter.current().add(request)
-            print("Successfully scheduled ritual notification: \(ritual.name) at \(ritual.notificationTime)")
+            print("Successfully scheduled annual \(ritual.type.rawValue) ritual for \(ritual.personName)")
         } catch {
-            print("Failed to schedule ritual notification: \(error)")
+            print("Failed to schedule annual ritual: \(error)")
         }
     }
     
     func cancelRitualNotification(_ ritual: SavedRitual) {
-        let identifier = "ritual_\(ritual.id.uuidString)"
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
-        print("Cancelled ritual notification: \(ritual.name)")
+        // Cancel all notifications for this ritual
+        var identifiers: [String] = []
+        
+        // For Birthday and Anniversary rituals, use the annual identifier
+        if ritual.type == .birthday || ritual.type == .anniversary {
+            identifiers.append("ritual_annual_\(ritual.id.uuidString)")
+        } else {
+            // Add identifiers for each possible day (0-6) for regular rituals
+            for dayIndex in 0...6 {
+                identifiers.append("ritual_\(ritual.id.uuidString)_\(dayIndex)")
+            }
+        }
+        
+        // Also include the old format identifier for backward compatibility
+        identifiers.append("ritual_\(ritual.id.uuidString)")
+        
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)
+        print("Cancelled ritual notifications: \(ritual.name)")
     }
     
     func updateRitualNotification(_ ritual: SavedRitual) async {

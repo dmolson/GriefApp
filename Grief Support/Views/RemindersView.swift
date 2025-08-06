@@ -16,6 +16,7 @@ struct RemindersView: View {
     @State private var editingReminder: Reminder? = nil
     @State private var showingEditSheet = false
     @State private var hasNotificationPermission = false
+    @Environment(\.scenePhase) private var scenePhase
     
     private let notificationService = NotificationService.shared
     
@@ -53,9 +54,9 @@ struct RemindersView: View {
                     
                     if !reminders.isEmpty {
                         List {
-                            ForEach(reminders.indices, id: \.self) { index in
+                            ForEach(reminders) { reminder in
                                 ReminderRow(
-                                    reminder: $reminders[index],
+                                    reminder: reminder,
                                     onEdit: { reminder in
                                         editingReminder = reminder
                                         showingEditSheet = true
@@ -125,6 +126,16 @@ struct RemindersView: View {
         .onAppear {
             loadReminders()
             checkNotificationPermission()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                loadReminders()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("RemindersResetNotification"))) { _ in
+            // Clear the local state and reload when reminders are reset from Settings
+            reminders = []
+            loadReminders()
         }
     }
     
@@ -205,14 +216,19 @@ struct RemindersView: View {
     }
     
     private func handleReminderToggle(_ reminder: Reminder) {
-        // Save the updated state
-        saveReminders()
-        
-        // Handle notification scheduling
-        if reminder.isEnabled {
-            scheduleReminderNotification(reminder)
-        } else {
-            notificationService.cancelReminder(reminder)
+        // Find and update the reminder in the array
+        if let index = reminders.firstIndex(where: { $0.id == reminder.id }) {
+            reminders[index].isEnabled.toggle()
+            
+            // Save the updated state
+            saveReminders()
+            
+            // Handle notification scheduling
+            if reminders[index].isEnabled {
+                scheduleReminderNotification(reminders[index])
+            } else {
+                notificationService.cancelReminder(reminders[index])
+            }
         }
     }
 }
@@ -222,33 +238,75 @@ struct Reminder: Identifiable, Codable, Equatable {
     var time: String
     var message: String
     var isEnabled: Bool
+    var selectedDays: Set<Int> // 0=Sunday, 1=Monday, ..., 6=Saturday
     
-    init(time: String, message: String, isEnabled: Bool) {
+    init(time: String, message: String, isEnabled: Bool, selectedDays: Set<Int>? = nil) {
         self.id = UUID()
         self.time = time
         self.message = message
         self.isEnabled = isEnabled
+        // Default to all days if not specified (for backward compatibility)
+        self.selectedDays = selectedDays ?? Set(0...6)
+    }
+    
+    // Custom decoder for migration support
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.time = try container.decode(String.self, forKey: .time)
+        self.message = try container.decode(String.self, forKey: .message)
+        self.isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
+        // If selectedDays doesn't exist (old format), default to all days
+        self.selectedDays = (try? container.decode(Set<Int>.self, forKey: .selectedDays)) ?? Set(0...6)
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case id, time, message, isEnabled, selectedDays
     }
     
     static func == (lhs: Reminder, rhs: Reminder) -> Bool {
         lhs.id == rhs.id
     }
+    
+    // Helper to get display string for selected days
+    var selectedDaysDisplay: String {
+        if selectedDays.count == 7 {
+            return "Every day"
+        } else if selectedDays.count == 0 {
+            return "No days selected"
+        } else {
+            let dayAbbreviations = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            let sortedDays = selectedDays.sorted()
+            let abbreviated = sortedDays.map { dayAbbreviations[$0] }.joined(separator: ", ")
+            return abbreviated
+        }
+    }
 }
 
 struct ReminderRow: View {
-    @Binding var reminder: Reminder
+    let reminder: Reminder
     let onEdit: (Reminder) -> Void
     let onDelete: (Reminder) -> Void
     let onToggle: (Reminder) -> Void
     
     @State private var showingDeleteConfirmation = false
+    @State private var localIsEnabled: Bool
     
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                Text(reminder.time)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(ThemeColors.adaptivePrimary)
+                HStack(spacing: 8) {
+                    Text(reminder.time)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(ThemeColors.adaptivePrimary)
+                    
+                    Text("•")
+                        .foregroundColor(.secondary)
+                    
+                    Text(reminder.selectedDaysDisplay)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
                 
                 Text(reminder.message)
                     .font(.system(size: 14))
@@ -260,12 +318,12 @@ struct ReminderRow: View {
             Spacer()
             
             VStack(spacing: 8) {
-                CustomToggle(isOn: $reminder.isEnabled)
-                    .onChange(of: reminder.isEnabled) { _, newValue in
+                CustomToggle(isOn: $localIsEnabled)
+                    .onChange(of: localIsEnabled) { _, newValue in
                         onToggle(reminder)
                     }
                 
-                if !reminder.isEnabled {
+                if !localIsEnabled {
                     Text("Paused")
                         .font(.system(size: 10, weight: .medium))
                         .foregroundColor(.secondary)
@@ -297,6 +355,17 @@ struct ReminderRow: View {
         } message: {
             Text("This will permanently remove the \(reminder.time) reminder. This action cannot be undone.")
         }
+        .onAppear {
+            localIsEnabled = reminder.isEnabled
+        }
+    }
+    
+    init(reminder: Reminder, onEdit: @escaping (Reminder) -> Void, onDelete: @escaping (Reminder) -> Void, onToggle: @escaping (Reminder) -> Void) {
+        self.reminder = reminder
+        self.onEdit = onEdit
+        self.onDelete = onDelete
+        self.onToggle = onToggle
+        self._localIsEnabled = State(initialValue: reminder.isEnabled)
     }
 }
 
@@ -308,6 +377,7 @@ struct EditReminderView: View {
     @State private var editedTime: Date
     @State private var editedMessage: String
     @State private var editedIsEnabled: Bool
+    @State private var editedSelectedDays: Set<Int>
     
     let presetMessages = [
         "You are stronger than you know",
@@ -327,6 +397,7 @@ struct EditReminderView: View {
         
         _editedMessage = State(initialValue: reminder.message)
         _editedIsEnabled = State(initialValue: reminder.isEnabled)
+        _editedSelectedDays = State(initialValue: reminder.selectedDays)
         
         let formatter = DateFormatter()
         formatter.timeStyle = .short
@@ -354,6 +425,12 @@ struct EditReminderView: View {
                                     .datePickerStyle(CompactDatePickerStyle())
                                     .labelsHidden()
                             }
+                            
+                            Divider()
+                            
+                            DaySelectionView(selectedDays: $editedSelectedDays)
+                            
+                            Divider()
                             
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Message")
@@ -439,6 +516,7 @@ struct EditReminderView: View {
         updatedReminder.time = formatter.string(from: editedTime)
         updatedReminder.message = editedMessage.trimmingCharacters(in: .whitespacesAndNewlines)
         updatedReminder.isEnabled = editedIsEnabled
+        updatedReminder.selectedDays = editedSelectedDays
         
         onSave(updatedReminder)
     }
@@ -450,6 +528,7 @@ struct AddReminderView: View {
     @State private var selectedTime = Date()
     @State private var customMessage = ""
     @State private var selectedPresetMessage = ""
+    @State private var selectedDays: Set<Int> = Set(0...6) // Default to all days
     
     let presetMessages = [
         "You are stronger than you know",
@@ -486,6 +565,17 @@ struct AddReminderView: View {
                             DatePicker("Select Time", selection: $selectedTime, displayedComponents: .hourAndMinute)
                                 .datePickerStyle(WheelDatePickerStyle())
                                 .labelsHidden()
+                        }
+                    }
+                    
+                    // Day Selection Card
+                    CardView {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Reminder Days")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            DaySelectionView(selectedDays: $selectedDays)
                         }
                     }
                     
@@ -628,7 +718,8 @@ struct AddReminderView: View {
         let newReminder = Reminder(
             time: timeString(from: selectedTime),
             message: finalMessage,
-            isEnabled: true
+            isEnabled: true,
+            selectedDays: selectedDays
         )
         onReminderAdded(newReminder)
         dismiss()

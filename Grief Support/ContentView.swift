@@ -13,6 +13,7 @@ struct ContentView: View {
     @State private var showSettings = false
     @AppStorage("isDarkMode") private var isDarkMode = false
     @AppStorage("useSystemTheme") private var useSystemTheme = true
+    @EnvironmentObject var notificationCoordinator: NotificationCoordinator
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -29,6 +30,7 @@ struct ContentView: View {
                 .tag(1)
             
             RitualsView()
+                .environmentObject(notificationCoordinator)
                 .tabItem {
                     Label("Rituals", systemImage: "flame.fill")
                 }
@@ -49,6 +51,10 @@ struct ContentView: View {
                 .preferredColorScheme(useSystemTheme ? nil : (isDarkMode ? .dark : .light))
         }
         .preferredColorScheme(useSystemTheme ? nil : (isDarkMode ? .dark : .light))
+        .onReceive(notificationCoordinator.$selectedTab) { newTab in
+            // Sync tab selection from notification coordinator
+            selectedTab = newTab
+        }
     }
 }
 

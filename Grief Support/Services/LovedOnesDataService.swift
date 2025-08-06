@@ -97,11 +97,21 @@ class LovedOnesDataService: ObservableObject {
     
     // MARK: - Conversion for RitualsView Compatibility
     var lovedOnesForRituals: [(String, String)] {
-        return lovedOnes.map { ($0.name, $0.name.lowercased()) }
+        return lovedOnes.map { ($0.name, $0.name) }
     }
     
     var lovedOnesNames: [String] {
         return lovedOnes.map { $0.name }
+    }
+    
+    // Helper to get birth date for a loved one
+    func getBirthDate(for name: String) -> String? {
+        getLovedOne(byName: name)?.birthDate
+    }
+    
+    // Helper to get pass date for a loved one
+    func getPassDate(for name: String) -> String? {
+        getLovedOne(byName: name)?.passDate
     }
     
     // MARK: - Reset Functionality

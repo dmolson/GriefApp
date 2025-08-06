@@ -85,6 +85,100 @@ struct CustomToggle: View {
     }
 }
 
+// MARK: - Day Selection View
+struct DaySelectionView: View {
+    @Binding var selectedDays: Set<Int>
+    
+    private let dayLabels = ["S", "M", "T", "W", "T", "F", "S"]
+    private let fullDayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Select Days")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.secondary)
+            
+            HStack(spacing: 8) {
+                ForEach(0..<7) { dayIndex in
+                    DayButton(
+                        label: dayLabels[dayIndex],
+                        isSelected: selectedDays.contains(dayIndex),
+                        action: {
+                            toggleDay(dayIndex)
+                        }
+                    )
+                }
+            }
+            
+            // Display selected days summary
+            Text(selectedDaysText)
+                .font(.system(size: 12))
+                .foregroundColor(.secondary)
+                .italic()
+        }
+    }
+    
+    private func toggleDay(_ day: Int) {
+        if selectedDays.contains(day) {
+            // Don't allow removing if it's the last selected day
+            if selectedDays.count > 1 {
+                selectedDays.remove(day)
+            }
+        } else {
+            selectedDays.insert(day)
+        }
+    }
+    
+    private var selectedDaysText: String {
+        if selectedDays.count == 7 {
+            return "Reminder will be sent every day"
+        } else if selectedDays.count == 0 {
+            return "Please select at least one day"
+        } else {
+            let sortedDays = selectedDays.sorted()
+            let dayNames = sortedDays.map { fullDayNames[$0] }
+            
+            // Check for weekdays/weekends patterns
+            let weekdays = Set([1, 2, 3, 4, 5])
+            let weekends = Set([0, 6])
+            
+            if selectedDays == weekdays {
+                return "Reminder will be sent on weekdays"
+            } else if selectedDays == weekends {
+                return "Reminder will be sent on weekends"
+            } else if dayNames.count <= 3 {
+                return "Reminder will be sent on \(dayNames.joined(separator: ", "))"
+            } else {
+                return "Reminder will be sent on selected days"
+            }
+        }
+    }
+}
+
+struct DayButton: View {
+    let label: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(label)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(isSelected ? .white : ThemeColors.adaptivePrimary)
+                .frame(width: 36, height: 36)
+                .background(
+                    Circle()
+                        .fill(isSelected ? ThemeColors.adaptivePrimary : ThemeColors.adaptiveSecondaryBackground)
+                )
+                .overlay(
+                    Circle()
+                        .stroke(isSelected ? Color.clear : ThemeColors.adaptivePrimary.opacity(0.3), lineWidth: 1)
+                )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
 // MARK: - Theme Colors
 struct ThemeColors {
     // Legacy static colors (kept for reference but not recommended for direct use)

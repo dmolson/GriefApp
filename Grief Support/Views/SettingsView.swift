@@ -166,6 +166,11 @@ struct SettingsView: View {
                         .foregroundColor(ThemeColors.adaptiveAccent)
                         .multilineTextAlignment(.center)
                         .padding(.vertical, 8)
+                    
+                    Text("Candle icon by Freepik - Flaticon")
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary.opacity(0.7))
+                        .multilineTextAlignment(.center)
                 }
                 .background(ThemeColors.adaptiveSystemBackground)
             }
@@ -829,6 +834,9 @@ struct ResetSettingsView: View {
         UserDefaults.standard.removeObject(forKey: "reminderMessages")
         
         UserDefaults.standard.synchronize()
+        
+        // Notify RemindersView to refresh its data
+        NotificationCenter.default.post(name: Notification.Name("RemindersResetNotification"), object: nil)
     }
     
     private func resetRituals() {
@@ -839,6 +847,9 @@ struct ResetSettingsView: View {
         UserDefaults.standard.removeObject(forKey: "customRitualContent")
         
         UserDefaults.standard.synchronize()
+        
+        // Notify RitualsView to refresh its data
+        NotificationCenter.default.post(name: Notification.Name("RitualsResetNotification"), object: nil)
     }
     
     private func resetLovedOnes() {
@@ -1155,7 +1166,9 @@ struct MailComposerView: UIViewControllerRepresentable {
         }
         
         func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-            onResult(result)
+            controller.dismiss(animated: true) {
+                self.onResult(result)
+            }
         }
     }
 }

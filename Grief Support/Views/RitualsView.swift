@@ -36,10 +36,17 @@ struct RitualsView: View {
     @State private var ritualMusicSelection = ""
     @State private var notificationEnabled = true
     @State private var notificationTime = Date()
+    @State private var selectedDays: Set<Int> = Set(0...6) // Default to all days
     @State private var showingSaveConfirmation = false
+    @State private var selectedRitualPhoto: UIImage? = nil
     @StateObject private var lovedOnesService = LovedOnesDataService.shared
     @State private var showingSettings = false
+    @State private var editingRitual: SavedRitual?
+    @Environment(\.scenePhase) private var scenePhase
     private let notificationService = NotificationService.shared
+    @EnvironmentObject var notificationCoordinator: NotificationCoordinator
+    @State private var showingRitualViewer = false
+    @State private var ritualToView: SavedRitual?
     
     var lovedOnes: [(String, String)] {
         return lovedOnesService.lovedOnesForRituals
@@ -53,8 +60,96 @@ struct RitualsView: View {
         if selectedFilter == "View All" {
             return savedRituals
         } else {
-            return savedRituals.filter { $0.personName.lowercased() == selectedFilter.lowercased() }
+            return savedRituals.filter { $0.personName.caseInsensitiveCompare(selectedFilter) == .orderedSame }
         }
+    }
+    
+    @ViewBuilder
+    var ritualListContent: some View {
+        if filteredRituals.isEmpty {
+            if hasNoLovedOnes {
+                noLovedOnesView
+            } else {
+                noRitualsView
+            }
+        } else {
+            ForEach(filteredRituals) { ritual in
+                SavedRitualCard(
+                    ritual: ritual,
+                    onEdit: { ritualToEdit in
+                        editingRitual = ritualToEdit
+                    },
+                    onDelete: { ritualToDelete in
+                        deleteSavedRitual(ritualToDelete)
+                    },
+                    onToggleNotification: { ritual, enabled in
+                        updateRitualNotification(ritual, enabled: enabled)
+                    }
+                )
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var noLovedOnesView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "person.badge.plus")
+                .font(.system(size: 48))
+                .foregroundColor(.secondary)
+            
+            Text("No Loved Ones Added Yet")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.primary)
+            
+            Text("Add someone special to create meaningful rituals in their honor")
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            
+            Button(action: {
+                showingSettings = true
+            }) {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text("Add Loved One")
+                }
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(ThemeColors.adaptivePrimary)
+                .cornerRadius(25)
+            }
+        }
+        .padding()
+        .padding(.vertical, 20)
+        .background(ThemeColors.adaptiveCardBackground)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+    }
+    
+    @ViewBuilder
+    var noRitualsView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "heart.circle")
+                .font(.system(size: 48))
+                .foregroundColor(.secondary)
+            
+            Text(selectedFilter == "View All" ? "No Rituals Created" : "No Rituals for \(selectedFilter)")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.primary)
+            
+            Text("Create your first ritual below to honor your loved one")
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .padding(.vertical, 20)
+        .background(ThemeColors.adaptiveCardBackground)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
     
     var body: some View {
@@ -81,11 +176,13 @@ struct RitualsView: View {
                 .padding(.bottom, 20)
                 .background(ThemeColors.adaptiveSystemBackground)
                 
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 20) {
-                        // View Rituals Section
-                        LazyVStack(alignment: .leading, spacing: 16) {
-                            SectionHeaderView(title: "Your Rituals")
+                ScrollViewReader { scrollProxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 20) {
+                            // View Rituals Section
+                            LazyVStack(alignment: .leading, spacing: 16) {
+                                SectionHeaderView(title: "Your Rituals")
+                                    .id("yourRituals") // Scroll anchor
                         
                         // Filter Buttons
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -101,7 +198,7 @@ struct RitualsView: View {
                                     FilterButton(
                                         title: lovedOne.0,
                                         isSelected: selectedFilter == lovedOne.0,
-                                        count: savedRituals.filter { $0.personName.lowercased() == lovedOne.1 }.count,
+                                        count: savedRituals.filter { $0.personName.caseInsensitiveCompare(lovedOne.0) == .orderedSame }.count,
                                         onTap: { selectedFilter = lovedOne.0 }
                                     )
                                 }
@@ -110,82 +207,7 @@ struct RitualsView: View {
                         }
                         
                         // Filtered Ritual Cards
-                        if filteredRituals.isEmpty {
-                            if hasNoLovedOnes {
-                                // No loved ones state
-                                VStack(spacing: 20) {
-                                    Image(systemName: "person.badge.plus")
-                                        .font(.system(size: 48))
-                                        .foregroundColor(.secondary)
-                                    
-                                    Text("No Loved Ones Added Yet")
-                                        .font(.system(size: 18, weight: .semibold))
-                                        .foregroundColor(.primary)
-                                    
-                                    Text("Add someone special to create meaningful rituals in their honor")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.secondary)
-                                        .multilineTextAlignment(.center)
-                                    
-                                    Button(action: {
-                                        showingSettings = true
-                                    }) {
-                                        HStack {
-                                            Image(systemName: "plus.circle.fill")
-                                            Text("Add Loved One")
-                                        }
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 24)
-                                        .padding(.vertical, 12)
-                                        .background(ThemeColors.adaptivePrimary)
-                                        .cornerRadius(25)
-                                    }
-                                }
-                                .padding()
-                                .padding(.vertical, 20)
-                                .background(ThemeColors.adaptiveCardBackground)
-                                .cornerRadius(12)
-                                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-                            } else {
-                                // No rituals state
-                                VStack(spacing: 16) {
-                                    Image(systemName: "heart.circle")
-                                        .font(.system(size: 48))
-                                        .foregroundColor(.secondary)
-                                    
-                                    Text(selectedFilter == "View All" ? "No Rituals Created" : "No Rituals for \(selectedFilter)")
-                                        .font(.system(size: 18, weight: .semibold))
-                                        .foregroundColor(.primary)
-                                    
-                                    Text("Create your first ritual below to honor your loved one")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.secondary)
-                                        .multilineTextAlignment(.center)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .padding(.vertical, 20)
-                                .background(ThemeColors.adaptiveCardBackground)
-                                .cornerRadius(12)
-                                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-                            }
-                        } else {
-                            ForEach(filteredRituals) { ritual in
-                                SavedRitualCard(
-                                    ritual: ritual,
-                                    onEdit: { editingRitual in
-                                        // TODO: Implement edit functionality
-                                    },
-                                    onDelete: { ritualToDelete in
-                                        deleteSavedRitual(ritualToDelete)
-                                    },
-                                    onToggleNotification: { ritual, enabled in
-                                        updateRitualNotification(ritual, enabled: enabled)
-                                    }
-                                )
-                            }
-                        }
+                        ritualListContent
                     }
                     
                     // Create Rituals Section
@@ -229,9 +251,16 @@ struct RitualsView: View {
                                 ritualMusicSelection: $ritualMusicSelection,
                                 notificationEnabled: $notificationEnabled,
                                 notificationTime: $notificationTime,
+                                selectedDays: $selectedDays,
                                 lovedOnes: lovedOnes,
+                                selectedPhoto: $selectedRitualPhoto,
                                 lovedOnesService: lovedOnesService,
-                                onSave: saveRitual,
+                                onSave: {
+                                    saveRitual()
+                                    withAnimation {
+                                        scrollProxy.scrollTo("yourRituals", anchor: .top)
+                                    }
+                                },
                                 onAddLovedOne: { showingSettings = true }
                             )
                         }
@@ -239,14 +268,15 @@ struct RitualsView: View {
                 }
                 .padding()
                 .padding(.top, 20) // Reduced padding since we have custom header
-            }
+            } // End ScrollView
+                } // End ScrollViewReader
             }
             .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
         .alert("Ritual Saved!", isPresented: $showingSaveConfirmation) {
             Button("OK") {
-                resetFormFields()
+                // Form is already hidden, just dismiss the alert
             }
         } message: {
             Text("Your ritual has been saved successfully. You can access it from your saved rituals.")
@@ -265,6 +295,19 @@ struct RitualsView: View {
                     }
             }
         }
+        .sheet(item: $editingRitual) { ritual in
+            EditRitualSheet(
+                ritual: ritual,
+                lovedOnes: lovedOnes,
+                onSave: { updatedRitual in
+                    updateRitual(updatedRitual)
+                    editingRitual = nil
+                },
+                onCancel: {
+                    editingRitual = nil
+                }
+            )
+        }
         .onAppear {
             loadSavedRituals()
             
@@ -275,9 +318,33 @@ struct RitualsView: View {
                     _ = await notificationService.requestNotificationPermission()
                 }
             }
+            
+            // Check if we need to open a specific ritual from notification
+            checkForRitualToOpen()
+        }
+        .onChange(of: notificationCoordinator.shouldNavigateToRitual) { _, shouldNavigate in
+            if shouldNavigate {
+                checkForRitualToOpen()
+            }
+        }
+        .fullScreenCover(item: $ritualToView) { ritual in
+            RitualViewerView(ritual: ritual, isPresented: Binding(
+                get: { ritualToView != nil },
+                set: { if !$0 { ritualToView = nil } }
+            ))
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("RitualsResetNotification"))) { _ in
+            // Clear the local state and reload when rituals are reset from Settings
+            savedRituals = []
+            loadSavedRituals()
         }
         .onChange(of: savedRituals) { _, _ in
             saveSavedRituals()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                loadSavedRituals()
+            }
         }
     }
     
@@ -289,10 +356,18 @@ struct RitualsView: View {
         ritualMusicSelection = ""
         notificationEnabled = true
         notificationTime = Date()
+        selectedDays = Set(0...6) // Reset to all days
+        selectedRitualPhoto = nil
     }
     
     private func saveRitual() {
         guard let ritualType = selectedRitualType, !selectedPerson.isEmpty else { return }
+        
+        // Save photo if one was selected
+        var photoFilename: String? = nil
+        if let photo = selectedRitualPhoto {
+            photoFilename = PhotoManager.shared.savePhoto(photo)
+        }
         
         let ritual = SavedRitual(
             type: ritualType,
@@ -301,11 +376,14 @@ struct RitualsView: View {
             items: ritualItems.isEmpty ? nil : ritualItems,
             location: ritualLocation.isEmpty ? nil : ritualLocation,
             musicSelection: ritualMusicSelection.isEmpty ? nil : ritualMusicSelection,
+            photoFilename: photoFilename,
             notificationEnabled: notificationEnabled,
-            notificationTime: notificationTime
+            notificationTime: notificationTime,
+            selectedDays: selectedDays
         )
         
         savedRituals.append(ritual)
+        saveSavedRituals() // Persist to UserDefaults
         
         // Schedule notification if enabled
         if ritual.notificationEnabled {
@@ -314,13 +392,16 @@ struct RitualsView: View {
             }
         }
         
+        // Reset everything and hide the form immediately
+        resetFormFields()
+        selectedRitualType = nil  // Hide the form to show the ritual list
         showingSaveConfirmation = true
-        selectedRitualType = nil
     }
     
     private func updateRitualNotification(_ ritual: SavedRitual, enabled: Bool) {
         if let index = savedRituals.firstIndex(where: { $0.id == ritual.id }) {
             savedRituals[index].notificationEnabled = enabled
+            saveSavedRituals() // Persist to UserDefaults
             
             // Update the notification in the notification service
             Task {
@@ -343,9 +424,38 @@ struct RitualsView: View {
     }
     
     private func deleteSavedRitual(_ ritual: SavedRitual) {
+        // Delete associated photo if it exists
+        PhotoManager.shared.deletePhotosForRitual(ritual)
+        
         // Cancel the notification before deleting
         notificationService.cancelRitualNotification(ritual)
         savedRituals.removeAll { $0.id == ritual.id }
+        saveSavedRituals() // Persist to UserDefaults
+    }
+    
+    private func updateRitual(_ updatedRitual: SavedRitual) {
+        if let index = savedRituals.firstIndex(where: { $0.id == updatedRitual.id }) {
+            savedRituals[index] = updatedRitual
+            saveSavedRituals() // Persist to UserDefaults
+            
+            // Update the notification
+            Task {
+                await notificationService.updateRitualNotification(updatedRitual)
+            }
+        }
+    }
+    
+    private func checkForRitualToOpen() {
+        guard let ritualId = notificationCoordinator.ritualIdToOpen,
+              let ritual = savedRituals.first(where: { $0.id.uuidString == ritualId }) else {
+            return
+        }
+        
+        // Open the ritual viewer
+        ritualToView = ritual
+        
+        // Reset the coordinator
+        notificationCoordinator.resetNavigation()
     }
 }
 
@@ -360,11 +470,14 @@ struct RitualCreationForm: View {
     @Binding var ritualMusicSelection: String
     @Binding var notificationEnabled: Bool
     @Binding var notificationTime: Date
+    @Binding var selectedDays: Set<Int>
     let lovedOnes: [(String, String)]
+    
+    @Binding var selectedPhoto: UIImage?
+    @State private var showingPhotoPicker = false
     @ObservedObject var lovedOnesService: LovedOnesDataService
     let onSave: () -> Void
     let onAddLovedOne: () -> Void
-    
     
     var ritualGuidance: String {
         switch ritualType {
@@ -375,7 +488,7 @@ struct RitualCreationForm: View {
         case .birthday:
             return "Birthday rituals celebrate your loved one's life on their special day. Consider their favorite cake, visiting their grave, or doing something they enjoyed."
         case .anniversary:
-            return "Anniversary rituals honor the memory of your loved one on significant dates. This might include lighting a candle, sharing stories, or doing something meaningful together."
+            return "Anniversary rituals honor the memory of your loved one on the anniversary of their passing. This might include lighting a candle, sharing stories, or doing something meaningful together."
         }
     }
     
@@ -406,7 +519,7 @@ struct RitualCreationForm: View {
                     Menu {
                         ForEach(lovedOnes, id: \.1) { lovedOne in
                             Button(lovedOne.0) {
-                                selectedPerson = lovedOne.1
+                                selectedPerson = lovedOne.0  // Use the original case name
                             }
                         }
                         
@@ -422,7 +535,7 @@ struct RitualCreationForm: View {
                         }
                     } label: {
                         HStack {
-                            Text(selectedPerson.isEmpty ? "Select loved one" : selectedPerson.capitalized)
+                            Text(selectedPerson.isEmpty ? "Select loved one" : selectedPerson)
                                 .foregroundColor(selectedPerson.isEmpty ? .secondary : .primary)
                             Spacer()
                             Image(systemName: "chevron.down")
@@ -482,6 +595,45 @@ struct RitualCreationForm: View {
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .font(.system(size: 14))
                     }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Photo (Optional)")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.secondary)
+                        
+                        if let selectedPhoto = selectedPhoto {
+                            HStack {
+                                Image(uiImage: selectedPhoto)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 80)
+                                    .cornerRadius(8)
+                                
+                                Spacer()
+                                
+                                Button("Remove") {
+                                    self.selectedPhoto = nil
+                                }
+                                .foregroundColor(.red)
+                                .font(.system(size: 14, weight: .medium))
+                            }
+                        } else {
+                            Button(action: {
+                                showingPhotoPicker = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "camera.fill")
+                                    Text("Add Photo")
+                                }
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(ThemeColors.adaptivePrimary)
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 16)
+                                .background(ThemeColors.adaptiveSecondaryBackground)
+                                .cornerRadius(8)
+                            }
+                        }
+                    }
                 }
                 
                 // Notification Settings
@@ -498,14 +650,43 @@ struct RitualCreationForm: View {
                     }
                     
                     if notificationEnabled {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Reminder Time")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.secondary)
+                        VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Reminder Time")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                
+                                DatePicker("Notification Time", selection: $notificationTime, displayedComponents: .hourAndMinute)
+                                    .datePickerStyle(CompactDatePickerStyle())
+                                    .labelsHidden()
+                            }
                             
-                            DatePicker("Notification Time", selection: $notificationTime, displayedComponents: .hourAndMinute)
-                                .datePickerStyle(CompactDatePickerStyle())
-                                .labelsHidden()
+                            // Only show day selection for Connection and Reflection rituals
+                            if ritualType == .connection || ritualType == .reflection {
+                                Divider()
+                                DaySelectionView(selectedDays: $selectedDays)
+                            }
+                            
+                            // Show informational text for Birthday and Anniversary rituals
+                            if ritualType == .birthday {
+                                if !selectedPerson.isEmpty,
+                                   let birthDate = lovedOnesService.getBirthDate(for: selectedPerson) {
+                                    Text("Notification will be sent annually on \(selectedPerson)'s birthday (\(birthDate))")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary)
+                                        .italic()
+                                        .padding(.top, 8)
+                                }
+                            } else if ritualType == .anniversary {
+                                if !selectedPerson.isEmpty,
+                                   let passDate = lovedOnesService.getPassDate(for: selectedPerson) {
+                                    Text("Notification will be sent annually on \(selectedPerson)'s memorial date (\(passDate))")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary)
+                                        .italic()
+                                        .padding(.top, 8)
+                                }
+                            }
                         }
                     }
                 }
@@ -517,6 +698,9 @@ struct RitualCreationForm: View {
                 .disabled(selectedPerson.isEmpty)
             }
         }
+        .sheet(isPresented: $showingPhotoPicker) {
+            SinglePhotoPicker(selectedPhoto: $selectedPhoto)
+        }
     }
 }
 
@@ -526,12 +710,70 @@ struct SavedRitualCard: View {
     let onDelete: (SavedRitual) -> Void
     let onToggleNotification: (SavedRitual, Bool) -> Void
     @State private var showingDeleteConfirmation = false
+    @State private var showingActionSheet = false
+    @State private var showingRitualViewer = false
+    
+    private func getAnnualDateDisplay(for ritual: SavedRitual) -> String {
+        let lovedOnesService = LovedOnesDataService.shared
+        
+        if ritual.type == .birthday {
+            if let birthDate = lovedOnesService.getBirthDate(for: ritual.personName) {
+                // Parse the date to get month and day
+                let formatters = [
+                    createDateFormatter(format: "MMMM d, yyyy"),
+                    createDateFormatter(format: "MMM d, yyyy"),
+                    createDateFormatter(format: "M/d/yyyy"),
+                    createDateFormatter(format: "yyyy-MM-dd")
+                ]
+                
+                for formatter in formatters {
+                    if let date = formatter.date(from: birthDate) {
+                        let displayFormatter = DateFormatter()
+                        displayFormatter.dateFormat = "MMM d"
+                        return "Birthday: \(displayFormatter.string(from: date))"
+                    }
+                }
+            }
+            return "Birthday"
+        } else if ritual.type == .anniversary {
+            if let passDate = lovedOnesService.getPassDate(for: ritual.personName) {
+                // Parse the date to get month and day
+                let formatters = [
+                    createDateFormatter(format: "MMMM d, yyyy"),
+                    createDateFormatter(format: "MMM d, yyyy"),
+                    createDateFormatter(format: "M/d/yyyy"),
+                    createDateFormatter(format: "yyyy-MM-dd")
+                ]
+                
+                for formatter in formatters {
+                    if let date = formatter.date(from: passDate) {
+                        let displayFormatter = DateFormatter()
+                        displayFormatter.dateFormat = "MMM d"
+                        return "Anniversary: \(displayFormatter.string(from: date))"
+                    }
+                }
+            }
+            return "Anniversary"
+        }
+        
+        return ""
+    }
+    
+    private func createDateFormatter(format: String) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }
     
     var body: some View {
-        CardView {
-            HStack {
+        Button(action: {
+            showingRitualViewer = true
+        }) {
+            CardView {
+                HStack {
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack {
+                    HStack(spacing: 8) {
                         Image(systemName: ritual.type.icon)
                             .foregroundColor(ThemeColors.adaptivePrimary)
                             .font(.system(size: 16))
@@ -540,14 +782,33 @@ struct SavedRitualCard: View {
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.primary)
                         
+                        if ritual.notificationEnabled {
+                            Text("•")
+                                .foregroundColor(.secondary)
+                            
+                            // Show date for Birthday/Anniversary, days for other rituals
+                            if ritual.type == .birthday || ritual.type == .anniversary {
+                                Text(getAnnualDateDisplay(for: ritual))
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.secondary)
+                            } else {
+                                Text(ritual.selectedDaysDisplay)
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        
                         Spacer()
                         
                         Button(action: {
-                            showingDeleteConfirmation = true
+                            showingActionSheet = true
                         }) {
-                            Image(systemName: "trash")
-                                .foregroundColor(.red)
-                                .font(.system(size: 14))
+                            Image(systemName: "ellipsis")
+                                .foregroundColor(.secondary)
+                                .font(.system(size: 16, weight: .medium))
+                                .padding(8)
+                                .background(ThemeColors.adaptiveTertiaryBackground)
+                                .clipShape(Circle())
                         }
                     }
                     
@@ -578,6 +839,22 @@ struct SavedRitualCard: View {
                         .foregroundColor(.secondary)
                 }
             }
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .fullScreenCover(isPresented: $showingRitualViewer) {
+            RitualViewerView(ritual: ritual, isPresented: $showingRitualViewer)
+        }
+        .confirmationDialog("Manage Ritual", isPresented: $showingActionSheet, titleVisibility: .visible) {
+            Button("Edit Details") {
+                onEdit(ritual)
+            }
+            
+            Button("Delete", role: .destructive) {
+                showingDeleteConfirmation = true
+            }
+            
+            Button("Cancel", role: .cancel) { }
         }
         .alert("Delete Ritual?", isPresented: $showingDeleteConfirmation) {
             Button("Delete", role: .destructive) {
@@ -770,11 +1047,13 @@ struct SavedRitual: Identifiable, Codable, Equatable {
     var items: String?
     var location: String?
     var musicSelection: String?
+    var photoFilename: String?
     var notificationEnabled: Bool
     var notificationTime: Date
+    var selectedDays: Set<Int> // 0=Sunday, 1=Monday, ..., 6=Saturday
     var dateCreated: Date
     
-    init(type: RitualType, personName: String, description: String = "", items: String? = nil, location: String? = nil, musicSelection: String? = nil, notificationEnabled: Bool = true, notificationTime: Date = Date()) {
+    init(type: RitualType, personName: String, description: String = "", items: String? = nil, location: String? = nil, musicSelection: String? = nil, photoFilename: String? = nil, notificationEnabled: Bool = true, notificationTime: Date = Date(), selectedDays: Set<Int>? = nil) {
         self.id = UUID()
         self.type = type
         self.name = "\(personName)'s \(type.rawValue)"
@@ -783,13 +1062,378 @@ struct SavedRitual: Identifiable, Codable, Equatable {
         self.items = items
         self.location = location
         self.musicSelection = musicSelection
+        self.photoFilename = photoFilename
         self.notificationEnabled = notificationEnabled
         self.notificationTime = notificationTime
+        self.selectedDays = selectedDays ?? Set(0...6) // Default to all days
         self.dateCreated = Date()
+    }
+    
+    // Custom decoder for migration support
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.type = try container.decode(RitualType.self, forKey: .type)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.personName = try container.decode(String.self, forKey: .personName)
+        self.description = try container.decode(String.self, forKey: .description)
+        self.items = try? container.decode(String.self, forKey: .items)
+        self.location = try? container.decode(String.self, forKey: .location)
+        self.musicSelection = try? container.decode(String.self, forKey: .musicSelection)
+        self.photoFilename = try? container.decode(String.self, forKey: .photoFilename)
+        self.notificationEnabled = try container.decode(Bool.self, forKey: .notificationEnabled)
+        self.notificationTime = try container.decode(Date.self, forKey: .notificationTime)
+        // If selectedDays doesn't exist (old format), default to all days
+        self.selectedDays = (try? container.decode(Set<Int>.self, forKey: .selectedDays)) ?? Set(0...6)
+        self.dateCreated = try container.decode(Date.self, forKey: .dateCreated)
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case id, type, name, personName, description, items, location, musicSelection, photoFilename
+        case notificationEnabled, notificationTime, selectedDays, dateCreated
     }
     
     static func == (lhs: SavedRitual, rhs: SavedRitual) -> Bool {
         lhs.id == rhs.id
+    }
+    
+    // Helper to get display string for selected days (consistent with Reminder)
+    var selectedDaysDisplay: String {
+        if selectedDays.count == 7 {
+            return "Every day"
+        } else if selectedDays.count == 0 {
+            return "No days selected"
+        } else {
+            let dayAbbreviations = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+            let sortedDays = selectedDays.sorted()
+            let abbreviated = sortedDays.map { dayAbbreviations[$0] }.joined(separator: ", ")
+            return abbreviated
+        }
+    }
+}
+
+// MARK: - Edit Ritual Sheet
+struct EditRitualSheet: View {
+    let ritual: SavedRitual
+    let lovedOnes: [(String, String)]
+    let onSave: (SavedRitual) -> Void
+    let onCancel: () -> Void
+    
+    @State private var editedType: RitualType
+    @State private var editedPersonName: String
+    @State private var editedDescription: String
+    @State private var editedItems: String
+    @State private var editedLocation: String
+    @State private var editedMusicSelection: String
+    @State private var editedNotificationEnabled: Bool
+    @State private var editedNotificationTime: Date
+    @State private var editedSelectedDays: Set<Int>
+    @Environment(\.dismiss) private var dismiss
+    
+    init(ritual: SavedRitual, lovedOnes: [(String, String)], onSave: @escaping (SavedRitual) -> Void, onCancel: @escaping () -> Void) {
+        self.ritual = ritual
+        self.lovedOnes = lovedOnes
+        self.onSave = onSave
+        self.onCancel = onCancel
+        
+        // Initialize state with current values
+        _editedType = State(initialValue: ritual.type)
+        _editedPersonName = State(initialValue: ritual.personName)
+        _editedDescription = State(initialValue: ritual.description)
+        _editedItems = State(initialValue: ritual.items ?? "")
+        _editedLocation = State(initialValue: ritual.location ?? "")
+        _editedMusicSelection = State(initialValue: ritual.musicSelection ?? "")
+        _editedNotificationEnabled = State(initialValue: ritual.notificationEnabled)
+        _editedNotificationTime = State(initialValue: ritual.notificationTime)
+        _editedSelectedDays = State(initialValue: ritual.selectedDays)
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Ritual Type Section
+                    CardView {
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("Ritual Type")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            Menu {
+                                ForEach(RitualType.allCases, id: \.self) { type in
+                                    Button {
+                                        editedType = type
+                                    } label: {
+                                        HStack {
+                                            Image(systemName: type.icon)
+                                            Text(type.rawValue)
+                                        }
+                                    }
+                                }
+                            } label: {
+                                HStack {
+                                    Image(systemName: editedType.icon)
+                                        .foregroundColor(ThemeColors.adaptivePrimary)
+                                    Text(editedType.rawValue)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .foregroundColor(.secondary)
+                                        .font(.system(size: 12))
+                                }
+                                .padding()
+                                .background(ThemeColors.adaptiveSecondaryBackground)
+                                .cornerRadius(8)
+                            }
+                        }
+                    }
+                    
+                    // Person Selection Section
+                    CardView {
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("Loved One")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            Menu {
+                                ForEach(lovedOnes, id: \.1) { lovedOne in
+                                    Button(lovedOne.0) {
+                                        editedPersonName = lovedOne.1
+                                    }
+                                }
+                            } label: {
+                                HStack {
+                                    Text(editedPersonName.isEmpty ? "Select loved one" : editedPersonName)
+                                        .foregroundColor(editedPersonName.isEmpty ? .secondary : .primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .foregroundColor(.secondary)
+                                        .font(.system(size: 12))
+                                }
+                                .padding()
+                                .background(ThemeColors.adaptiveSecondaryBackground)
+                                .cornerRadius(8)
+                            }
+                        }
+                    }
+                    
+                    // Description Section
+                    CardView {
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("Description")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            TextEditor(text: $editedDescription)
+                                .frame(height: 100)
+                                .padding(8)
+                                .background(ThemeColors.adaptiveSecondaryBackground)
+                                .cornerRadius(8)
+                        }
+                    }
+                    
+                    // Optional Details Section
+                    CardView {
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("Optional Details")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            VStack(alignment: .leading, spacing: 12) {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Items Needed")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                    TextField("e.g., candles, photos, flowers", text: $editedItems)
+                                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Location")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                    TextField("e.g., garden, their favorite place", text: $editedLocation)
+                                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Music")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.secondary)
+                                    TextField("Enter song/artist name", text: $editedMusicSelection)
+                                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Notification Settings Section
+                    CardView {
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("Reminder Settings")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            HStack {
+                                Text("Enable Reminder")
+                                    .font(.system(size: 14, weight: .medium))
+                                Spacer()
+                                CustomToggle(isOn: $editedNotificationEnabled)
+                            }
+                            
+                            if editedNotificationEnabled {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("Reminder Time")
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(.secondary)
+                                        
+                                        DatePicker("", selection: $editedNotificationTime, displayedComponents: .hourAndMinute)
+                                            .datePickerStyle(CompactDatePickerStyle())
+                                            .labelsHidden()
+                                    }
+                                    
+                                    // Only show day selection for Connection and Reflection rituals
+                                    if editedType == .connection || editedType == .reflection {
+                                        Divider()
+                                        DaySelectionView(selectedDays: $editedSelectedDays)
+                                    }
+                                    
+                                    // Show informational text for Birthday and Anniversary rituals
+                                    if editedType == .birthday {
+                                        if !editedPersonName.isEmpty,
+                                           let birthDate = LovedOnesDataService.shared.getBirthDate(for: editedPersonName) {
+                                            Text("Notification will be sent annually on \(editedPersonName)'s birthday (\(birthDate))")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.secondary)
+                                                .italic()
+                                                .padding(.top, 8)
+                                        }
+                                    } else if editedType == .anniversary {
+                                        if !editedPersonName.isEmpty,
+                                           let passDate = LovedOnesDataService.shared.getPassDate(for: editedPersonName) {
+                                            Text("Notification will be sent annually on \(editedPersonName)'s memorial date (\(passDate))")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.secondary)
+                                                .italic()
+                                                .padding(.top, 8)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding()
+            }
+            .background(ThemeColors.adaptiveSystemBackground)
+            .navigationTitle("Edit Ritual")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        onCancel()
+                    }
+                    .foregroundColor(ThemeColors.adaptivePrimary)
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        saveChanges()
+                    }
+                    .foregroundColor(ThemeColors.adaptivePrimary)
+                    .fontWeight(.semibold)
+                    .disabled(editedPersonName.isEmpty)
+                }
+            }
+        }
+    }
+    
+    private func saveChanges() {
+        var updatedRitual = ritual
+        updatedRitual.type = editedType
+        updatedRitual.personName = editedPersonName
+        updatedRitual.name = "\(editedPersonName)'s \(editedType.rawValue)"
+        updatedRitual.description = editedDescription
+        updatedRitual.items = editedItems.isEmpty ? nil : editedItems
+        updatedRitual.location = editedLocation.isEmpty ? nil : editedLocation
+        updatedRitual.musicSelection = editedMusicSelection.isEmpty ? nil : editedMusicSelection
+        updatedRitual.notificationEnabled = editedNotificationEnabled
+        updatedRitual.notificationTime = editedNotificationTime
+        updatedRitual.selectedDays = editedSelectedDays
+        updatedRitual.dateCreated = ritual.dateCreated  // Preserve the original creation date
+        
+        onSave(updatedRitual)
+    }
+}
+
+struct SinglePhotoPicker: UIViewControllerRepresentable {
+    @Binding var selectedPhoto: UIImage?
+    @Environment(\.dismiss) private var dismiss
+    
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.selectionLimit = 1
+        config.filter = .images
+        config.preferredAssetRepresentationMode = .current
+        
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+    
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let parent: SinglePhotoPicker
+        
+        init(parent: SinglePhotoPicker) {
+            self.parent = parent
+        }
+        
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            parent.dismiss()
+            
+            guard let result = results.first else { return }
+            
+            if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
+                result.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+                    if let uiImage = image as? UIImage {
+                        // Resize image to limit memory usage
+                        let resizedImage = self.resizeImage(uiImage, maxSize: CGSize(width: 1024, height: 1024))
+                        DispatchQueue.main.async {
+                            self.parent.selectedPhoto = resizedImage
+                        }
+                    }
+                }
+            }
+        }
+        
+        private func resizeImage(_ image: UIImage, maxSize: CGSize) -> UIImage {
+            let size = image.size
+            
+            // Don't resize if already within limits
+            if size.width <= maxSize.width && size.height <= maxSize.height {
+                return image
+            }
+            
+            let widthRatio = maxSize.width / size.width
+            let heightRatio = maxSize.height / size.height
+            let ratio = min(widthRatio, heightRatio)
+            
+            let newSize = CGSize(width: size.width * ratio, height: size.height * ratio)
+            
+            UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+            let resizedImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
+            UIGraphicsEndImageContext()
+            
+            return resizedImage
+        }
     }
 }
 

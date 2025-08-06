@@ -13,6 +13,7 @@ import UserNotifications
 struct Grief_SupportApp: App {
     @AppStorage("useSystemTheme") private var useSystemTheme = true
     @AppStorage("isDarkMode") private var isDarkMode = false
+    @StateObject private var notificationCoordinator = NotificationCoordinator.shared
     
     init() {
         // Load custom fonts
@@ -20,6 +21,9 @@ struct Grief_SupportApp: App {
         
         // Setup notification categories
         setupNotificationCategories()
+        
+        // Setup notification delegate (done in NotificationCoordinator init)
+        _ = NotificationCoordinator.shared
     }
     
     private func loadCustomFonts() {
@@ -67,10 +71,18 @@ struct Grief_SupportApp: App {
             options: [.customDismissAction]
         )
         
+        let ritualCategory = UNNotificationCategory(
+            identifier: "RITUAL_CATEGORY",
+            actions: [],
+            intentIdentifiers: [],
+            options: [.customDismissAction]
+        )
+        
         // Register categories
         UNUserNotificationCenter.current().setNotificationCategories([
             reminderCategory,
-            memorialCategory
+            memorialCategory,
+            ritualCategory
         ])
     }
     
@@ -78,6 +90,7 @@ struct Grief_SupportApp: App {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(useSystemTheme ? nil : (isDarkMode ? .dark : .light))
+                .environmentObject(notificationCoordinator)
         }
     }
 }

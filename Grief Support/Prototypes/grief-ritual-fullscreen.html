@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Light After Loss - Ritual Experience</title>
+    <style>
+        /* Import fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #F4EFE8;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Main container */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Candle icon */
+        .candle-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+            margin-bottom: 16px;
+        }
+
+        .candle-icon svg {
+            width: 32px;
+            height: 48px;
+            fill: none;
+            stroke: #555879;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Header for fullscreen */
+        .ritual-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            opacity: 0.3;
+        }
+
+        .ritual-header .candle-icon {
+            height: 35px;
+            margin-bottom: 0;
+        }
+
+        .ritual-header .candle-icon svg {
+            width: 20px;
+            height: 30px;
+        }
+
+        /* Pre-ritual view */
+        .pre-ritual {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .app-header {
+            font-size: 32px;
+            font-weight: 500;
+            color: #555879;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .ritual-title {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 16px;
+            color: #555879;
+        }
+
+        .ritual-description {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .ritual-recommendation {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 32px;
+            line-height: 1.5;
+            font-style: italic;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .begin-button {
+            background: #555879;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .begin-button:hover {
+            background: #444768;
+            transform: translateY(-2px);
+        }
+
+        /* Full-screen ritual view */
+        .ritual-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #F4EFE8;
+            display: none;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .ritual-fullscreen.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Ritual header */
+        .ritual-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            opacity: 0.3;
+            font-size: 14px;
+            color: #555879;
+            letter-spacing: 0.5px;
+        }
+
+        /* Exit button */
+        .exit-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #F0EBE2;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .exit-button:hover {
+            background: #DED3C4;
+            transform: scale(1.1);
+        }
+
+        .exit-button svg {
+            width: 20px;
+            height: 20px;
+            stroke: #555879;
+        }
+
+        /* Content area */
+        .ritual-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Text artifacts */
+        .text-artifact {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: gentleFadeIn 2s ease forwards;
+            animation-delay: 0.5s;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .text-artifact h3 {
+            font-size: 20px;
+            font-weight: 400;
+            color: #555879;
+            margin-bottom: 16px;
+        }
+
+        .text-artifact p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-style: italic;
+            font-weight: 300;
+            line-height: 1.8;
+            color: #333;
+            max-width: 600px;
+        }
+
+        @keyframes gentleFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Music artifact */
+        .music-artifact {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: gentleFadeIn 2s ease forwards;
+            animation-delay: 1.5s;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .music-card {
+            background: #F0EBE2;
+            padding: 24px 32px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(85, 88, 121, 0.08);
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .music-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(85, 88, 121, 0.12);
+            background: #EDE8DF;
+        }
+
+        .music-icon {
+            width: 48px;
+            height: 48px;
+            background: #DED3C4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .music-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #555879;
+        }
+
+        .music-info h4 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #555879;
+            margin-bottom: 4px;
+            text-align: left;
+        }
+
+        .music-info p {
+            font-size: 14px;
+            color: #666;
+            text-align: left;
+        }
+
+        /* Progress indicator */
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(222, 211, 196, 0.3);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: rgba(85, 88, 121, 0.4);
+            width: 0%;
+            transition: width 30s linear;
+        }
+
+        .progress-fill.active {
+            width: 100%;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .ritual-content {
+                padding: 40px 20px;
+            }
+
+            .text-artifact p {
+                font-size: 16px;
+            }
+
+            .music-card {
+                padding: 20px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Pre-ritual view -->
+        <div class="pre-ritual" id="preRitual">
+            <div class="candle-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Flame -->
+                    <path d="M12 1C12 1 10 3 10 5C10 7 12 8 12 8C12 8 14 7 14 5C14 3 12 1 12 1Z" stroke-linejoin="round"/>
+                    <!-- Wick -->
+                    <line x1="12" y1="8" x2="12" y2="10"/>
+                    <!-- Candle body -->
+                    <rect x="9" y="10" width="6" height="10" rx="0.5"/>
+                    <!-- Melted wax drip -->
+                    <path d="M9 12C9 12 8 12.5 8 13.5C8 14.5 9 15 9 15"/>
+                    <!-- Base/plate -->
+                    <ellipse cx="12" cy="21" rx="5" ry="1"/>
+                </svg>
+            </div>
+            <h2 class="ritual-title">Evening Reflection</h2>
+            <p class="ritual-description">
+                Take a moment to honor your feelings and memories in this quiet space.
+            </p>
+            <p class="ritual-recommendation">
+                We recommend turning off notifications and minimizing distractions to create a peaceful environment for your ritual.
+            </p>
+            <button class="begin-button" onclick="beginRitual()">Begin Ritual</button>
+        </div>
+
+        <!-- Full-screen ritual view -->
+        <div class="ritual-fullscreen" id="ritualFullscreen">
+            <!-- Ritual header -->
+            <div class="ritual-header">
+                <div class="candle-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Flame -->
+                        <path d="M12 1C12 1 10 3 10 5C10 7 12 8 12 8C12 8 14 7 14 5C14 3 12 1 12 1Z" stroke-linejoin="round"/>
+                        <!-- Wick -->
+                        <line x1="12" y1="8" x2="12" y2="10"/>
+                        <!-- Candle body -->
+                        <rect x="9" y="10" width="6" height="10" rx="0.5"/>
+                        <!-- Melted wax drip -->
+                        <path d="M9 12C9 12 8 12.5 8 13.5C8 14.5 9 15 9 15"/>
+                        <!-- Base/plate -->
+                        <ellipse cx="12" cy="21" rx="5" ry="1"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Exit button -->
+            <button class="exit-button" onclick="exitRitual()" aria-label="Exit ritual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <!-- Content area -->
+            <div class="ritual-content">
+                <!-- Text artifacts -->
+                <div class="text-artifact">
+                    <h3>Your Reflection</h3>
+                    <p>
+                        "I miss the way you laughed at my terrible jokes. The kitchen feels too quiet 
+                        without your humming while cooking. Today I made your favorite soup and saved 
+                        you a bowl, just like always."
+                    </p>
+                </div>
+
+                <!-- Music artifact -->
+                <div class="music-artifact">
+                    <div class="music-card" onclick="launchMusic()">
+                        <div class="music-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                            </svg>
+                        </div>
+                        <div class="music-info">
+                            <h4>The Long and Winding Road</h4>
+                            <p>The Beatles • Tap to play</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty state (hidden by default) -->
+                <div class="empty-state" style="display: none;">
+                    <p>This ritual space is waiting for your memories and reflections.</p>
+                </div>
+            </div>
+
+            <!-- Progress indicator -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let ritualState = {
+            isActive: false,
+            startTime: null,
+            artifacts: {
+                text: "I miss the way you laughed at my terrible jokes. The kitchen feels too quiet without your humming while cooking. Today I made your favorite soup and saved you a bowl, just like always.",
+                music: {
+                    title: "The Long and Winding Road",
+                    artist: "The Beatles"
+                }
+            }
+        };
+
+        // Begin ritual
+        function beginRitual() {
+            const preRitual = document.getElementById('preRitual');
+            const fullscreen = document.getElementById('ritualFullscreen');
+            const progressFill = document.getElementById('progressFill');
+
+            // Hide pre-ritual view
+            preRitual.style.display = 'none';
+
+            // Show and animate fullscreen view
+            fullscreen.classList.add('active');
+            
+            // Start progress animation after a short delay
+            setTimeout(() => {
+                progressFill.classList.add('active');
+            }, 1000);
+
+            // Update state
+            ritualState.isActive = true;
+            ritualState.startTime = Date.now();
+
+            // Optional: Request fullscreen API (with user permission)
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request denied:', err);
+                });
+            }
+        }
+
+        // Exit ritual
+        function exitRitual() {
+            const preRitual = document.getElementById('preRitual');
+            const fullscreen = document.getElementById('ritualFullscreen');
+            const progressFill = document.getElementById('progressFill');
+
+            // Fade out fullscreen
+            fullscreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                fullscreen.classList.remove('active');
+                fullscreen.style.opacity = '';
+                preRitual.style.display = 'block';
+                progressFill.classList.remove('active');
+                progressFill.style.width = '0%';
+            }, 1000);
+
+            // Exit fullscreen if active
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+
+            // Update state
+            ritualState.isActive = false;
+        }
+
+        // Launch music (simulated)
+        function launchMusic() {
+            // In a real app, this would use platform-specific APIs to launch the music app
+            // For iOS: Use MusicKit JS or URL schemes
+            // For Android: Use Intents
+            // For web: Use Web Audio API or embed player
+            
+            alert('In the full app, this would launch your music app to play "The Long and Winding Road" by The Beatles');
+            
+            // Example of what you might do:
+            // window.location.href = 'spotify:track:trackID'; // Spotify URL scheme
+            // Or use the Web Audio API for web-based playback
+        }
+
+        // Handle ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && ritualState.isActive) {
+                exitRitual();
+            }
+        });
+
+        // Handle fullscreen change events
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && ritualState.isActive) {
+                // User exited fullscreen manually
+                exitRitual();
+            }
+        });
+    </script>
+</body>
+</html>
