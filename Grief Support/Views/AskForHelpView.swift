@@ -133,6 +133,7 @@ struct AskForHelpView: View {
             .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
+        .navigationViewStyle(.stack)
         .sheet(item: $messageToShare) { message in
             ShareSheet(activityItems: [message.content])
                 .onDisappear {

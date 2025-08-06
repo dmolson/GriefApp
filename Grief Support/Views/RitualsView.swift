@@ -285,6 +285,7 @@ struct RitualsView: View {
             .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
+        .navigationViewStyle(.stack)
         .alert("Ritual Saved!", isPresented: $showingSaveConfirmation) {
             Button("OK") {
                 // Form is already hidden, just dismiss the alert

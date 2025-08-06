@@ -3,14 +3,25 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>development</string>
+    <string>app-store-connect</string>
     <key>teamID</key>
     <string>FL4V8Q399P</string>
+    <key>uploadBitcode</key>
+    <false/>
+    <key>compileBitcode</key>
+    <false/>
+    <key>uploadSymbols</key>
+    <true/>
     <key>signingStyle</key>
     <string>automatic</string>
     <key>stripSwiftSymbols</key>
     <true/>
     <key>destination</key>
     <string>export</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.soulfulai.afterloss</key>
+        <string>automatic</string>
+    </dict>
 </dict>
 </plist>

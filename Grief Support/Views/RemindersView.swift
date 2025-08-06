@@ -94,6 +94,7 @@ struct RemindersView: View {
             .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
+        .navigationViewStyle(.stack)
         .sheet(isPresented: $showingAddReminder) {
             AddReminderView(onReminderAdded: { newReminder in
                 DispatchQueue.main.async {

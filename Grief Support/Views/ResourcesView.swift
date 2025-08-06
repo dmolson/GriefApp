@@ -135,6 +135,7 @@ struct ResourcesView: View {
             .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
+        .navigationViewStyle(.stack)
         .alert("Calendar Events", isPresented: $showingAlert) {
             Button("OK") { }
         } message: {

@@ -82,6 +82,7 @@ struct SettingsView: View {
             .toolbarBackground(ThemeColors.adaptivePrimaryBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
         }
+        .navigationViewStyle(.stack)
         .sheet(isPresented: $showingBugReport) {
             BugReportView()
         }
@@ -1110,6 +1111,7 @@ struct BugReportView: View {
                 )
             }
         }
+        .navigationViewStyle(.stack)
     }
     
     private func submitBugReport() {
