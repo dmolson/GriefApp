@@ -7,9 +7,14 @@
 
 import SwiftUI
 
+// Wrapper to make String identifiable for sheet presentation
+struct MessageToShare: Identifiable {
+    let id = UUID()
+    let content: String
+}
+
 struct AskForHelpView: View {
-    @State private var showingShareSheet = false
-    @State private var messageToShare = ""
+    @State private var messageToShare: MessageToShare? = nil
     
     var body: some View {
         NavigationView {
@@ -128,19 +133,18 @@ struct AskForHelpView: View {
             .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)
         }
-        .sheet(isPresented: $showingShareSheet) {
-            ShareSheet(activityItems: [messageToShare])
+        .sheet(item: $messageToShare) { message in
+            ShareSheet(activityItems: [message.content])
+                .onDisappear {
+                    // Clear the message after sheet dismisses
+                    messageToShare = nil
+                }
         }
     }
     
     private func sendMessage(_ message: String) {
-        // Set the message first
-        messageToShare = message
-        
-        // Use a minimal delay to ensure state propagation
-        DispatchQueue.main.async {
-            showingShareSheet = true
-        }
+        // Simply set the message - the sheet will appear automatically
+        messageToShare = MessageToShare(content: message)
     }
 }
 
