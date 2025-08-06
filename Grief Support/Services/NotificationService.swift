@@ -113,6 +113,71 @@ class NotificationService: ObservableObject {
         print("Cancelled \(reminderIdentifiers.count) reminder notifications")
     }
     
+    // MARK: - Ritual Notifications
+    
+    func scheduleRitualNotification(_ ritual: SavedRitual) async {
+        guard ritual.notificationEnabled else { return }
+        
+        // Check permission first
+        let status = await checkNotificationPermission()
+        guard status == .authorized else {
+            print("Notification permission not granted for ritual")
+            return
+        }
+        
+        // Create notification content
+        let content = UNMutableNotificationContent()
+        content.title = "\(ritual.type.rawValue) Reminder"
+        
+        var bodyText = "Time for \(ritual.personName)'s \(ritual.type.rawValue.lowercased())."
+        if !ritual.description.isEmpty {
+            bodyText += " \(ritual.description)"
+        }
+        content.body = bodyText
+        content.sound = .default
+        content.categoryIdentifier = "RITUAL_CATEGORY"
+        
+        // Create date components for daily recurring notification
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute], from: ritual.notificationTime)
+        
+        // Create trigger for daily repeat
+        let trigger = UNCalendarNotificationTrigger(
+            dateMatching: components,
+            repeats: true
+        )
+        
+        // Create notification request
+        let request = UNNotificationRequest(
+            identifier: "ritual_\(ritual.id.uuidString)",
+            content: content,
+            trigger: trigger
+        )
+        
+        do {
+            try await UNUserNotificationCenter.current().add(request)
+            print("Successfully scheduled ritual notification: \(ritual.name) at \(ritual.notificationTime)")
+        } catch {
+            print("Failed to schedule ritual notification: \(error)")
+        }
+    }
+    
+    func cancelRitualNotification(_ ritual: SavedRitual) {
+        let identifier = "ritual_\(ritual.id.uuidString)"
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
+        print("Cancelled ritual notification: \(ritual.name)")
+    }
+    
+    func updateRitualNotification(_ ritual: SavedRitual) async {
+        // Cancel existing notification
+        cancelRitualNotification(ritual)
+        
+        // Schedule new one if enabled
+        if ritual.notificationEnabled {
+            await scheduleRitualNotification(ritual)
+        }
+    }
+    
     // MARK: - Memorial Date Notifications
     
     func scheduleMemorialReminder(for lovedOne: LovedOne, type: MemorialType) async {

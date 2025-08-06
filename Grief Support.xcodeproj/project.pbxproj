@@ -418,7 +418,6 @@
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Light After Loss uses Apple Music to help you search for and add meaningful songs to your personal memorial rituals. This allows you to create comforting musical experiences that honor your loved ones during your grief journey. Your music choices remain private and are only used within the app for your personal rituals.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Light After Loss can optionally add grief awareness and memorial event reminders to your calendar. This helps you prepare for and acknowledge meaningful dates like anniversaries, birthdays, and awareness events. Calendar access is entirely optional and you maintain full control over which events are added.";
 				INFOPLIST_KEY_NSContactsUsageDescription = "Light After Loss can access your contacts to help you quickly share support messages with friends and family when you need help. This feature is completely optional and only used when you explicitly choose to share a message template.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Light After Loss can use Face ID or Touch ID to secure your personal grief information and memorial content. This biometric security is optional and helps protect your private memories and personal data stored within the app.";
@@ -473,7 +472,6 @@
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				INFOPLIST_KEY_NSAppleMusicUsageDescription = "Light After Loss uses Apple Music to help you search for and add meaningful songs to your personal memorial rituals. This allows you to create comforting musical experiences that honor your loved ones during your grief journey. Your music choices remain private and are only used within the app for your personal rituals.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Light After Loss can optionally add grief awareness and memorial event reminders to your calendar. This helps you prepare for and acknowledge meaningful dates like anniversaries, birthdays, and awareness events. Calendar access is entirely optional and you maintain full control over which events are added.";
 				INFOPLIST_KEY_NSContactsUsageDescription = "Light After Loss can access your contacts to help you quickly share support messages with friends and family when you need help. This feature is completely optional and only used when you explicitly choose to share a message template.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Light After Loss can use Face ID or Touch ID to secure your personal grief information and memorial content. This biometric security is optional and helps protect your private memories and personal data stored within the app.";

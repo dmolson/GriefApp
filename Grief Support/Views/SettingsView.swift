@@ -747,11 +747,6 @@ struct ResetSettingsView: View {
                             showingResetModal = true
                         }
                         
-                        SecondaryButton(title: "Reset Music Integrations") {
-                            resetType = "integrations"
-                            showingResetModal = true
-                        }
-                        
                         Button(action: {
                             resetType = "all"
                             showingResetModal = true
@@ -812,14 +807,14 @@ struct ResetSettingsView: View {
             resetMessage = "Your loved ones list has been reset."
             
         case "integrations":
-            resetIntegrations()
-            resetMessage = "All music integrations have been disconnected."
+            // Music integrations removed
+            resetMessage = "Music integrations are no longer available."
             
         case "all":
             resetReminders()
             resetRituals()
             resetLovedOnes()
-            resetIntegrations()
+            // resetIntegrations() - removed
             resetMessage = "All app data has been reset to default settings."
             
         default:
@@ -852,8 +847,8 @@ struct ResetSettingsView: View {
     }
     
     private func resetIntegrations() {
-        // Use the shared service to reset all music preferences
-        MusicPreferencesService.shared.resetAllPreferences()
+        // Music integrations have been removed
+        // This function is kept for compatibility but does nothing
     }
 }
 
@@ -872,9 +867,9 @@ struct ResetConfirmationModal: View {
         case "loved-ones":
             return "This will remove all loved ones from your list and reset their settings."
         case "integrations":
-            return "This will disconnect Spotify and Apple Music integrations. You'll need to reconnect them to use music in rituals."
+            return "Music integrations have been removed from the app."
         case "all":
-            return "This will completely reset the app to its initial state. All your data, settings, and integrations will be permanently deleted."
+            return "This will completely reset the app to its initial state. All your data and settings will be permanently deleted."
         default:
             return "Are you sure you want to reset \(resetType)? This action cannot be undone."
         }
@@ -917,64 +912,18 @@ struct ResetConfirmationModal: View {
     }
 }
 
-// MARK: - Integrations Settings
+// MARK: - Integrations Settings (Simplified - No Music Services)
 struct IntegrationsSettingsView: View {
     @Binding var currentScreen: SettingsView.SettingsScreen
-    @StateObject private var musicPreferences = MusicPreferencesService.shared
-    @State private var showingSpotifyAuth = false
-    @State private var showingAppleMusicAuth = false
-    @State private var showingAlert = false
-    @State private var alertMessage = ""
-    
-    private func getSpotifySubtitle() -> String {
-        if musicPreferences.spotifyEnabled {
-            let method = musicPreferences.getEffectiveSpotifyMethod()
-            return "Connected via \(method.rawValue.lowercased())"
-        } else {
-            let method = musicPreferences.getEffectiveSpotifyMethod()
-            switch method {
-            case .app:
-                return musicPreferences.spotifyAppInstalled ? "Play music in your rituals" : "Requires Spotify app installation"
-            case .web:
-                return "Play music via web browser"
-            case .automatic:
-                return musicPreferences.spotifyAppInstalled ? "Play music in your rituals" : "Play music via web browser"
-            }
-        }
-    }
     
     var body: some View {
         LazyVStack(spacing: 20) {
-            IntegrationItem(
-                icon: "🎵", // Spotify green circle with music note
-                iconColor: Color.green,
-                title: "Spotify",
-                subtitle: getSpotifySubtitle(),
-                isConnected: .constant(musicPreferences.spotifyEnabled),
-                isAvailable: musicPreferences.spotifyAvailable, // Always true now
-                connectAction: {
-                    connectToSpotify()
-                }
-            )
-            
-            IntegrationItem(
-                icon: "🎵", // Apple Music with red-pink color
-                iconColor: Color.pink,
-                title: "Apple Music",
-                subtitle: "Access your music library",
-                isConnected: .constant(musicPreferences.appleMusicEnabled),
-                isAvailable: musicPreferences.appleMusicAvailable,
-                connectAction: {
-                    connectToAppleMusic()
-                }
-            )
-            
             CardView {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("How Integrations Work")
+                    Text("Music Integrations")
                         .font(.system(size: 16, weight: .semibold))
                     
-                    Text("When you connect music apps, you can add songs to your grief rituals. Music plays within our app - we never access your personal playlists or listening history.")
+                    Text("Music integration features have been temporarily removed. You can still add song names manually when creating rituals.")
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                         .lineSpacing(4)
@@ -985,47 +934,23 @@ struct IntegrationsSettingsView: View {
         }
         .padding()
         .background(ThemeColors.adaptiveSystemBackground)
-        .alert("Integration Status", isPresented: $showingAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text(alertMessage)
-        }
-        .sheet(isPresented: $showingSpotifyAuth) {
-            SpotifyAuthView()
-        }
-        .sheet(isPresented: $showingAppleMusicAuth) {
-            AppleMusicAuthView()
-        }
-        .onAppear {
-            musicPreferences.checkTechnicalAvailability()
-        }
-    }
-    
-    private func connectToSpotify() {
-        if musicPreferences.spotifyEnabled {
-            // Disconnect
-            musicPreferences.disableSpotify()
-            alertMessage = "Disconnected from Spotify"
-            showingAlert = true
-        } else {
-            // Show Spotify auth flow
-            showingSpotifyAuth = true
-        }
-    }
-    
-    private func connectToAppleMusic() {
-        if musicPreferences.appleMusicEnabled {
-            // Disconnect
-            musicPreferences.disableAppleMusic()
-            alertMessage = "Disconnected from Apple Music"
-            showingAlert = true
-        } else {
-            // Show Apple Music auth flow
-            showingAppleMusicAuth = true
-        }
     }
 }
 
+// Empty placeholder views for removed auth screens
+struct SpotifyAuthView: View {
+    var body: some View {
+        EmptyView()
+    }
+}
+
+struct AppleMusicAuthView: View {
+    var body: some View {
+        EmptyView()
+    }
+}
+
+// Placeholder for removed IntegrationItem
 struct IntegrationItem: View {
     let icon: String
     let iconColor: Color
@@ -1036,253 +961,9 @@ struct IntegrationItem: View {
     let connectAction: () -> Void
     
     var body: some View {
-        HStack(spacing: 15) {
-            // Use emoji/text for better app representation
-            if title == "Spotify" {
-                ZStack {
-                    Circle()
-                        .fill(Color(red: 0.114, green: 0.725, blue: 0.329)) // Spotify green
-                        .frame(width: 50, height: 50)
-                    
-                    Text("♫")
-                        .font(.system(size: 24))
-                        .foregroundColor(.white)
-                }
-            } else if title == "Apple Music" {
-                ZStack {
-                    Circle()
-                        .fill(Color(red: 0.98, green: 0.14, blue: 0.24)) // Apple Music red
-                        .frame(width: 50, height: 50)
-                    
-                    Text("♪")
-                        .font(.system(size: 24))
-                        .foregroundColor(.white)
-                }
-            } else {
-                Image(systemName: icon)
-                    .font(.system(size: 24))
-                    .foregroundColor(.white)
-                    .frame(width: 50, height: 50)
-                    .background(iconColor)
-                    .cornerRadius(12)
-            }
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(size: 16, weight: .semibold))
-                
-                Text(subtitle)
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            Button(action: connectAction) {
-                Text(buttonText)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(buttonColor)
-                    .cornerRadius(6)
-            }
-            .disabled(!isAvailable && !isConnected)
-        }
-        .padding()
-        .background(ThemeColors.adaptiveSystemBackground)
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(UIColor.separator), lineWidth: 0.5)
-        )
-    }
-    
-    private var buttonText: String {
-        if title == "Spotify" {
-            // Use the new hybrid Spotify status
-            let musicPreferences = MusicPreferencesService.shared
-            return musicPreferences.getSpotifyConnectionStatus()
-        } else {
-            // Standard logic for other services
-            if !isAvailable {
-                return "Unavailable"
-            } else if isConnected {
-                return "Connected"
-            } else {
-                return "Connect"
-            }
-        }
-    }
-    
-    private var buttonColor: Color {
-        if !isAvailable {
-            return Color.gray
-        } else if isConnected {
-            return Color.green
-        } else {
-            return ThemeColors.adaptivePrimaryBackground
-        }
+        EmptyView()
     }
 }
-
-// MARK: - Auth Views
-struct SpotifyAuthView: View {
-    @StateObject private var musicPreferences = MusicPreferencesService.shared
-    @Environment(\.dismiss) private var dismiss
-    @State private var isConnecting = false
-    
-    private func getSpotifyAuthDescription() -> String {
-        let method = musicPreferences.getEffectiveSpotifyMethod()
-        switch method {
-        case .app:
-            return "We'll use the Spotify app to control playback during your rituals. We only request permission to control playback - we never access your personal data or playlists."
-        case .web:
-            return "We'll redirect you to Spotify's website to authorize access. We only request permission to control playback - we never access your personal data or playlists."
-        case .automatic:
-            if musicPreferences.spotifyAppInstalled {
-                return "We'll use the Spotify app to control playback during your rituals. We only request permission to control playback - we never access your personal data or playlists."
-            } else {
-                return "We'll redirect you to Spotify's website to authorize access. We only request permission to control playback - we never access your personal data or playlists."
-            }
-        }
-    }
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 30) {
-                ZStack {
-                    Circle()
-                        .fill(Color(red: 0.114, green: 0.725, blue: 0.329))
-                        .frame(width: 100, height: 100)
-                    
-                    Text("♫")
-                        .font(.system(size: 50))
-                        .foregroundColor(.white)
-                }
-                
-                VStack(spacing: 15) {
-                    Text("Connect to Spotify")
-                        .font(.system(size: 20, weight: .semibold))
-                    
-                    Text(getSpotifyAuthDescription())
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-                }
-                
-                VStack(spacing: 12) {
-                    PrimaryButton(title: isConnecting ? "Connecting..." : "Connect to Spotify") {
-                        connectToSpotify()
-                    }
-                    .disabled(isConnecting)
-                    
-                    SecondaryButton(title: "Cancel") {
-                        dismiss()
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding()
-            .navigationTitle("Spotify")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-    
-    private func connectToSpotify() {
-        isConnecting = true
-        
-        Task {
-            let success = await musicPreferences.enableSpotify()
-            await MainActor.run {
-                isConnecting = false
-                if success {
-                    dismiss()
-                }
-            }
-        }
-    }
-}
-
-struct AppleMusicAuthView: View {
-    @StateObject private var musicPreferences = MusicPreferencesService.shared
-    @Environment(\.dismiss) private var dismiss
-    @State private var isConnecting = false
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 30) {
-                ZStack {
-                    Circle()
-                        .fill(Color(red: 0.98, green: 0.14, blue: 0.24))
-                        .frame(width: 100, height: 100)
-                    
-                    Text("♪")
-                        .font(.system(size: 50))
-                        .foregroundColor(.white)
-                }
-                
-                VStack(spacing: 15) {
-                    Text("Connect to Apple Music")
-                        .font(.system(size: 20, weight: .semibold))
-                    
-                    Text("We'll request access to your Apple Music library to allow you to play music during your grief rituals. Your personal listening data remains private.")
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-                }
-                
-                VStack(spacing: 12) {
-                    PrimaryButton(title: isConnecting ? "Connecting..." : "Connect to Apple Music") {
-                        connectToAppleMusic()
-                    }
-                    .disabled(isConnecting)
-                    
-                    SecondaryButton(title: "Cancel") {
-                        dismiss()
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding()
-            .navigationTitle("Apple Music")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-    
-    private func connectToAppleMusic() {
-        isConnecting = true
-        
-        Task {
-            let success = await musicPreferences.enableAppleMusic()
-            await MainActor.run {
-                isConnecting = false
-                if success {
-                    dismiss()
-                }
-            }
-        }
-    }
-}
-
 // MARK: - Bug Report View
 struct BugReportView: View {
     @Environment(\.presentationMode) var presentationMode

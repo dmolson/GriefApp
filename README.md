@@ -108,9 +108,10 @@ For detailed information about the app's design philosophy, user experience prin
 - Accent: #DED3C4 (Warm gray-beige)
 
 ### Typography
-- Headers: Melodrama-Medium (custom font for "Light After Loss" header)
-- Body: Satoshi (with easy revert to system fonts via FontConfig.USE_SATOSHI toggle)
-- Quotes: Cormorant Garamond (elegant serif for quotes)
+- Headers: Melodrama-Medium (custom font replacing unavailable Excon)
+- App Title: Chubbo-Light (for "light after loss" header)
+- Body: Satoshi (custom font for all body text)
+- Quotes: Satoshi-Medium (for rotating supportive quotes)
 
 ## 🫱🏽‍🫲🏾 Contributing
 

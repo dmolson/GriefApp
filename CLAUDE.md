@@ -539,5 +539,41 @@ This major performance update transforms the user experience from sluggish and i
 - `PrivacyInfo.xcprivacy` - Added privacy manifest for App Store compliance
 - `PRIVACY_POLICY.md` - Comprehensive privacy policy documentation
 
+## Critical Bug Fixes - August 3, 2025 (Evening Session)
+
+### Memory Leak Fix
+**Problem**: Timer in HeaderView was never cancelled, causing memory leak
+**Solution**: 
+- Added Combine import and proper timer lifecycle management
+- Timer now cancels in `.onDisappear` to prevent memory leaks
+- Files: `ContentView.swift:71-128`
+
+### Data Corruption Fix  
+**Problem**: LovedOne model's `id` field wasn't included in CodingKeys, causing new UUIDs on each decode
+**Solution**:
+- Added `id` to CodingKeys enum
+- Created proper initializer with default UUID
+- Files: `LovedOnesDataService.swift:12-34`
+
+### Thread Safety
+**Problem**: Potential race conditions in NotificationService
+**Solution**: Added `@MainActor` to ensure all operations run on main thread
+- Files: `NotificationService.swift:11`
+
+### Code Cleanup & Organization
+- Created `AppConstants.swift` for centralized configuration
+- Removed `.bak` files and added `.DS_Store` to `.gitignore`
+- Simplified font system by removing unused `USE_SATOSHI` flag
+- Added image resizing (max 1024x1024) to prevent memory issues
+
+### Message Template Bug Fix
+**Problem**: First tap on message template showed placeholder text
+**Solution**: Simplified `sendMessage` function to set message before showing sheet
+- Files: `AskForHelpView.swift:136-144`
+
+### Bundle Identifier Update
+- Changed from `dmolson.Grief-Support` to `com.soulfulai.afterlight`
+- Updated all targets to match App Store Connect configuration
+
 ---
-*Last updated: August 3, 2025 - Complete push notification system implementation and UI fixes*
+*Last updated: August 3, 2025 - Critical bug fixes, code cleanup, and TestFlight preparation*
