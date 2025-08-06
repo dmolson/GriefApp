@@ -152,124 +152,135 @@ struct RitualsView: View {
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
     
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // Custom Header with + Button
-                HStack {
-                    Text("Rituals")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.primary)
+    @ViewBuilder
+    var headerSection: some View {
+        HStack {
+            Text("Rituals")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundColor(.primary)
+            
+            Spacer()
+            
+            Button(action: {
+                showingSettings = true
+            }) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(ThemeColors.adaptivePrimary)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.top, 60) // Account for status bar
+        .padding(.bottom, 20)
+        .background(ThemeColors.adaptiveSystemBackground)
+    }
+    
+    @ViewBuilder
+    var yourRitualsSection: some View {
+        LazyVStack(alignment: .leading, spacing: 16) {
+            SectionHeaderView(title: "Your Rituals")
+                .id("yourRituals") // Scroll anchor
+            
+            // Filter Buttons
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    FilterButton(
+                        title: "View All",
+                        isSelected: selectedFilter == "View All",
+                        count: savedRituals.count,
+                        onTap: { selectedFilter = "View All" }
+                    )
                     
-                    Spacer()
-                    
-                    Button(action: {
-                        showingSettings = true
-                    }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(ThemeColors.adaptivePrimary)
+                    ForEach(lovedOnes, id: \.1) { lovedOne in
+                        FilterButton(
+                            title: lovedOne.0,
+                            isSelected: selectedFilter == lovedOne.0,
+                            count: savedRituals.filter { $0.personName.caseInsensitiveCompare(lovedOne.0) == .orderedSame }.count,
+                            onTap: { selectedFilter = lovedOne.0 }
+                        )
                     }
                 }
                 .padding(.horizontal)
-                .padding(.top, 60) // Account for status bar
-                .padding(.bottom, 20)
-                .background(ThemeColors.adaptiveSystemBackground)
+            }
+            
+            // Filtered Ritual Cards
+            ritualListContent
+        }
+    }
+    
+    @ViewBuilder
+    func createRitualSection(scrollProxy: ScrollViewProxy) -> some View {
+        LazyVStack(alignment: .leading, spacing: 16) {
+            SectionHeaderView(title: "Create New Ritual")
+            
+            // Ritual Type Selection (with lighter background)
+            LazyVStack(alignment: .leading, spacing: 15) {
+                Text("Choose Ritual Type")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
+                
+                LazyVGrid(columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible())
+                ], spacing: 12) {
+                    ForEach(RitualType.allCases, id: \.self) { type in
+                        RitualTypeCard(
+                            type: type,
+                            isSelected: selectedRitualType == type,
+                            onSelect: {
+                                selectedRitualType = type
+                                resetFormFields()
+                            }
+                        )
+                    }
+                }
+            }
+            .padding()
+            .background(ThemeColors.adaptiveCardBackground)
+            .cornerRadius(12)
+            
+            // Ritual Creation Form (when type is selected)
+            if let ritualType = selectedRitualType {
+                RitualCreationForm(
+                    ritualType: ritualType,
+                    selectedPerson: $selectedPerson,
+                    ritualDescription: $ritualDescription,
+                    ritualItems: $ritualItems,
+                    ritualLocation: $ritualLocation,
+                    ritualMusicSelection: $ritualMusicSelection,
+                    notificationEnabled: $notificationEnabled,
+                    notificationTime: $notificationTime,
+                    selectedDays: $selectedDays,
+                    lovedOnes: lovedOnes,
+                    selectedPhoto: $selectedRitualPhoto,
+                    lovedOnesService: lovedOnesService,
+                    onSave: {
+                        saveRitual()
+                        withAnimation {
+                            scrollProxy.scrollTo("yourRituals", anchor: .top)
+                        }
+                    },
+                    onAddLovedOne: { showingSettings = true }
+                )
+            }
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                headerSection
                 
                 ScrollViewReader { scrollProxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 20) {
-                            // View Rituals Section
-                            LazyVStack(alignment: .leading, spacing: 16) {
-                                SectionHeaderView(title: "Your Rituals")
-                                    .id("yourRituals") // Scroll anchor
-                        
-                        // Filter Buttons
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                FilterButton(
-                                    title: "View All",
-                                    isSelected: selectedFilter == "View All",
-                                    count: savedRituals.count,
-                                    onTap: { selectedFilter = "View All" }
-                                )
-                                
-                                ForEach(lovedOnes, id: \.1) { lovedOne in
-                                    FilterButton(
-                                        title: lovedOne.0,
-                                        isSelected: selectedFilter == lovedOne.0,
-                                        count: savedRituals.filter { $0.personName.caseInsensitiveCompare(lovedOne.0) == .orderedSame }.count,
-                                        onTap: { selectedFilter = lovedOne.0 }
-                                    )
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                        
-                        // Filtered Ritual Cards
-                        ritualListContent
-                    }
-                    
-                    // Create Rituals Section
-                    LazyVStack(alignment: .leading, spacing: 16) {
-                        SectionHeaderView(title: "Create New Ritual")
-                        
-                        // Ritual Type Selection (with lighter background)
-                        LazyVStack(alignment: .leading, spacing: 15) {
-                            Text("Choose Ritual Type")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.primary)
-                            
-                            LazyVGrid(columns: [
-                                GridItem(.flexible()),
-                                GridItem(.flexible())
-                            ], spacing: 12) {
-                                ForEach(RitualType.allCases, id: \.self) { type in
-                                    RitualTypeCard(
-                                        type: type,
-                                        isSelected: selectedRitualType == type,
-                                        onSelect: {
-                                            selectedRitualType = type
-                                            resetFormFields()
-                                        }
-                                    )
-                                }
-                            }
+                            yourRitualsSection
+                            createRitualSection(scrollProxy: scrollProxy)
                         }
                         .padding()
-                        .background(ThemeColors.adaptiveCardBackground)
-                        .cornerRadius(12)
-                        
-                        // Ritual Creation Form (when type is selected)
-                        if let ritualType = selectedRitualType {
-                            RitualCreationForm(
-                                ritualType: ritualType,
-                                selectedPerson: $selectedPerson,
-                                ritualDescription: $ritualDescription,
-                                ritualItems: $ritualItems,
-                                ritualLocation: $ritualLocation,
-                                ritualMusicSelection: $ritualMusicSelection,
-                                notificationEnabled: $notificationEnabled,
-                                notificationTime: $notificationTime,
-                                selectedDays: $selectedDays,
-                                lovedOnes: lovedOnes,
-                                selectedPhoto: $selectedRitualPhoto,
-                                lovedOnesService: lovedOnesService,
-                                onSave: {
-                                    saveRitual()
-                                    withAnimation {
-                                        scrollProxy.scrollTo("yourRituals", anchor: .top)
-                                    }
-                                },
-                                onAddLovedOne: { showingSettings = true }
-                            )
-                        }
+                        .padding(.top, 20)
                     }
                 }
-                .padding()
-                .padding(.top, 20) // Reduced padding since we have custom header
-            } // End ScrollView
-                } // End ScrollViewReader
             }
             .background(ThemeColors.adaptiveSystemBackground)
             .navigationBarHidden(true)

@@ -8,5 +8,9 @@
     <string>26MF5N95Z6</string>
     <key>signingStyle</key>
     <string>automatic</string>
+    <key>stripSwiftSymbols</key>
+    <true/>
+    <key>destination</key>
+    <string>export</string>
 </dict>
 </plist>

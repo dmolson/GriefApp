@@ -10,7 +10,7 @@ import Foundation
 enum AppConstants {
     // MARK: - App Information
     static let appName = "Light After Loss"
-    static let appBundleIdentifier = "com.soulfulai.afterlight"
+    static let appBundleIdentifier = "com.dmolson.GriefSupport"
     
     // MARK: - Support
     static let supportEmail = "wearesoulfulai@gmail.com"
